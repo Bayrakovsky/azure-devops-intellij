@@ -10,7 +10,6 @@ import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
@@ -20,7 +19,6 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
 import com.intellij.vcsUtil.VcsUtil;
 import com.microsoft.alm.client.model.VssServiceException;
@@ -46,9 +44,7 @@ import git4idea.actions.GitInit;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
-import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
-import git4idea.commands.GitSimpleHandler;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
@@ -275,7 +271,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
                 } finally {
                     if (StringUtils.isNotEmpty(remoteUrlForDisplay)) {
                         // Notify the user that we are done and provide a link to the repo
-                        VcsNotifier.getInstance(project).notifyImportantInfo(TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_SUCCEEDED),
+                        VcsNotifier.getInstance(project).notifyImportantInfo(null, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_SUCCEEDED),
                                 TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_SUCCEEDED_MESSAGE, project.getName(), remoteUrlForDisplay, repositoryName),
                                 NotificationListener.URL_OPENING_LISTENER);
                     }
@@ -306,11 +302,10 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
                                                        final ServerContext localContext, final ProgressIndicator indicator) {
         //project is not in a local git repository, create one
         indicator.setText(TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_GIT_INIT, project.getName()));
-        final GitLineHandler hInit = new GitLineHandler(project, rootVirtualFile, GitCommand.INIT);
-        GitHandlerUtil.runInCurrentThread(hInit, null, true, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_GIT_INIT, project.getName()));
-        if (!hInit.errors().isEmpty()) {
+        final GitCommandResult initResult = Git.getInstance().init(project, rootVirtualFile);
+        if (!initResult.success()) {
             //git init failed
-            final String error = hInit.errors().get(0).getMessage();
+            final String error = initResult.getErrorOutputAsJoinedString();
             logger.error("setupGitRepositoryForProject: git init failed on project: {} at root: {} with error: {}",
                     project.getName(), rootVirtualFile.getUrl(), error);
             notifyImportError(project,
@@ -387,13 +382,15 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
                 final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
                 final ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
                 final List<VirtualFile> trackedFiles = changeListManager.getAffectedFiles();
-                final Collection<VirtualFile> untrackedFiles = ContainerUtil.filter(localRepository.getUntrackedFilesHolder().retrieveUntrackedFiles(),
-                        new Condition<VirtualFile>() {
-                            @Override
-                            public boolean value(VirtualFile file) {
-                                return !changeListManager.isIgnoredFile(file) && !vcsManager.isIgnored(file);
-                            }
-                        });
+                final Collection<VirtualFile> untrackedFiles = new ArrayList<VirtualFile>();
+                for (final FilePath untrackedFilePath : localRepository.getUntrackedFilesHolder().retrieveUntrackedFilePaths()) {
+                    final VirtualFile untrackedFile = untrackedFilePath.getVirtualFile();
+                    if (untrackedFile != null
+                            && !changeListManager.isIgnoredFile(untrackedFile)
+                            && !vcsManager.isIgnored(untrackedFile)) {
+                        untrackedFiles.add(untrackedFile);
+                    }
+                }
                 trackedFiles.removeAll(untrackedFiles);
 
                 final List<VirtualFile> allFiles = new ArrayList<VirtualFile>();
@@ -415,15 +412,15 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
                 indicator.setText(TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_ADDING_FILES, project.getName()));
                 GitFileUtils.addFiles(project, rootVirtualFile, filesToCommit);
                 if (filesToCommit.size() > 0) {
-                    final GitSimpleHandler hCommit = new GitSimpleHandler(project, rootVirtualFile, GitCommand.COMMIT);
+                    final GitLineHandler hCommit = new GitLineHandler(project, rootVirtualFile, GitCommand.COMMIT);
                     hCommit.addParameters("-m", TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_ADDING_FILES, project.getName()));
-                    GitHandlerUtil.runInCurrentThread(hCommit, null, true, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_ADDING_FILES, project.getName()));
-                    if (hCommit.getExitCode() != 0) {
+                    final GitCommandResult commitResult = Git.getInstance().runCommand(hCommit);
+                    if (!commitResult.success()) {
                         //unable to commit
                         logger.error("doFirstCommitIfRequired: git commit failed for project: {}, repoRoot: {} with error: {}",
-                                project.getName(), rootVirtualFile.getUrl(), hCommit.getStderr());
+                                project.getName(), rootVirtualFile.getUrl(), commitResult.getErrorOutputAsJoinedString());
                         notifyImportError(project,
-                                TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_ADDING_FILES_ERROR, project.getName(), hCommit.getStderr()));
+                                TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_ADDING_FILES_ERROR, project.getName(), commitResult.getErrorOutputAsJoinedString()));
                         return false;
                     }
                     VfsUtil.markDirtyAndRefresh(false, true, false, ArrayUtil.toObjectArray(filesToCommit, VirtualFile.class));
@@ -542,7 +539,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
 
         final String remoteGitUrl = UrlHelper.getCmdLineFriendlyUrl(remoteRepository.getRemoteUrl());
         //update remotes on local repository
-        final GitSimpleHandler hRemote = new GitSimpleHandler(project, localRepository.getRoot(), GitCommand.REMOTE);
+        final GitLineHandler hRemote = new GitLineHandler(project, localRepository.getRoot(), GitCommand.REMOTE);
         hRemote.setSilent(true);
         if (remoteParams.size() == 1) {
             hRemote.addParameters(remoteParams.get(0), REMOTE_ORIGIN, remoteGitUrl);
@@ -550,12 +547,12 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
             hRemote.addParameters("add", REMOTE_ORIGIN, remoteGitUrl);
         }
 
-        GitHandlerUtil.runInCurrentThread(hRemote, null, true, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_GIT_REMOTE));
-        if (hRemote.getExitCode() != 0) {
+        final GitCommandResult remoteResult = Git.getInstance().runCommand(hRemote);
+        if (!remoteResult.success()) {
             logger.error("setupRemoteOnLocalRepo: git remote failed for project: {}, local repo: {}, error: {}, output: {}",
-                    project.getName(), localRepository.getRoot().getUrl(), hRemote.getStderr(), hRemote.getStdout());
+                    project.getName(), localRepository.getRoot().getUrl(), remoteResult.getErrorOutputAsJoinedString(), remoteResult.getOutputAsJoinedString());
             notifyImportError(project,
-                    TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_GIT_REMOTE_ERROR, remoteGitUrl, hRemote.getStderr()));
+                    TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_GIT_REMOTE_ERROR, remoteGitUrl, remoteResult.getErrorOutputAsJoinedString()));
             return false;
         }
         return true;
@@ -592,7 +589,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
     }
 
     private void notifyImportError(final Project project, final String message) {
-        VcsNotifier.getInstance(project).notifyError(TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_FAILED), message, NotificationListener.URL_OPENING_LISTENER);
+        VcsNotifier.getInstance(project).notifyError(null, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_FAILED), message, NotificationListener.URL_OPENING_LISTENER);
     }
 
     @Override

@@ -12,9 +12,9 @@ plugins {
 
 ext {
     sdkVersion = "14.135.3"
-    sdkArchiveLocation = file("$buildDir/TFS-SDK-${sdkVersion}.zip")
+    sdkArchiveLocation = file("${layout.buildDirectory.get().asFile}/TFS-SDK-${sdkVersion}.zip")
     expectedSdkArchiveHash = "3bc119f55f224fb87ac03381d03a69aec25609b2b7457284c9c28105e40f8996"
-    sdkUnpackLocation = file("$buildDir/sdk")
+    sdkUnpackLocation = file("${layout.buildDirectory.get().asFile}/sdk")
     sdkJarName = "com.microsoft.tfs.sdk-${sdkVersion}.jar"
 }
 

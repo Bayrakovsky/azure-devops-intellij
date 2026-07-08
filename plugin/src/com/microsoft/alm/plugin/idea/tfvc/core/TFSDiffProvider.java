@@ -30,7 +30,6 @@ import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.context.rest.VersionControlRecursionTypeCaseSensitive;
 import com.microsoft.alm.plugin.external.models.ItemInfo;
@@ -50,7 +49,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -123,9 +124,9 @@ public class TFSDiffProvider extends DiffProviderEx {
     }
 
     @Override
-    public Map<VirtualFile, VcsRevisionNumber> getCurrentRevisions(Iterable<VirtualFile> files) {
+    public Map<VirtualFile, VcsRevisionNumber> getCurrentRevisions(Iterable<? extends VirtualFile> files) {
         final ServerContext context = TFSVcs.getInstance(project).getServerContext(true);
-        final List<String> filePaths = ContainerUtil.newArrayList();
+        final List<String> filePaths = new ArrayList<String>();
         for (VirtualFile file : files) {
             String filePath = file.getPath();
             filePaths.add(filePath);
@@ -133,7 +134,7 @@ public class TFSDiffProvider extends DiffProviderEx {
 
         TfvcClient client = TfvcClient.getInstance();
         final LocalFileSystem fs = LocalFileSystem.getInstance();
-        final Map<VirtualFile, VcsRevisionNumber> revisionMap = ContainerUtil.newHashMap();
+        final Map<VirtualFile, VcsRevisionNumber> revisionMap = new HashMap<VirtualFile, VcsRevisionNumber>();
         client.getLocalItemsInfo(project, context, filePaths, info -> {
             final String itemPath = info.getLocalItem();
             final VirtualFile virtualFile = fs.findFileByPath(itemPath);

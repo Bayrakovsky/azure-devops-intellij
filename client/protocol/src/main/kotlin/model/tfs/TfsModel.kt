@@ -6,8 +6,12 @@ package model.tfs
 import com.jetbrains.rd.generator.nova.*
 import com.jetbrains.rd.generator.nova.PredefinedType.*
 
+// rd generates the `create`/`connected` machinery only for toplevel Ext declarations, not for bare Roots, so the
+// model itself must be an Ext over an empty Root.
+object TfsRoot : Root()
+
 @Suppress("unused")
-object TfsModel : Root() {
+object TfsModel : Ext(TfsRoot) {
     private val TfsPath = basestruct {}
 
     private val TfsLocalPath = structdef extends TfsPath {

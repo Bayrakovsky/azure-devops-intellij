@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.CheckinProjectPanel;
 import com.intellij.openapi.vcs.CommitMessageI;
 import com.intellij.openapi.vcs.VcsDataKeys;
-import com.intellij.openapi.vcs.changes.ui.CommitChangeListDialog;
 import com.intellij.openapi.vcs.ui.Refreshable;
 import com.microsoft.alm.plugin.idea.common.resources.Icons;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
@@ -79,8 +78,8 @@ public class SelectWorkItemsAction extends DumbAwareAction {
         if (commitMessageI != null && project != null) {
             String commitMessage = "";
             // Attempt to append the message instead of overwriting it
-            if (commitMessageI instanceof CommitChangeListDialog) {
-                commitMessage = ((CommitChangeListDialog) commitMessageI).getCommitMessage();
+            if (commitMessageI instanceof CheckinProjectPanel) {
+                commitMessage = ((CheckinProjectPanel) commitMessageI).getCommitMessage();
             }
 
             SelectWorkItemsDialog dialog = new SelectWorkItemsDialog(project);

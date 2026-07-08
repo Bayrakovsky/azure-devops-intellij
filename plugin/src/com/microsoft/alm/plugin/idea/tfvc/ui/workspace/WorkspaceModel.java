@@ -340,6 +340,7 @@ public class WorkspaceModel extends AbstractModel {
                 // Notify the user of success and provide a link to sync the workspace
                 // (It doesn't make sense to tell the user we are done here if there is another thread still doing work)
                 VcsNotifier.getInstance(project).notifyImportantInfo(
+                        null,
                         TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_NOTIFY_SUCCESS_TITLE),
                         TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_NOTIFY_SUCCESS_MESSAGE),
                         new NotificationListener() {
@@ -372,6 +373,7 @@ public class WorkspaceModel extends AbstractModel {
 
                     // Notify the user of a successful sync
                     VcsNotifier.getInstance(project).notifySuccess(
+                            null,
                             TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_NOTIFY_SUCCESS_TITLE),
                             TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_NOTIFY_SUCCESS_SYNC_MESSAGE));
                 } catch (final Throwable t) {

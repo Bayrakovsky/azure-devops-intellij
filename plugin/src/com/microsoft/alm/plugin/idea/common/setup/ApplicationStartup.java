@@ -4,10 +4,9 @@
 package com.microsoft.alm.plugin.idea.common.setup;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.intellij.ide.AppLifecycleListener;
 import com.intellij.idea.Main;
 import com.intellij.openapi.application.ApplicationNamesInfo;
-import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.util.containers.HashMap;
 import com.microsoft.alm.plugin.authentication.AuthHelper;
 import com.microsoft.alm.plugin.authentication.AuthTypes;
 import com.microsoft.alm.plugin.events.ServerPollingManager;
@@ -23,7 +22,6 @@ import com.microsoft.alm.plugin.idea.common.statusBar.StatusBarManager;
 import com.microsoft.alm.plugin.services.PluginServiceProvider;
 import com.sun.jna.Platform;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +32,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Initializes and configures plugin at startup
+ * Initializes and configures plugin at startup.
+ * <p>
+ * Registered as an {@link AppLifecycleListener} in plugin.xml (the old application component model is deprecated).
  */
-public class ApplicationStartup implements ApplicationComponent {
+public class ApplicationStartup implements AppLifecycleListener {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationStartup.class);
     private static final String CLASS_EXTENSION = ".class";
     private static final String USER_HOME_DIR = System.getProperty("user.home");
@@ -52,6 +54,11 @@ public class ApplicationStartup implements ApplicationComponent {
     private static final String CSV_COMMA = ",";
 
     public ApplicationStartup() {
+    }
+
+    @Override
+    public void appFrameCreated(final List<String> commandLineArgs) {
+        initComponent();
     }
 
     public void initComponent() {
@@ -82,14 +89,6 @@ public class ApplicationStartup implements ApplicationComponent {
 
         // Check for auth type settings
         configureAuthType();
-    }
-
-    public void disposeComponent() {
-    }
-
-    @NotNull
-    public String getComponentName() {
-        return "ApplicationStartup";
     }
 
     /**

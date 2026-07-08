@@ -20,8 +20,7 @@ import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.tfvc.core.TFSVcs;
 import com.microsoft.alm.plugin.services.PluginServiceProvider;
 import com.microsoft.alm.plugin.services.PropertyService;
-import git4idea.GitVcs;
-import git4idea.config.GitExecutableValidator;
+import git4idea.config.GitExecutableManager;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -39,7 +38,8 @@ import static com.intellij.openapi.ui.Messages.getWarningIcon;
 public class IdeaHelper {
     private static final Logger logger = LoggerFactory.getLogger(IdeaHelper.class);
 
-    public static final PluginId PLUGIN_ID = PluginId.getId("com.microsoft.vso.idea");
+    // Must match the <id> in plugin.xml (patched by the build from pluginConfiguration).
+    public static final PluginId PLUGIN_ID = PluginId.getId("io.github.bayrakovskiy.azuredevops");
 
     private static final String CHARSET_UTF8 = "utf-8";
     public static final String TEST_RESOURCES_SUB_PATH = "/externals/platform/";
@@ -84,8 +84,7 @@ public class IdeaHelper {
      * @return true if Git exe is configured, false if Git exe is not correctly configured
      */
     public static boolean isGitExeConfigured(@NotNull final Project project) {
-        final GitExecutableValidator validator = GitVcs.getInstance(project).getExecutableValidator();
-        if (!validator.checkExecutableAndNotifyIfNeeded()) {
+        if (!GitExecutableManager.getInstance().testGitExecutableVersionValid(project)) {
             //Git.exe is not configured, show warning message in addition to notification from Git plugin
             Messages.showWarningDialog(project,
                     TfPluginBundle.message(TfPluginBundle.KEY_GIT_NOT_CONFIGURED),

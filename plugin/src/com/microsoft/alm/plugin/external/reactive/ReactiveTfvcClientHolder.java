@@ -78,18 +78,18 @@ public class ReactiveTfvcClientHolder implements Disposable {
         PropertyService propertyService = PropertyService.getInstance();
         String eulaAccepted = propertyService.getProperty(PropertyService.PROP_TF_SDK_EULA_ACCEPTED);
         if (!"true".equalsIgnoreCase(eulaAccepted)) {
-            if (!EULADialog.isEulaDialogAllowed()) {
-                throw new ToolEulaNotAcceptedException(
-                        LicenseKind.TfsSdk,
-                        "EULA acceptance is required to use the reactive TF client");
+            if (EULADialog.isEulaDialogAllowed()) {
+                // Never invokeAndWait here: getClient is often called from a background thread holding a read lock,
+                // and waiting for the EDT from under it deadlocks the IDE. Show the dialog asynchronously and fail
+                // this request; after the user accepts the EULA, the next client request will succeed.
+                ApplicationManager.getApplication().invokeLater(
+                        () -> EULADialog.forTfsSdk(project).showAndGet(),
+                        ModalityState.any()); // EULA should be shown even if there's a modal dialog (e.g. a commit one)
             }
 
-            ApplicationManager.getApplication().invokeAndWait(() -> {
-                if (!EULADialog.forTfsSdk(project).showAndGet())
-                    throw new ToolEulaNotAcceptedException(
-                            LicenseKind.TfsSdk,
-                            "EULA acceptance is required to use the reactive TF client");
-            }, ModalityState.any()); // EULA should be shown even if there's a modal dialog (e.g. a commit one)
+            throw new ToolEulaNotAcceptedException(
+                    LicenseKind.TfsSdk,
+                    "EULA acceptance is required to use the reactive TF client");
         }
     }
 

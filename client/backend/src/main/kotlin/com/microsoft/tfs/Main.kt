@@ -57,7 +57,7 @@ private fun runRdClient(portNumber: Int) {
 
     val protocol = Protocol(Serializers(), Identities(IdKind.Client), scheduler, socket, appLifetime)
     scheduler.queue {
-        val model = TfsModel.create(appLifetime, protocol)
+        val model = protocol.tfsModel
         model.shutdown.advise(appLifetime) {
             logger.info { "Shutting down per request" }
             appLifetime.terminate()

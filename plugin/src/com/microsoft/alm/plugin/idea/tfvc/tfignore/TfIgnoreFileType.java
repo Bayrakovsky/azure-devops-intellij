@@ -12,6 +12,8 @@ import javax.swing.Icon;
 
 public class TfIgnoreFileType extends LanguageFileType {
 
+    public static final TfIgnoreFileType INSTANCE = new TfIgnoreFileType();
+
     TfIgnoreFileType() {
         super(TfIgnoreLanguage.INSTANCE);
     }

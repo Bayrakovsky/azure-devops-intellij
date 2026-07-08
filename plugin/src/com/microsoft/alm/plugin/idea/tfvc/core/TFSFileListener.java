@@ -38,6 +38,10 @@ import com.microsoft.alm.plugin.idea.tfvc.core.tfs.ServerStatus;
 import com.microsoft.alm.plugin.idea.tfvc.core.tfs.StatusProvider;
 import com.microsoft.alm.plugin.idea.tfvc.core.tfs.TFVCUtil;
 import com.microsoft.alm.plugin.idea.tfvc.core.tfs.TfsFileUtil;
+import kotlinx.coroutines.CoroutineScopeKt;
+import kotlinx.coroutines.Dispatchers;
+import kotlinx.coroutines.Job;
+import kotlinx.coroutines.SupervisorKt;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -55,7 +59,10 @@ public class TFSFileListener extends VcsVFSListener {
     public static final Logger logger = LoggerFactory.getLogger(TFSFileListener.class);
 
     public TFSFileListener(Project project, TFSVcs vcs) {
-        super(project, vcs);
+        // The base class cancels this scope on dispose(); listeners are not installed by the constructor anymore.
+        super(vcs, CoroutineScopeKt.CoroutineScope(
+                SupervisorKt.SupervisorJob((Job) null).plus(Dispatchers.getDefault())));
+        installListeners();
     }
 
     @NotNull

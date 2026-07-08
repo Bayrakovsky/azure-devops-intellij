@@ -32,7 +32,6 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
-import com.intellij.ui.GuiUtils;
 import com.intellij.util.io.ReadOnlyAttributeUtil;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.plugin.external.models.Workspace;
@@ -54,7 +53,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -135,27 +133,21 @@ public class TfsFileUtil {
 
     public static void setReadOnly(final Collection<VirtualFile> files, final boolean status) throws IOException {
         final Ref<IOException> exception = new Ref<IOException>();
-        try {
-            GuiUtils.runOrInvokeAndWait(new Runnable() {
-                public void run() {
-                    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                        public void run() {
-                            try {
-                                for (VirtualFile file : files) {
-                                    ReadOnlyAttributeUtil.setReadOnlyAttribute(file, status);
-                                }
-                            } catch (IOException e) {
-                                exception.set(e);
+        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+            public void run() {
+                ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                    public void run() {
+                        try {
+                            for (VirtualFile file : files) {
+                                ReadOnlyAttributeUtil.setReadOnlyAttribute(file, status);
                             }
+                        } catch (IOException e) {
+                            exception.set(e);
                         }
-                    });
-                }
-            });
-        } catch (InvocationTargetException e) {
-            // ignore
-        } catch (InterruptedException e) {
-            // ignore
-        }
+                    }
+                });
+            }
+        });
         if (!exception.isNull()) {
             throw exception.get();
         }
@@ -163,21 +155,15 @@ public class TfsFileUtil {
 
     private static void setReadOnly(final String path, final boolean status) throws IOException {
         final Ref<IOException> exception = new Ref<IOException>();
-        try {
-            GuiUtils.runOrInvokeAndWait(new Runnable() {
-                public void run() {
-                    try {
-                        ReadOnlyAttributeUtil.setReadOnlyAttribute(path, status);
-                    } catch (IOException e) {
-                        exception.set(e);
-                    }
+        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+            public void run() {
+                try {
+                    ReadOnlyAttributeUtil.setReadOnlyAttribute(path, status);
+                } catch (IOException e) {
+                    exception.set(e);
                 }
-            });
-        } catch (InvocationTargetException e) {
-            // ignore
-        } catch (InterruptedException e) {
-            // ignore
-        }
+            }
+        });
         if (!exception.isNull()) {
             throw exception.get();
         }
@@ -270,21 +256,15 @@ public class TfsFileUtil {
     }
 
     public static void refreshAndFindFile(final FilePath path) {
-        try {
-            GuiUtils.runOrInvokeAndWait(new Runnable() {
-                public void run() {
-                    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                        public void run() {
-                            VirtualFileManager.getInstance().refreshAndFindFileByUrl(path.getPath());
-                        }
-                    });
-                }
-            });
-        } catch (InvocationTargetException e) {
-            // ignore
-        } catch (InterruptedException e) {
-            // ignore
-        }
+        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+            public void run() {
+                ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                    public void run() {
+                        VirtualFileManager.getInstance().refreshAndFindFileByUrl(path.getPath());
+                    }
+                });
+            }
+        });
     }
 
     public static void setFileContent(final @NotNull File destination, final @NotNull ContentWriter contentWriter)

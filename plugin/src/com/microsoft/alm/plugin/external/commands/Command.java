@@ -67,6 +67,9 @@ public abstract class Command<T> {
 
     private static final String WARNING_PREFIX = "WARN ";
     private static final String XML_PREFIX = "<?xml ";
+    // Modern JDKs (24+) print native-access/Unsafe warnings with this prefix to stderr of the TF CLC process;
+    // they are not TF errors and must not fail command output parsing.
+    private static final String JVM_WARNING_PREFIX = "WARNING:";
 
     private final String name;
     private final boolean useProxyIfAvailable;
@@ -159,6 +162,11 @@ public abstract class Command<T> {
 
                     @Override
                     public void processStandardError(final String line) {
+                        if (StringUtils.startsWith(line, JVM_WARNING_PREFIX)) {
+                            // JVM warnings on stderr (e.g. restricted native access) are noise, not TF errors
+                            logger.info("CMD (JVM warning): " + line);
+                            return;
+                        }
                         logger.info("ERROR: " + line);
                         stderr.append(line + "\n");
                         listener.progress(line, OUTPUT_TYPE_ERROR, 50);

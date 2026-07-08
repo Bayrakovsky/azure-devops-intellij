@@ -13,7 +13,6 @@ import git4idea.GitRevisionNumber;
 import git4idea.changes.GitChangeUtils;
 import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
-import git4idea.util.GitCommitCompareInfo;
 
 import java.util.Collection;
 import java.util.Collections;

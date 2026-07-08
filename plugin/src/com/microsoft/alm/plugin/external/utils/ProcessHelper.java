@@ -16,7 +16,11 @@ public class ProcessHelper {
 
         // Disable any telemetry that the tool may initiate
         pb.environment().put("TF_NOTELEMETRY", "TRUE");
-        pb.environment().put("TF_ADDITIONAL_JAVA_ARGS", "-Duser.country=US -Duser.language=en -Dfile.encoding=utf-8");
+        // The native-access/Unsafe flags silence JDK 24+ "restricted method" warnings that the TEE CLC (JNA,
+        // sun.misc.Unsafe) triggers on stderr; the CLC always runs on the IDE's JBR because of the PATH patch below.
+        pb.environment().put("TF_ADDITIONAL_JAVA_ARGS",
+                "-Duser.country=US -Duser.language=en -Dfile.encoding=utf-8"
+                        + " --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow");
         pb.environment().put("PATH", getPatchedPathWithCurrentJavaBinLocation());
 
         if (StringUtils.isNotEmpty(workingDirectory)) {

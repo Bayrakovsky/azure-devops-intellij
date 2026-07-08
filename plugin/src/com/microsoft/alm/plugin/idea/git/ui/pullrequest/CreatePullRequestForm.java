@@ -18,7 +18,6 @@ import git4idea.GitBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRepository;
 import git4idea.ui.GitCommitListWithDiffPanel;
-import git4idea.util.GitCommitCompareInfo;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 

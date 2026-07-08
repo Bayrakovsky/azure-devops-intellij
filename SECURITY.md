@@ -1,41 +1,43 @@
-<!-- BEGIN MICROSOFT SECURITY.MD V0.0.7 BLOCK -->
+# Security Policy
 
-## Security
+This is a community fork maintained by Stanislav Bayrakovskiy. It is **not** covered by the
+Microsoft Security Response Center — please do not report issues in this repository to MSRC.
 
-Microsoft takes the security of our software products and services seriously, which includes all source code repositories managed through our GitHub organizations, which include [Microsoft](https://github.com/Microsoft), [Azure](https://github.com/Azure), [DotNet](https://github.com/dotnet), [AspNet](https://github.com/aspnet), [Xamarin](https://github.com/xamarin), and [our GitHub organizations](https://opensource.microsoft.com/).
-
-If you believe you have found a security vulnerability in any Microsoft-owned repository that meets [Microsoft's definition of a security vulnerability](https://aka.ms/opensource/security/definition), please report it to us as described below.
-
-## Reporting Security Issues
+## Reporting a vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them to the Microsoft Security Response Center (MSRC) at [https://msrc.microsoft.com/create-report](https://aka.ms/opensource/security/create-report).
+Use one of the private channels instead:
 
-If you prefer to submit without logging in, send email to [secure@microsoft.com](mailto:secure@microsoft.com).  If possible, encrypt your message with our PGP key; please download it from the [Microsoft Security Response Center PGP Key page](https://aka.ms/opensource/security/pgpkey).
+- GitHub [Private Vulnerability Reporting](https://github.com/Bayrakovsky/azure-devops-intellij/security/advisories/new), or
+- e-mail **stanislav.job@gmail.com** with the subject `[azure-devops-intellij security]`.
 
-You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Additional information can be found at [microsoft.com/msrc](https://aka.ms/opensource/security/msrc). 
+Please include as much of the following as you can:
 
-Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
+- Affected plugin version and IDE (name + build number).
+- Type and impact of the issue, and how an attacker might exploit it.
+- Step-by-step instructions or a proof of concept.
+- Any suggested fix.
 
-  * Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
-  * Full paths of source file(s) related to the manifestation of the issue
-  * The location of the affected source code (tag/branch/commit or direct URL)
-  * Any special configuration required to reproduce the issue
-  * Step-by-step instructions to reproduce the issue
-  * Proof-of-concept or exploit code (if possible)
-  * Impact of the issue, including how an attacker might exploit the issue
+## Response timeline
 
-This information will help us triage your report more quickly.
+- Acknowledgment within **72 hours**.
+- Confirmation (or a request for more detail) within **7 days**.
+- Fixes are prioritized by severity and shipped in the next release; you will be credited in the
+  changelog unless you prefer otherwise.
 
-If you are reporting for a bug bounty, more complete reports can contribute to a higher bounty award. Please visit our [Microsoft Bug Bounty Program](https://aka.ms/opensource/security/bounty) page for more details about our active programs.
+## Scope
 
-## Preferred Languages
+**In scope:** the plugin itself, the bundled reactive TFVC backend process, handling of
+credentials/personal access tokens by the plugin, and this repository's GitHub Actions workflows.
 
-We prefer all communications to be in English.
+**Out of scope:** Azure DevOps Services / Team Foundation Server themselves, the Microsoft TEE CLC
+(`tf`) client and TFS Java SDK (report those to Microsoft), and the JetBrains platform.
 
-## Policy
+## Known security context
 
-Microsoft follows the principle of [Coordinated Vulnerability Disclosure](https://aka.ms/opensource/security/cvd).
-
-<!-- END MICROSOFT SECURITY.MD BLOCK -->
+- The plugin stores credentials via the IDE's PasswordSafe / native keychain.
+- The plugin launches two local helper processes: the user-configured `tf` executable and the
+  bundled backend JVM.
+- Release artifacts are plain zips published on GitHub Releases with SHA-256 checksums; the plugin
+  is not yet signed for JetBrains Marketplace.

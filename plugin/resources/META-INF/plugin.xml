@@ -3,12 +3,12 @@
   ~ Licensed under the MIT license. See License.txt in the project root.
   -->
 
-<idea-plugin allow-bundled-update="true">
-    <id>com.microsoft.vso.idea</id>
+<idea-plugin>
+    <!-- id/name/version/vendor/since-build are patched on build from pluginConfiguration in build.gradle -->
+    <id>io.github.bayrakovskiy.azuredevops</id>
     <name>Azure DevOps</name>
-    <!-- <version>1.162.2</version> NOTE: Version is set automatically on build, update it in gradle.properties -->
     <category>VCS Integration</category>
-    <vendor url="https://github.com/microsoft/azure-devops-intellij">Microsoft Corporation</vendor>
+    <vendor url="https://github.com/Bayrakovsky/azure-devops-intellij">Stanislav Bayrakovskiy</vendor>
     <description><![CDATA[
     <br />
       Azure DevOps is a plugin to enable working with Git and TFVC repositories on Azure DevOps Services or Team Foundation Server (TFS) 2015+.
@@ -45,9 +45,9 @@
       </ul>
       <br />
       <br />
-      <i>Compiled with Java 11</i>
+      <i>This is a community fork of the unmaintained Microsoft plugin, updated for the 2026.1 platform.</i>
       <br />
-      <i>Compatible with IntelliJ Ultimate and Community editions versions 2021.2.4 and later and Android Studio 2021.2.1 and later</i>
+      <i>Compatible with IntelliJ-based IDEs (including Rider) versions 2026.1 and later</i>
       <br />
       <br />
       <b>End User License Agreement & Privacy Policy</b>
@@ -59,14 +59,14 @@
     <change-notes><![CDATA[
       <br />
       <ul>
-        <li>Fix issues caused by a TF license agreement not being accepted when using the plugin. Add actions to accept the agreement manually, for cases when auto-detection fails.</li>
+        <li>2.0.0: Revived fork. Migrated to the IntelliJ Platform 2026.1 (works in Rider 2026.1+); updated the rd protocol and the TFVC reactive backend to run on JDK 21.</li>
       </ul>
       <br />
     ]]>
     </change-notes>
 
-    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="212"/>
+    <!-- please see https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html for description -->
+    <idea-version since-build="261"/>
 
     <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
          on how to target different products -->
@@ -76,7 +76,8 @@
     <depends>com.intellij.modules.vcs</depends> <!-- Dependency for tfvc -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <appStarter implementation="com.microsoft.alm.plugin.idea.common.starters.VstsStarter"/>
+        <!-- The id attribute is the command name (previously ApplicationStarter.getCommandName) -->
+        <appStarter id="vsts" implementation="com.microsoft.alm.plugin.idea.common.starters.VstsStarter"/>
         <checkoutProvider implementation="com.microsoft.alm.plugin.idea.git.extensions.GitCheckoutProvider"/>
         <checkoutProvider implementation="com.microsoft.alm.plugin.idea.tfvc.extensions.TfvcCheckoutProvider"/>
         <!-- TODO: can tabName be localized ?-->
@@ -89,7 +90,11 @@
 
         <vcsRootChecker implementation="com.microsoft.alm.plugin.idea.tfvc.extensions.TfvcRootChecker"/>
 
-        <fileTypeFactory implementation="com.microsoft.alm.plugin.idea.tfvc.tfignore.TfIgnoreFileTypeFactory"/>
+        <fileType name=".tfignore" implementationClass="com.microsoft.alm.plugin.idea.tfvc.tfignore.TfIgnoreFileType"
+                  fieldName="INSTANCE" language="TFIgnore" extensions="tfignore" fileNames=".tfignore"/>
+
+        <notificationGroup id="TFVC Notifications" displayType="BALLOON"
+                           bundle="com.microsoft.alm.plugin.idea.ui.tfplugin" key="Plugin.TfvcNotifications"/>
 
         <applicationService serviceImplementation="com.microsoft.alm.plugin.external.reactive.ReactiveTfvcClientHolder" />
         <applicationService serviceImplementation="com.microsoft.alm.plugin.idea.tfvc.core.ClassicTfvcClient" />
@@ -124,15 +129,10 @@
         <GitHttpAuthDataProvider implementation="com.microsoft.alm.plugin.idea.git.extensions.TfGitHttpAuthDataProvider" />
     </extensions>
 
-    <application-components>
-        <component>
-            <implementation-class>com.microsoft.alm.plugin.idea.common.setup.ApplicationStartup</implementation-class>
-        </component>
-    </application-components>
-
-    <project-components>
-        <!-- Add your project components here -->
-    </project-components>
+    <applicationListeners>
+        <listener class="com.microsoft.alm.plugin.idea.common.setup.ApplicationStartup"
+                  topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
 
     <actions>
         <action id="VSO.Open.In.Browser" class="com.microsoft.alm.plugin.idea.common.actions.OpenFileInBrowserAction">

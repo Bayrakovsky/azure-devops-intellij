@@ -33,7 +33,6 @@ import com.intellij.openapi.progress.util.BackgroundTaskUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.openapi.vcs.CheckoutProvider;
 import com.intellij.openapi.vcs.CommittedChangesProvider;
 import com.intellij.openapi.vcs.EditFileProvider;
 import com.intellij.openapi.vcs.FilePath;
@@ -261,12 +260,6 @@ public class TFSVcs extends AbstractVcs {
         return exception;
     }
 
-    @Override
-    public CheckoutProvider getCheckoutProvider() {
-        return null; ///TODO: new TFSCheckoutProvider();
-    }
-
-
     /**
      * This method is used by the environment classes to get the ServerContext.
      * We do not cache it here because it should already be cached in the ServerContextManager.
@@ -329,6 +322,7 @@ public class TFSVcs extends AbstractVcs {
                             logger.info("Notifying the user of the min version problem.");
                             // Notify the user that they should upgrade their version of the TF command line
                             VcsNotifier.getInstance(getProject()).notifyImportantWarning(
+                                    null,
                                     TfPluginBundle.message(TfPluginBundle.KEY_TFVC_TF_VERSION_WARNING_TITLE),
                                     error, new NotificationListener.Adapter() {
 

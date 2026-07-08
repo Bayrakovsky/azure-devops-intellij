@@ -40,7 +40,7 @@ class ReactiveClientConnection(val lifetime: LifetimeDefinition, private val sch
 
     fun startAsync(): CompletionStage<Void> =
         queueFutureAsync { lt ->
-            model = TfsModel.create(lifetime, protocol).apply {
+            model = protocol.tfsModel.apply {
                 connected.whenTrue(lt) {
                     complete(null)
                 }

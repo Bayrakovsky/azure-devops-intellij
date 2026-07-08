@@ -4,8 +4,8 @@
 package com.microsoft.alm.plugin.idea.tfvc.core;
 
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -24,11 +24,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class TFVCNotifications {
-    private static final NotificationGroup TFS_NOTIFICATIONS = new NotificationGroup(
-            TfPluginBundle.message(TfPluginBundle.KEY_TFVC_NOTIFICATIONS),
-            NotificationDisplayType.BALLOON,
-            true
-    );
+    // The group is registered declaratively in plugin.xml (<notificationGroup id="TFVC Notifications" .../>).
+    private static final NotificationGroup TFS_NOTIFICATIONS =
+            NotificationGroupManager.getInstance().getNotificationGroup("TFVC Notifications");
 
     private static final MergingUpdateQueue ourQueue = new MergingUpdateQueue(
             "TFVCNotifications.myQueue",

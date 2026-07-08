@@ -6,15 +6,13 @@ plugins {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "com.jetbrains.rd:rd-framework:$rdGenVersion"
+    api "com.jetbrains.rd:rd-framework:$rdGenVersion"
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 compileKotlin {
     dependsOn ':client:protocol:rdgen'
-    kotlinOptions.jvmTarget = '11'
-}
-
-compileTestKotlin {
-    kotlinOptions.jvmTarget = '11'
 }

@@ -13,6 +13,7 @@ import com.microsoft.alm.plugin.external.tools.TfTool;
 import com.microsoft.alm.plugin.idea.tfvc.core.TFSVcs;
 import com.microsoft.alm.plugin.idea.tfvc.core.TfvcWorkspaceLocator;
 import com.microsoft.alm.plugin.idea.tfvc.ui.settings.EULADialog;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.microsoft.tfs.model.connector.TfsDetailedWorkspaceInfo;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,8 +28,16 @@ public class TfvcRootChecker extends VcsRootChecker {
     /**
      * Checks if registered mapping can be used to perform VCS operations. According to the specification, returns
      * {@code true} if unsure.
+     * <p>
+     * Must never call the TFVC client: this runs on project open before the reactive backend is warm, and any
+     * blocking call here freezes the IDE. The cache-aware logic answers from {@link TfvcRootCache} only; an
+     * {@code UNKNOWN} status yields {@code true}, and {@link #isRoot(String)} resolves it later.
      */
     @Override
+    public boolean validateRoot(@NotNull VirtualFile file) {
+        return validateRoot(file.getPath());
+    }
+
     public boolean validateRoot(@NotNull String pathString) {
         Path path = Paths.get(pathString);
         Path fileName = path.getFileName();

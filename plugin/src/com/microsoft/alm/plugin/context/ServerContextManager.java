@@ -51,32 +51,43 @@ public class ServerContextManager {
 
     private Map<String, ServerContext> contextMap = new HashMap<String, ServerContext>();
 
+    // The saved state is restored lazily on first getInstance() call, NOT in the constructor: restoring reads
+    // IDE services (PasswordSafe etc.), and the platform forbids requesting services during class initialization
+    // (Holder.<clinit> would trigger that if the constructor restored the state).
+    private volatile boolean restored = false;
+
     private static class Holder {
-        private static final ServerContextManager INSTANCE = new ServerContextManager(true);
+        private static final ServerContextManager INSTANCE = new ServerContextManager();
     }
 
     /**
      * The constructor is protected for tests.
      */
     protected ServerContextManager() {
-        this(false);
-    }
-
-    private ServerContextManager(final boolean restore) {
-        if (!restore) {
-            return;
-        }
-
-        try {
-            restoreFromSavedState();
-        } catch (Throwable t) {
-            // being careful here
-            logger.error("constructor", t);
-        }
     }
 
     public static ServerContextManager getInstance() {
-        return Holder.INSTANCE;
+        final ServerContextManager instance = Holder.INSTANCE;
+        instance.ensureRestored();
+        return instance;
+    }
+
+    private void ensureRestored() {
+        if (restored) {
+            return;
+        }
+        synchronized (this) {
+            if (restored) {
+                return;
+            }
+            try {
+                restoreFromSavedState();
+            } catch (Throwable t) {
+                // being careful here
+                logger.error("restoreFromSavedState", t);
+            }
+            restored = true;
+        }
     }
 
     public synchronized ServerContext getLastUsedContext() {

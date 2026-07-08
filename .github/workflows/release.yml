@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag '$TAG' does not match vX.Y.Z" >&2
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build plugin
+        run: ./gradlew :plugin:buildPlugin -PbuildNumber=${{ steps.version.outputs.version }}
+
+      - name: Verify plugin against Rider
+        run: ./gradlew :plugin:verifyPlugin -PbuildNumber=${{ steps.version.outputs.version }}
+
+      - name: Compute checksums
+        id: package
+        run: |
+          ZIP="plugin/build/distributions/azure-devops-${{ steps.version.outputs.version }}.zip"
+          test -f "$ZIP"
+          (cd "$(dirname "$ZIP")" && sha256sum "$(basename "$ZIP")" > checksums.txt)
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "checksums=$(dirname "$ZIP")/checksums.txt" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Azure DevOps plugin ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            ${{ steps.package.outputs.zip }}
+            ${{ steps.package.outputs.checksums }}
+          body: |
+            ## Installation
+
+            1. Download **azure-devops-${{ steps.version.outputs.version }}.zip** (do not unzip it).
+            2. In your IDE (Rider, IntelliJ IDEA, … — version 2026.1+):
+               **Settings → Plugins → ⚙ → Install Plugin from Disk…** and select the zip.
+            3. Restart the IDE.
+
+            For TFVC you also need the [Team Explorer Everywhere CLC](https://github.com/microsoft/team-explorer-everywhere/releases) —
+            set the path to `tf` under **Settings → Version Control → TFVC**. See the [README](https://github.com/Bayrakovsky/azure-devops-intellij#tfvc-setup) for details.
+
+            ---
+            _Changelog: see [CHANGELOG.md](https://github.com/Bayrakovsky/azure-devops-intellij/blob/master/CHANGELOG.md)._

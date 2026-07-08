@@ -1,43 +1,47 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See License.txt in the project root.
+
+// rd-gen is kept on the buildscript classpath of this project only: putting it onto the root build classpath makes
+// its bundled Kotlin compiler clash with the Kotlin Gradle plugin.
 buildscript {
     repositories {
-        maven {
-            url "https://cache-redirector.jetbrains.com/www.myget.org/F/rd-snapshots/maven"
-        }
+        mavenCentral()
     }
     dependencies { classpath "com.jetbrains.rd:rd-gen:$rdGenVersion" }
 }
 
 plugins {
     id "org.jetbrains.kotlin.jvm"
-    id "com.jetbrains.rdgen"
 }
+
+apply plugin: "com.jetbrains.rdgen"
 
 dependencies {
-    compile "com.jetbrains.rd:rd-gen:$rdGenVersion"
+    implementation "com.jetbrains.rd:rd-gen:$rdGenVersion"
 }
 
-def hashDir = "$buildDir/rdgen/hashes"
+kotlin {
+    jvmToolchain(21)
+}
+
 def backendGenerated = "$projectDir/../backend/src/main/kotlin/generated"
 def connectorGenerated = "$projectDir/../connector/src/main/kotlin/generated"
 
 clean {
-    delete hashDir
     delete backendGenerated
     delete connectorGenerated
 }
 
+// Modern rd-gen searches for model toplevels in the classpath of the generator process, so the model sources of this
+// module have to be compiled before generation.
 rdgen {
     verbose = true
-    sources "$projectDir/src/main/kotlin/model"
-    hashFolder = hashDir
     packages = "model.tfs"
 
     generator {
         language = "kotlin"
         transform = "reversed"
-        root = "model.tfs.TfsModel"
+        root = "model.tfs.TfsRoot"
         namespace = "com.microsoft.tfs.model.host"
         directory = backendGenerated
     }
@@ -45,8 +49,15 @@ rdgen {
     generator {
         language = "kotlin"
         transform = "asis"
-        root = "model.tfs.TfsModel"
+        root = "model.tfs.TfsRoot"
         namespace = "com.microsoft.tfs.model.connector"
         directory = connectorGenerated
     }
+}
+
+tasks.named('rdgen') {
+    dependsOn tasks.named('classes')
+    // The rdgen task only puts rd-* jars from the buildscript onto the generator process classpath, losing
+    // kotlin-stdlib; give it the full runtime classpath of the compiled model instead.
+    classpath sourceSets.main.runtimeClasspath
 }

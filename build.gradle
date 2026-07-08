@@ -1,28 +1,22 @@
 /**
  * This is the main gradle build file for the Azure DevOps IntelliJ Plugin.
  */
-buildscript {
-    ext {
-        // https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
-        rdGenVersion = '2021.3.0'
-    }
-
-    dependencies { classpath "com.jetbrains.rd:rd-gen:$rdGenVersion" }
-}
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 
 plugins {
-    id 'org.jetbrains.intellij' version '0.7.3' apply false
-    // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
-    id 'org.jetbrains.kotlin.jvm' version '1.4.31' apply false
-    id "de.undercouch.download" version "4.0.0"
+    id 'org.jetbrains.intellij.platform' version '2.17.0' apply false
+    id 'org.jetbrains.kotlin.jvm' version '2.1.21' apply false
+    id 'de.undercouch.download' version '5.6.0' apply false
 }
 
 /**
  * This is task for update Gradle wrapper version.
  */
 wrapper {
-    gradleVersion = '5.6.4'
-    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+    gradleVersion = '9.0.0'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-bin.zip"
 }
 
 apply from: 'dependencies.gradle'
@@ -38,9 +32,6 @@ allprojects {
             dirs externalDependenciesDirectory
         }
         mavenCentral()
-        maven {
-            url "https://cache-redirector.jetbrains.com/www.myget.org/F/rd-snapshots/maven"
-        }
     }
 }
 
@@ -59,8 +50,11 @@ configure(mainProjects) {
     apply plugin: 'checkstyle'
     apply plugin: 'pmd'
 
-    sourceCompatibility = 11
-    targetCompatibility = 11
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
 
     sourceSets {
         main {
@@ -101,82 +95,132 @@ def reactiveBackend = file("client/backend/build/install")
  * specific settings for each project
  */
 project(":plugin") {
-    apply plugin: 'org.jetbrains.intellij'
+    apply plugin: 'org.jetbrains.intellij.platform'
 
-    dependencies {
-        compile project(path: ":client:connector", configuration: "default")
-
-        testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.2'
-        testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.2'
-        testCompile group: 'org.powermock', name: 'powermock-classloading-xstream', version: '2.0.2'
-
-        testRuntime project(":plugin:test-utils")
+    repositories {
+        intellijPlatform {
+            defaultRepositories()
+        }
     }
 
-    version buildNumber
-
-    intellij {
-        version = ideaVersion
-        plugins = ['git4idea']
-        pluginName = 'com.microsoft.vso.idea'
-        updateSinceUntilBuild = false
-
-        // buildPlugin and runIde should depend on the reactive backend
-        task prepareBackendSandbox(type: Copy, dependsOn: ":client:backend:installDist") {
-            from reactiveBackend
-            into file("${prepareSandbox.destinationDir}/${prepareSandbox.pluginName}")
+    dependencies {
+        intellijPlatform {
+            intellijIdea(platformVersion)
+            bundledPlugin 'Git4Idea'
+            testFramework TestFrameworkType.Platform.INSTANCE
+            pluginVerifier()
         }
-        prepareSandbox.finalizedBy(prepareBackendSandbox)
+
+        implementation(project(path: ":client:connector")) {
+            // The platform provides its own kotlin-stdlib/kotlin-reflect and kotlinx-coroutines; bundling other
+            // copies breaks class loading.
+            exclude group: 'org.jetbrains.kotlin'
+            exclude group: 'org.jetbrains.kotlinx'
+        }
+
+        testRuntimeOnly project(":plugin:test-utils")
+    }
+
+    version = buildNumber
+
+    intellijPlatform {
+        // The name of the plugin directory in the sandbox and inside the distribution zip. Must match the
+        // 'into' target of the backend copy below and ReactiveTfvcClientHolder.getClientBackendPath expectations.
+        projectName = 'azure-devops'
+
+        pluginConfiguration {
+            id = 'io.github.bayrakovskiy.azuredevops'
+            name = 'Azure DevOps'
+            version = buildNumber
+            vendor {
+                name = 'Stanislav Bayrakovskiy'
+            }
+            ideaVersion {
+                sinceBuild = '261'
+                untilBuild = provider { null }
+            }
+        }
+
+        instrumentCode = true
+        buildSearchableOptions = false
+
+        pluginVerification {
+            // The inherited Microsoft code triggers plenty of deprecation/internal-API warnings; fail the build
+            // only on actual incompatibilities.
+            failureLevel = [
+                VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+                VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES,
+                VerifyPluginTask.FailureLevel.INVALID_PLUGIN
+            ]
+
+            ides {
+                // Rider 2026.1.4 (261.26222.60) — the actual target IDE. Use the locally installed
+                // copy when present (maintainer machine); otherwise download it (CI).
+                def localRider = file('/Users/evildracur/Applications/Rider.app')
+                if (localRider.exists()) {
+                    local(localRider)
+                } else {
+                    ide(IntelliJPlatformType.Rider, '2026.1.4')
+                }
+            }
+        }
+    }
+
+    // buildPlugin and runIde should depend on the reactive backend
+    tasks.named('prepareSandbox') {
+        dependsOn ':client:backend:installDist'
+        from(reactiveBackend) {
+            into 'azure-devops'
+        }
     }
 
     jar {
-        baseName 'com.microsoft.alm.plugin.idea'
+        archiveBaseName = 'com.microsoft.alm.plugin.idea'
     }
 
     task showVersion() {
-        println("version = " + buildNumber)
-        println("ideaVersion = " + ideaVersion)
+        doLast {
+            println("version = " + buildNumber)
+            println("platformVersion = " + platformVersion)
+        }
     }
-
-    task zip(dependsOn: ['buildPlugin','test']) {}
-
-    // Uncomment for IDE internal mode:
-    //runIde {
-    //    jvmArgs("-Didea.is.intenal=true")
-    //}
 }
 
 project(':plugin:test-utils') {
-    apply plugin: 'org.jetbrains.intellij'
+    apply plugin: 'org.jetbrains.intellij.platform.module'
+
+    repositories {
+        intellijPlatform {
+            defaultRepositories()
+        }
+    }
 
     dependencies {
-        compile project(':plugin')
-    }
+        intellijPlatform {
+            intellijIdea(platformVersion)
+            bundledPlugin 'Git4Idea'
+        }
 
-    intellij {
-        version = ideaVersion
+        implementation project(':plugin')
     }
-
-    buildSearchableOptions.enabled = false
 }
 
 project(":L2Tests") {
-    apply plugin: 'org.jetbrains.intellij'
+    apply plugin: 'org.jetbrains.intellij.platform.module'
 
-    intellij {
-        version = ideaVersion
-        plugins = ['git4idea', 'java']
-
-        buildSearchableOptions.enabled = false
-
-        task prepareBackendSandbox(type: Copy, dependsOn: ":client:backend:installDist") {
-            from reactiveBackend
-            into file("${prepareTestingSandbox.destinationDir}/${prepareTestingSandbox.pluginName}")
+    repositories {
+        intellijPlatform {
+            defaultRepositories()
         }
-        prepareTestingSandbox.finalizedBy(prepareBackendSandbox)
     }
 
     dependencies {
+        intellijPlatform {
+            intellijIdea(platformVersion)
+            bundledPlugins(['Git4Idea', 'com.intellij.java'])
+            testFramework TestFrameworkType.Platform.INSTANCE
+        }
+
         // The plugin relies on an outdated version of jackson-databind being available in the classpath (it is a
         // required transitive dependency of com.microsoft.alm:com.microsoft.alm.client with no newer version
         // available). It is available in the product because of how IDEA classloaders work, but it gets overridden by
@@ -184,12 +228,12 @@ project(":L2Tests") {
         // top of the classpath.
         priorityTestCompile 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
 
-        compile project(':plugin')
-        testCompile project(':plugin:test-utils')
+        implementation project(':plugin')
+        testImplementation project(':plugin:test-utils')
     }
 
     jar {
-        baseName 'com.microsoft.alm.L2'
+        archiveBaseName = 'com.microsoft.alm.L2'
     }
 
     test {
@@ -205,37 +249,37 @@ project(":L2Tests") {
 configure(mainProjects) {
     dependencies {
         // Dependencies of ':com.microsoft.alm.client:0.4.3-SNAPSHOT'
-        compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
-        compile 'commons-codec:commons-codec:1.10'
-        compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.4.1'
+        implementation 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+        implementation 'commons-codec:commons-codec:1.10'
+        implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.4.1'
 
         // Microsoft ALM libraries that are managed by the dependencies.gradle script
-        compile ':com.microsoft.alm.client:0.4.3-SNAPSHOT'
-        compile ':com.microsoft.alm.client.build2:0.4.3-SNAPSHOT'
-        compile ':com.microsoft.alm.client.core:0.4.3-SNAPSHOT'
-        compile ':com.microsoft.alm.client.distributedtask:0.4.3-SNAPSHOT'
-        compile ':com.microsoft.alm.client.sourcecontrol:0.4.3-SNAPSHOT'
-        compile ':com.microsoft.alm.client.workitemtracking:0.4.3-SNAPSHOT'
+        implementation ':com.microsoft.alm.client:0.4.3-SNAPSHOT'
+        implementation ':com.microsoft.alm.client.build2:0.4.3-SNAPSHOT'
+        implementation ':com.microsoft.alm.client.core:0.4.3-SNAPSHOT'
+        implementation ':com.microsoft.alm.client.distributedtask:0.4.3-SNAPSHOT'
+        implementation ':com.microsoft.alm.client.sourcecontrol:0.4.3-SNAPSHOT'
+        implementation ':com.microsoft.alm.client.workitemtracking:0.4.3-SNAPSHOT'
 
-        compile group: 'commons-io', name: 'commons-io', version: '2.4'
-        compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.28'
-        compile group: 'org.glassfish.jersey.connectors', name: 'jersey-apache-connector', version: '2.28'
-        compile group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.28'
-        compile (group: 'org.apache.httpcomponents', name: 'httpclient-win', version: '4.4.1') {
+        implementation group: 'commons-io', name: 'commons-io', version: '2.4'
+        implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.28'
+        implementation group: 'org.glassfish.jersey.connectors', name: 'jersey-apache-connector', version: '2.28'
+        implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.28'
+        implementation (group: 'org.apache.httpcomponents', name: 'httpclient-win', version: '4.4.1') {
             exclude group: 'net.java.dev.jna', module: 'jna'
             exclude group: 'net.java.dev.jna', module: 'jna-platform'
         }
 
-        compile (group: 'com.microsoft.alm', name: 'auth-core', version: '0.6.4') {
+        implementation (group: 'com.microsoft.alm', name: 'auth-core', version: '0.6.4') {
             exclude group: 'org.slf4j', module: 'slf4j-api'
         }
 
-        // IDEA has two other junit versions embedded into it: 3.8.1 (junit.jar) and 4.12 (junit-4.12.jar). We need our
-        // version to take priority.
-        priorityTestCompile group: 'junit', name: 'junit', version: '4.12'
+        // IDEA has other junit versions embedded into it. We need our version to take priority.
+        priorityTestCompile group: 'junit', name: 'junit', version: '4.13.2'
 
-        testCompile group: 'org.mockito', name: 'mockito-core', version: '4.8.0'
-        testCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+        testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.14.2'
+        testImplementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
     }
 
     tasks.withType(JavaCompile) {
@@ -246,7 +290,7 @@ configure(mainProjects) {
      * Open source prep
      */
     checkstyle {
-        toolVersion = "6.1"
+        toolVersion = "9.3"
         ignoreFailures = false
         configFile = file "${rootDir}/config/checkstyle/custom-rules.xml"
         configProperties = [
@@ -255,7 +299,7 @@ configure(mainProjects) {
     }
 
     pmd {
-        toolVersion = "5.0.3"
+        toolVersion = "6.55.0"
         ignoreFailures = true
         ruleSetFiles = files "${rootDir}/config/pmd/custom-pmd-rules.xml"
     }

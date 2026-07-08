@@ -55,7 +55,6 @@ import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
-import git4idea.util.GitCommitCompareInfo;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -277,7 +276,7 @@ public class CreatePullRequestModel extends AbstractModel {
         final GitRemoteBranch remoteTrackingBranch = this.getRemoteTrackingBranch();
 
         // only show valid remote branches
-        sortedRemoteBranches.addAll(Collections2.filter(getInfo().getRemoteBranches(),
+        sortedRemoteBranches.addAll(Collections2.filter(getInfo().getRemoteBranchesWithHashes().keySet(),
                 remoteBranch -> {
                     /* two conditions:
                      *   1. remote must be a vso/tfs remote
@@ -721,7 +720,7 @@ public class CreatePullRequestModel extends AbstractModel {
     }
 
     private void notifySuccess(final Project project, final String title, final String message) {
-        VcsNotifier.getInstance(project).notifyImportantInfo(title, message, new NotificationListener() {
+        VcsNotifier.getInstance(project).notifyImportantInfo(null, title, message, new NotificationListener() {
             @Override
             public void hyperlinkUpdate(@NotNull final Notification n, @NotNull final HyperlinkEvent e) {
                 BrowserUtil.browse(e.getURL());

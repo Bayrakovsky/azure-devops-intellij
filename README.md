@@ -1,124 +1,86 @@
-# **This project is no longer maintained.** 
-> To make changes, you may fork this repository and build your own version.
+# <img src="plugin/resources/META-INF/pluginIcon.svg" width="40" alt=""/> Azure DevOps plugin for JetBrains IDEs
+
+[![CI](https://github.com/Bayrakovsky/azure-devops-intellij/actions/workflows/ci.yml/badge.svg)](https://github.com/Bayrakovsky/azure-devops-intellij/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
+[![Platform 2026.1+](https://img.shields.io/badge/IntelliJ%20Platform-2026.1%2B-lightgrey.svg)](#requirements)
+[![Latest release](https://img.shields.io/github/v/release/Bayrakovsky/azure-devops-intellij)](https://github.com/Bayrakovsky/azure-devops-intellij/releases/latest)
+
+Work with **Git** and **TFVC** repositories hosted on **Azure DevOps Services** or **Team Foundation
+Server 2015+** from IntelliJ-based IDEs — including **Rider**, IntelliJ IDEA, and Android Studio.
+
+This is a **community fork** of the unmaintained
+[Microsoft/azure-devops-intellij](https://github.com/microsoft/azure-devops-intellij) plugin,
+revived and migrated to the IntelliJ Platform **2026.1**. The primary use case driving this fork is
+**TFVC support in Rider**.
+
+| TFVC check-in | Manage TFVC servers and workspaces |
+|---|---|
+| ![TFVC check-in](docs/commit-changes.png) | ![Manage TFVC servers and workspaces](docs/manage-services.png) |
 
 ---
-# Azure DevOps Plugin for IntelliJ, Android Studio, & other JetBrains IDEs
 
-This is a plugin for working with Git and TFVC repositories on Azure DevOps and Team Foundation Server (TFS) 2015+ inside IntelliJ, Android Studio, 
-and various other JetBrains IDEs. It is supported on Linux, Mac OS X, and Windows.
-It is compatible with IntelliJ IDEA Community and Ultimate editions (version 2021.2.4+) and Android Studio (version 2021.2.1+).
+## Requirements
 
-To learn more about installing and using our Azure DevOps IntelliJ plug-in, visit: https://docs.microsoft.com/en-us/azure/devops/repos/git/create-repo-intellij?view=azure-devops
+- An IntelliJ Platform IDE **2026.1 or later**: Rider, IntelliJ IDEA (Community or Ultimate), Android Studio, etc.
+- An **Azure DevOps Services** organization or **Team Foundation Server 2015+** instance.
+- For **TFVC** only: the [Team Explorer Everywhere command-line client (TEE CLC)](https://github.com/microsoft/team-explorer-everywhere/releases)
+  unpacked somewhere on your machine. The plugin drives the `tf` executable and also ships its own
+  reactive TFVC backend (based on the TFS Java SDK) — no extra setup needed for the latter.
 
-## Pre-Reqs
-1. Install OpenJDK 11.
-2. Set JAVA_HOME to the location of JDK 11.
-3. Clone the repository (if planning on building yourself).
+Supported on Linux, macOS, and Windows.
 
-## Building the Plugin
+## Features
 
-## Build with Gradle
-Run the build by:
+- Checkout Git and TFVC repositories from Azure DevOps / TFS directly from the welcome screen.
+- Authenticate with Azure DevOps Services and on-premises TFS (including personal access tokens).
+- **Git**: create pull requests, view pull requests, create branches, import projects into Azure DevOps.
+- **TFVC**: local changes detection, check-in, rollback (undo), history, diff, rename/move tracking,
+  merge-conflict resolution, workspace management, `.tfignore` support.
+- Browse and associate **work items** with commits and check-ins.
+- Build status indication for the current branch.
+- Proxy support via the IDE-wide HTTP proxy settings.
 
-1. Open a terminal/console window. 
-2. Navigate to the repository root.
-3. Run `./gradlew buildPlugin`
-   * If you have multiple versions of the Java JDK installed, you may need to set your `JAVA_HOME` environment variable to the installation folder of the JDK 11.
-4. The plugin zip file will be created in the `plugin/build/distributions/` folder.
+## Installation
 
+1. Download the latest `azure-devops-<version>.zip` from the
+   [Releases](https://github.com/Bayrakovsky/azure-devops-intellij/releases) page.
+   **Do not unzip it.**
+2. In your IDE: **Settings → Plugins → ⚙ → Install Plugin from Disk…** and select the zip.
+3. Restart the IDE.
 
-## Build and Run with IntelliJ
-Once you've downloaded the dependencies, run the build by:
+## TFVC setup
 
-1. Start IntelliJ and open the Gradle project from the root project directory.
+1. Install the [TEE CLC](https://github.com/microsoft/team-explorer-everywhere/releases) and accept
+   its EULA once (`tf eula`).
+2. In the IDE: **Settings → Version Control → TFVC**, set the path to the `tf` executable
+   (e.g. `/opt/TEE-CLC-14.135.3/tf` or `C:\TEE-CLC-14.135.3\tf.cmd`) and press **Test**.
+3. Open a directory that is mapped in a TFVC workspace — the plugin picks up the workspace mappings
+   automatically, and local changes appear in the Commit / Pending Changes view.
 
-2. Configure the project to use language level Java 11
-   * File -> Project Structure -> Project Settings -> Project
-   * Under Project Language Level, select "11 - Local variable syntax for lambda parameters"
+## Build from source
 
-3. Configure the project and ***each module*** to build with this "IntelliJ Platform Plugin SDK".
-   * File -> Project Structure -> Project Settings -> Project.
-     * Under Project SDK, select the entry marked "IntelliJ IDEA <version number>".
-   * File -> Project Structure -> Project Settings -> Modules -> Dependencies.
-     * For each module beginning with `com.microsoft.alm` (there are three), under Module SDK, select the entry marked "IntelliJ IDEA <version number>". 
+```bash
+git clone https://github.com/Bayrakovsky/azure-devops-intellij.git
+cd azure-devops-intellij
+./gradlew :plugin:buildPlugin
+```
 
-4. Make sure the 'GUI designer' generates Java source code.
-   * File -> Settings (on Windows) / Preferences (on Mac) -> Editor -> GUI Designer -> Generate GUI into -> Select `Java Souce Code`
-
-5. Create a "Plugin" configuration to run/debug the code.
-   * Run -> Edit Configurations... -> Add -> Gradle 
-   * Provide a name for the configuration (e.g., IntelliJ for TFS)
-   * Set Gradle project to `azure-devops-intellij`
-   * Set Tasks to `:plugin:runIde`
-
-6. Run the plugin by selecting Run -> Run <configuration you used above>.
-
-7. Debug the plugin by selecting Run -> Debug <configuration you used above>.
-
-8. To run tests please check options on the page `Preferences | Build, Execution, Deployment | Build Tools | Gradle | Runner`
-    * `Delegate IDE build/run actions to gradle` should checked.
-    * In `Run tests using` should select `Gradle Test Runner`
+The plugin zip lands in `plugin/build/distributions/`. You do not need to install a JDK up front:
+the build uses the Gradle toolchain mechanism and downloads JDK 21 automatically. To run a sandbox
+IDE with the plugin installed, use `./gradlew :plugin:runIde`.
 
 ## Contributing
 
-We welcome Pull Requests, please fork this repo and send us your contributions.
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the project layout, build
+instructions, and code style. Notable changes are tracked in [CHANGELOG.md](CHANGELOG.md), and all
+project spaces follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-Note: This repo is mirrored so any branches created in this repo will be removed.  Please fork.
+## Security
 
-A few styles we follow:
+Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md). Do not open public issues
+for security problems.
 
-1. All Java source files must have the following two lines at the top:
-    ```
-    // Copyright (c) Microsoft. All rights reserved.
-    // Licensed under the MIT license. See License.txt in the project root.
-    ```
-   * Settings -> Editor -> Copyright -> Copyright Profiles -> Create a new "Copyright Profile" with those two lines
-   * Assign this profile to the current project
+## License
 
-2. No tabs in source code:
-   * Settings -> Editor -> Code Style -> Java -> Tabs and Indents -> Uncheck "Use tab character", set "Tab size" and "Indent" to 4
-
-3. No wildcard imports (ex. `java.awt.*`):
-   * Settings -> Editor -> Code Style -> Java -> Imports -> Set "Class count to use import with '\*'" and "Names count to use static import with '\*'" to sufficient large numbers such as 100
-   * On the same page remove `java.awt.*` and `javax.swing.*` from the "Package to Use Import with '*'" list
-
-Those settings are already configured in the `com.microsoft.alm.plugin.idea.iml` project file we provided.  
-
-Gradle build will fail if checkstyle plugin detects a violation.
-
-## Running Integration Tests (L2 tests and reactive client tests)
-
-Our Integration tests are in the L2Tests folder. In order to run them correctly, you have to set up the environment and have an Azure DevOps Services organization setup to run against.
-
-You'll need to add a test project into your account, and add both git and TFVC repositories into it. Git repository should also include a `README.md` file in the repository root, and TFVC repository should include a `readme.txt` file.
-
-Here are the steps to setup your environment:
-1. First create run configuration from `L2Tests` gradle project:
-   * tasks: `cleanTest test`
-   * arguments: `--tests *`
-2. Second setup the environment variables that provide the connection information for the tests. If this information is missing the tests will fail with a message that describes the missing information. The values below are examples but you will have to fix them.
-   * `MSVSTS_INTELLIJ_RUN_L2_TESTS=true`
-   * `MSVSTS_INTELLIJ_TF_EXE=d:\bin\TEE-CLC-14.0.4\tf.cmd`
-   * `MSVSTS_INTELLIJ_VSO_GIT_REPO_URL=https://organization.visualstudio.com/projectName/_git/repoName`
-   * `MSVSTS_INTELLIJ_VSO_LEGACY_GIT_REPO_URL=https://organization.visualstudio.com/defaultcollection/_git/projectName`
-   * `MSVSTS_INTELLIJ_VSO_PASS=PersonalAccessTokenGeneratedFromTheUserSecurityPage`
-   * `MSVSTS_INTELLIJ_VSO_SERVER_URL=https://organization.visualstudio.com` (make sure no trailing slash here)
-   * `MSVSTS_INTELLIJ_VSO_TEAM_PROJECT=projectName`
-   * `MSVSTS_INTELLIJ_VSO_USER=EmailAddressForUser`
-   * `MSVSTS_INTELLIJ_UNIQUE_SUFFIX=""`: you may leave it empty; if not empty, it will be used as a suffix for various names in tests; introduced for simultaneous test execution on agents
-   
-   _Note_: Do not use https://dev.azure.com/account/ addresses in these environment variables, make sure to use https://account.visualstudio.com/
-
-3. Other things to note:
-   * You can toggle whether the tests will run or not simply by changing the MSVSTS_INTELLIJ_RUN_L2_TESTS environment variable.
-   * The internal CI build will run these tests
-
-4. To run the reactive client integration tests, create a run configuration for `:client:backend:test` task, or use Gradle to run it. It uses the same environment variables as L2 tests.
-
-## Learn More
-
-Want more information? The following resources are available to help:
-
-* <a href="https://docs.microsoft.com/en-us/azure/devops/java/download-intellij-plug-in" target="_blank">Instructions</a> on how to install the plugin
-* <a href="https://youtu.be/wSdgmQL-Zbg" target="_blank">End-to-end demo</a> video of the plugin's features
-* <a href="https://docs.microsoft.com/en-us/azure/devops/repos/git/create-repo-intellij" target="_blank">Documentation and tutorial</a> on how to use the plugin 
+[MIT](LICENSE.txt). Original work Copyright (c) Microsoft Corporation; modifications Copyright (c)
+Stanislav Bayrakovskiy. This fork is not affiliated with or endorsed by Microsoft.

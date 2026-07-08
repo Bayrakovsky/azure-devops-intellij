@@ -9,7 +9,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 
 ext {
-    externalDependenciesDirectory = "$buildDir/externalDependencies"
+    externalDependenciesDirectory = "${layout.buildDirectory.get().asFile}/externalDependencies"
 }
 
 def externalDependencies = [
@@ -29,18 +29,22 @@ externalDependencies.entrySet().forEach { entry ->
     def url = entry.key
     def expectedHash = entry.value
     def fileName = getUrlFileName(url)
-    def downloadedFilePath = "$ext.externalDependenciesDirectory/$fileName"
-    download {
-        src url
-        dest downloadedFilePath
-        overwrite false
+    def downloadedFile = new File("$ext.externalDependenciesDirectory/$fileName")
+
+    if (!downloadedFile.exists()) {
+        downloadedFile.parentFile.mkdirs()
+        def temporaryFile = new File(downloadedFile.path + '.part')
+        new URI(url).toURL().withInputStream { input ->
+            temporaryFile.withOutputStream { output -> output << input }
+        }
+        Files.move(temporaryFile.toPath(), downloadedFile.toPath())
     }
 
     def digest = MessageDigest.getInstance("SHA-256")
-    def bytes = Files.readAllBytes(Paths.get(downloadedFilePath))
+    def bytes = Files.readAllBytes(downloadedFile.toPath())
     def hash = String.format("%064x", new BigInteger(1, digest.digest(bytes)))
     if (!hash.equalsIgnoreCase(expectedHash)) {
-        delete downloadedFilePath
+        delete downloadedFile
         throw new RuntimeException("Expected hash: $expectedHash, actual hash: $hash for dependency file $fileName\nPlease retry build")
     }
 }

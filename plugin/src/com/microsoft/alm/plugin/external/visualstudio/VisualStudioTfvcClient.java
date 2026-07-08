@@ -11,7 +11,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.microsoft.alm.plugin.external.exceptions.VisualStudioClientVersionException;
 import com.microsoft.alm.plugin.external.models.ToolVersion;
 import com.microsoft.alm.plugin.services.PropertyService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

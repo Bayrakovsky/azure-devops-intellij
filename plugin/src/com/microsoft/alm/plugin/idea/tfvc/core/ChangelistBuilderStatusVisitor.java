@@ -109,7 +109,7 @@ class ChangelistBuilderStatusVisitor extends StatusProvider.StatusAdapter {
                 // for files that were deleted w/o using the VCS
                 changelistBuilder.processLocallyDeletedFile(localPath);
             } else {
-                changelistBuilder.processUnversionedFile(filePath);
+                changelistBuilder.processUnversionedFile(localPath);
             }
         }
     }

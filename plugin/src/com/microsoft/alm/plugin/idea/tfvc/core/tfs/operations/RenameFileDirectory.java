@@ -22,9 +22,9 @@ package com.microsoft.alm.plugin.idea.tfvc.core.tfs.operations;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent;
-import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -101,8 +101,8 @@ public class RenameFileDirectory {
                     throw new IncorrectOperationException("Couldn't rename file \"" + currentPath + "\" to \"" + newPath + "\"");
 
                 // this alerts that a rename has taken place so any additional processing can take place
-                final VFileEvent event = new VFilePropertyChangeEvent(element.getManager(), virtualFile, VirtualFile.PROP_NAME, currentPath, newName, false);
-                PersistentFS.getInstance().processEvents(Collections.singletonList(event));
+                final VFileEvent event = new VFilePropertyChangeEvent(element.getManager(), virtualFile, VirtualFile.PROP_NAME, currentPath, newName);
+                RefreshQueue.getInstance().processEvents(false, Collections.singletonList(event));
             }
         } catch (Throwable t) {
             logger.warn("renameElement experienced a failure while trying to rename a file", t);

@@ -42,7 +42,7 @@ import com.microsoft.alm.plugin.idea.tfvc.core.tfs.conflicts.ConflictsEnvironmen
 import com.microsoft.alm.plugin.idea.tfvc.core.tfs.conflicts.ResolveConflictHelper;
 import com.microsoft.alm.plugin.idea.tfvc.exceptions.TfsException;
 import com.microsoft.alm.plugin.idea.tfvc.ui.MergeBranchDialog;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

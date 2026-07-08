@@ -31,10 +31,10 @@ import com.microsoft.alm.sourcecontrol.webapi.model.GitRefUpdate;
 import com.microsoft.alm.sourcecontrol.webapi.model.GitRefUpdateResult;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBrancher;
+import git4idea.fetch.GitFetchResult;
+import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
-import git4idea.update.GitFetchResult;
-import git4idea.update.GitFetcher;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -89,7 +89,7 @@ public class CreateBranchModel extends AbstractModel {
 
         // TODO: add option to retrieve more branches in case the branch they are looking for is missing local
         // only show valid remote branches
-        sortedRemoteBranches.addAll(Collections2.filter(gitRepository.getInfo().getRemoteBranches(), remoteBranch -> {
+        sortedRemoteBranches.addAll(Collections2.filter(gitRepository.getInfo().getRemoteBranchesWithHashes().keySet(), remoteBranch -> {
             //  condition: remote must be a vso/tfs remote
             return tfGitRemotes.contains(remoteBranch.getRemote());
         }));
@@ -216,9 +216,9 @@ public class CreateBranchModel extends AbstractModel {
                     // Create a progressIndicator if one was not passed in
                     // Fetch server changes so we can checkout here if we want to
                     logger.info("Fetching latest from server so that the new branch is available to checkout");
-                    final GitFetcher fetcher = new GitFetcher(project, getProgressIndicator(progressIndicator), true);
-                    final GitFetchResult fetchResult = fetcher.fetch(gitRepository);
-                    if (fetchResult.isSuccess() && this.checkoutBranch) {
+                    final GitFetchResult fetchResult = GitFetchSupport.fetchSupport(project)
+                            .fetchAllRemotes(Collections.singletonList(gitRepository));
+                    if (fetchResult.isSuccessful() && this.checkoutBranch) {
                         logger.info("Checking out new branch: " + branchName);
                         // Creating a branch using the brancher has to start on the UI thread (it will background the work itself)
                         IdeaHelper.runOnUIThread(new Runnable() {
@@ -262,7 +262,7 @@ public class CreateBranchModel extends AbstractModel {
                 // create user notification
                 final String branchLink = String.format(UrlHelper.SHORT_HTTP_LINK_FORMATTER, UrlHelper.getBranchURI(context.getUri(), getBranchName()), getBranchName());
                 if (!ApplicationManager.getApplication().isUnitTestMode()) {
-                    VcsNotifier.getInstance(project).notifyImportantInfo(TfPluginBundle.message(TfPluginBundle.KEY_CREATE_BRANCH_DIALOG_SUCCESSFUL_TITLE),
+                    VcsNotifier.getInstance(project).notifyImportantInfo(null, TfPluginBundle.message(TfPluginBundle.KEY_CREATE_BRANCH_DIALOG_SUCCESSFUL_TITLE),
                             TfPluginBundle.message(TfPluginBundle.KEY_CREATE_BRANCH_DIALOG_SUCCESSFUL_DESCRIPTION, branchLink), new NotificationListener() {
                                 @Override
                                 public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent hyperlinkEvent) {

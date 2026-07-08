@@ -1,4 +1,5 @@
 # Gradle stuff
+.intellijPlatform/
 **/hs_err_pid*.log
 .gradle
 build
@@ -9,3 +10,6 @@ L2Tests/lib
 out/
 
 *.Generated.kt
+
+# Assistant working files
+.claude/

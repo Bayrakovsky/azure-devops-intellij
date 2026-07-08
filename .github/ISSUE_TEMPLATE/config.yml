@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or help
+    url: https://github.com/Bayrakovsky/azure-devops-intellij/discussions
+    about: Not sure if it's a bug? Want to ask how something works? Open a Discussion.
+  - name: Azure DevOps / TFS documentation
+    url: https://learn.microsoft.com/en-us/azure/devops/
+    about: For questions about Azure DevOps or Team Foundation Server themselves (not the plugin).

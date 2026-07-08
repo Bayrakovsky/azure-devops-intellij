@@ -4,7 +4,6 @@
 package com.microsoft.alm.plugin.idea.git.ui.pullrequest;
 
 import git4idea.repo.GitRepository;
-import git4idea.util.GitCommitCompareInfo;
 
 /**
  * This class wraps the GitCommitCompareInfo object and the information about which branches and commit hashes were
