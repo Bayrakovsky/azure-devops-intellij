@@ -160,7 +160,7 @@ project(":plugin") {
                 if (localRider.exists()) {
                     local(localRider)
                 } else {
-                    ide(IntelliJPlatformType.Rider, '2026.1.4')
+                    create(IntelliJPlatformType.Rider, providers.provider { '2026.1.4' })
                 }
             }
         }
