@@ -77,3 +77,8 @@ Before opening a PR, please check:
 2. Push a tag `vX.Y.Z` — the [release workflow](.github/workflows/release.yml) builds the plugin
    with that version, runs the Plugin Verifier, and publishes a GitHub Release with the zip and
    SHA-256 checksums.
+3. The same workflow then signs the plugin and publishes it to
+   [JetBrains Marketplace](https://plugins.jetbrains.com/) (`:plugin:publishPlugin`). This step
+   requires the repository secrets `PUBLISH_TOKEN`, `CERTIFICATE_CHAIN`, `PRIVATE_KEY`, and
+   `PRIVATE_KEY_PASSWORD`; if they are missing, it is skipped and only the GitHub Release is
+   published. Marketplace updates go through JetBrains moderation before becoming visible.

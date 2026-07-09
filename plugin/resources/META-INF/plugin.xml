@@ -13,7 +13,7 @@
     <br />
       Azure DevOps is a plugin to enable working with Git and TFVC repositories on Azure DevOps Services or Team Foundation Server (TFS) 2015+.
       <br />
-      <a href="https://github.com/Microsoft/azure-devops-intellij">GitHub</a> | <a href="https://docs.microsoft.com/en-us/azure/devops/java">Documentation</a> | <a href="https://github.com/Microsoft/azure-devops-intellij/issues">Issues</a> | Twitter <a href="https://twitter.com/AzureDevOps">@AzureDevOps</a>
+      <a href="https://github.com/Bayrakovsky/azure-devops-intellij">GitHub</a> | <a href="https://github.com/Bayrakovsky/azure-devops-intellij/issues">Issues</a> | <a href="https://github.com/Bayrakovsky/azure-devops-intellij/discussions">Discussions</a> | <a href="https://github.com/Bayrakovsky/azure-devops-intellij/blob/master/CHANGELOG.md">Changelog</a>
       <br />
       <br />
       <b>Features</b>
@@ -41,7 +41,6 @@
         <li>Check the build status of your repository and queue a new build if desired.</li>
         <li>Supports proxy settings configured in the IDE's System Settings section.</li>
         <li>Edit cached project information through configuration management.</li>
-        <li>History view: fixed an issue where we were always performing a diff operation on the local file version.</li>
       </ul>
       <br />
       <br />

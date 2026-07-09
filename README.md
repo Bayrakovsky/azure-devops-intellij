@@ -42,6 +42,11 @@ Supported on Linux, macOS, and Windows.
 
 ## Installation
 
+**From JetBrains Marketplace** (recommended): in your IDE, open **Settings → Plugins →
+Marketplace**, search for **Azure DevOps**, and install the plugin by *Stanislav Bayrakovskiy*.
+
+**From a GitHub release:**
+
 1. Download the latest `azure-devops-<version>.zip` from the
    [Releases](https://github.com/Bayrakovsky/azure-devops-intellij/releases) page.
    **Do not unzip it.**
