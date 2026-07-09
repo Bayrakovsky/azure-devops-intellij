@@ -43,7 +43,7 @@ Supported on Linux, macOS, and Windows.
 ## Installation
 
 **From JetBrains Marketplace** (recommended): in your IDE, open **Settings → Plugins →
-Marketplace**, search for **Azure DevOps**, and install the plugin by *Stanislav Bayrakovskiy*.
+Marketplace**, search for **Azure DevOps Community**, and install the plugin by *Stanislav Bayrakovskiy*.
 
 **From a GitHub release:**
 

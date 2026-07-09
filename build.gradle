@@ -131,7 +131,9 @@ project(":plugin") {
 
         pluginConfiguration {
             id = 'io.github.bayrakovskiy.azuredevops'
-            name = 'Azure DevOps'
+            // "Azure DevOps" is taken on the Marketplace by the unmaintained Microsoft plugin;
+            // the listing name must be unique.
+            name = 'Azure DevOps Community'
             version = buildNumber
             vendor {
                 name = 'Stanislav Bayrakovskiy'

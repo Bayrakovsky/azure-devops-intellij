@@ -6,7 +6,7 @@
 <idea-plugin>
     <!-- id/name/version/vendor/since-build are patched on build from pluginConfiguration in build.gradle -->
     <id>io.github.bayrakovskiy.azuredevops</id>
-    <name>Azure DevOps</name>
+    <name>Azure DevOps Community</name>
     <category>VCS Integration</category>
     <vendor url="https://github.com/Bayrakovsky/azure-devops-intellij">Stanislav Bayrakovskiy</vendor>
     <description><![CDATA[
