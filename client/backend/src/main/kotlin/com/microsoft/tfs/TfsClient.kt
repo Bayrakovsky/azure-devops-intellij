@@ -15,6 +15,9 @@ import com.microsoft.tfs.core.clients.versioncontrol.events.NewPendingChangeList
 import com.microsoft.tfs.core.clients.versioncontrol.events.NonFatalErrorListener
 import com.microsoft.tfs.core.clients.versioncontrol.events.PendingChangeEvent
 import com.microsoft.tfs.core.clients.versioncontrol.events.UndonePendingChangeListener
+import com.microsoft.tfs.core.clients.versioncontrol.exceptions.ServerPathFormatException
+import com.microsoft.tfs.core.clients.versioncontrol.path.LocalPath
+import com.microsoft.tfs.core.clients.versioncontrol.path.ServerPath
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.*
 import com.microsoft.tfs.core.clients.versioncontrol.specs.ItemSpec
 import com.microsoft.tfs.core.clients.versioncontrol.workspacecache.WorkspaceInfo
@@ -113,19 +116,45 @@ class TfsClient(lifetime: Lifetime, serverUri: URI, credentials: Credentials) {
 
     val workspaces = Property<List<Workspace>>(listOf())
     private fun getWorkspaceFor(path: TfsPath): Workspace? {
-        for (workspace in workspaces.value) {
-            if (workspace.isPathMapped(path)) {
-                return workspace
+        try {
+            for (workspace in workspaces.value) {
+                if (workspace.isPathMapped(path)) {
+                    return workspace
+                }
             }
-        }
 
-        return client.tryGetWorkspace(path)?.also {
-            workspaces.value += it
+            return client.tryGetWorkspace(path)?.also {
+                workspaces.value += it
+            }
+        } catch (ex: ServerPathFormatException) {
+            logger.warn { "Path cannot be mapped to a TFVC server path: \"$path\" (${ex.message})" }
+            return null
         }
     }
 
+    /**
+     * TFVC forbids some characters in server paths (e.g. ':'). A local file whose path contains such a character
+     * (say, a directory literally named "C:" created on macOS or Linux) can never be part of a TFVC workspace,
+     * and trying to translate its path throws [ServerPathFormatException] from inside the SDK, failing the whole
+     * batch operation it was a part of. Filter such paths out up front.
+     */
+    private fun isTranslatableToServerPath(path: TfsPath): Boolean = when (path) {
+        is TfsLocalPath -> try {
+            val root = Paths.get(path.path).root?.toString() ?: "/"
+            LocalPath.makeServer(path.path, root, ServerPath.ROOT)
+            true
+        } catch (ex: ServerPathFormatException) {
+            logger.warn { "Skipping path that cannot be mapped to a TFVC server path: \"${path.path}\" (${ex.message})" }
+            false
+        } catch (ex: java.nio.file.InvalidPathException) {
+            logger.warn { "Skipping invalid local path: \"${path.path}\" (${ex.message})" }
+            false
+        }
+        else -> true
+    }
+
     private fun enumeratePathsWithWorkspace(paths: Iterable<TfsPath>, action: (Workspace, List<TfsPath>) -> Unit) {
-        for ((workspace, workspacePathList) in paths.groupBy(::getWorkspaceFor)) {
+        for ((workspace, workspacePathList) in paths.filter(::isTranslatableToServerPath).groupBy(::getWorkspaceFor)) {
             if (workspace == null) {
                 logger.warn { "Could not determine workspace for paths: " + paths.joinToString() }
                 continue

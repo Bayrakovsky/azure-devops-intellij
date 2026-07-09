@@ -186,7 +186,9 @@ public class TFSVcs extends AbstractVcs {
     }
 
     public boolean fileIsUnderVcs(final FilePath filePath) {
-        return isVersionedDirectory(filePath.getVirtualFile());
+        // Historically this delegated to AbstractVcs.isVersionedDirectory (removed from the platform),
+        // whose default implementation always returned false.
+        return false;
     }
 
     @Override

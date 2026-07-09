@@ -353,6 +353,7 @@ public class WorkspaceModel extends AbstractModel {
         } catch (final Throwable t) {
             //TODO on failure we could provide a link that reopened the dialog with the values they tried to save
             VcsNotifier.getInstance(project).notifyError(
+                    null,
                     TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_NOTIFY_FAILURE_TITLE),
                     LocalizationServiceImpl.getInstance().getExceptionMessage(t));
         }
@@ -378,6 +379,7 @@ public class WorkspaceModel extends AbstractModel {
                             TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_NOTIFY_SUCCESS_SYNC_MESSAGE));
                 } catch (final Throwable t) {
                     VcsNotifier.getInstance(project).notifyError(
+                            null,
                             TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_NOTIFY_FAILURE_TITLE),
                             LocalizationServiceImpl.getInstance().getExceptionMessage(t));
                 }

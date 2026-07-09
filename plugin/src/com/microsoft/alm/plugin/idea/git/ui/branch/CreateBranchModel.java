@@ -177,7 +177,7 @@ public class CreateBranchModel extends AbstractModel {
                             gitRemoteUrl, true);
 
                     if (context == null) {
-                        VcsNotifier.getInstance(project).notifyError(TfPluginBundle.message(
+                        VcsNotifier.getInstance(project).notifyError(null, TfPluginBundle.message(
                                         TfPluginBundle.KEY_CREATE_BRANCH_ERRORS_AUTHENTICATION_FAILED_TITLE),
                                 TfPluginBundle.message(TfPluginBundle.KEY_ERRORS_AUTH_NOT_SUCCESSFUL, gitRemoteUrl));
                         return;
@@ -274,6 +274,7 @@ public class CreateBranchModel extends AbstractModel {
                 logger.warn("Create branch failed: {}", errorMessage);
                 if (!ApplicationManager.getApplication().isUnitTestMode()) {
                     VcsNotifier.getInstance(project).notifyError(
+                            null,
                             TfPluginBundle.message(TfPluginBundle.KEY_CREATE_BRANCH_DIALOG_FAILED_TITLE),
                             TfPluginBundle.message(
                                     TfPluginBundle.KEY_CREATE_BRANCH_ERRORS_BRANCH_CREATE_FAILED,

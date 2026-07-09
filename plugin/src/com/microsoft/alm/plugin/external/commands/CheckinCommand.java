@@ -110,6 +110,11 @@ public class CheckinCommand extends Command<String> {
             if (StringUtils.isNotEmpty(errorMessage.toString())) {
                 throw new RuntimeException(StringUtils.chomp(errorMessage.toString()));
             }
+            // stdout had no error details (e.g. connection-level failures such as "Unknown host" are only
+            // reported on stderr), so surface stderr instead of a generic "unknown error"
+            if (StringUtils.isNotBlank(stderr)) {
+                throw new RuntimeException(StringUtils.chomp(stderr.trim()));
+            }
             // couldn't figure out error message parsing so returning generic error
             logger.error("Parsing of the stdout failed to get the error message");
             throw new TeamServicesException(TeamServicesException.KEY_ERROR_UNKNOWN);

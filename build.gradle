@@ -278,6 +278,11 @@ configure(mainProjects) {
         implementation ':com.microsoft.alm.client.sourcecontrol:0.4.3-SNAPSHOT'
         implementation ':com.microsoft.alm.client.workitemtracking:0.4.3-SNAPSHOT'
 
+        // The plugin code and the Microsoft ALM client libraries use Apache commons-lang 2.x. The IntelliJ
+        // Platform used to leak its own copy onto the plugin classpath, but it is removed in 2026.2 —
+        // bundle our own so the plugin does not depend on the IDE providing it.
+        implementation 'commons-lang:commons-lang:2.6'
+
         implementation group: 'commons-io', name: 'commons-io', version: '2.4'
         implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.28'
         implementation group: 'org.glassfish.jersey.connectors', name: 'jersey-apache-connector', version: '2.28'

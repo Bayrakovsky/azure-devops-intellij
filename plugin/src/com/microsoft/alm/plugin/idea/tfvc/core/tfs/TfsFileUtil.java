@@ -32,7 +32,6 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
-import com.intellij.util.io.ReadOnlyAttributeUtil;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.plugin.external.models.Workspace;
 import com.microsoft.alm.plugin.idea.tfvc.exceptions.TfsException;
@@ -139,7 +138,7 @@ public class TfsFileUtil {
                     public void run() {
                         try {
                             for (VirtualFile file : files) {
-                                ReadOnlyAttributeUtil.setReadOnlyAttribute(file, status);
+                                file.setWritable(!status);
                             }
                         } catch (IOException e) {
                             exception.set(e);
@@ -157,10 +156,9 @@ public class TfsFileUtil {
         final Ref<IOException> exception = new Ref<IOException>();
         ApplicationManager.getApplication().invokeAndWait(new Runnable() {
             public void run() {
-                try {
-                    ReadOnlyAttributeUtil.setReadOnlyAttribute(path, status);
-                } catch (IOException e) {
-                    exception.set(e);
+                final File file = new File(path);
+                if (!file.setWritable(!status) && file.exists()) {
+                    exception.set(new IOException("Failed to change read-only attribute of " + path));
                 }
             }
         });
