@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _Changes that will land in the next release will be listed here._
 
+## [2.0.1] — 2026-07-11
+
+Maintenance release after Marketplace listing approval. Renames the plugin for Marketplace
+uniqueness, enables automated signed publishing, and improves TFVC error handling.
+
+### Added
+
+- **Automated JetBrains Marketplace publishing** in the release workflow: tag-driven releases now
+  sign the plugin zip and upload it via `publishPlugin` when repository secrets are configured.
+- **`commons-lang` 2.6** dependency for compatibility with future IntelliJ platform versions.
+
+### Changed
+
+- Plugin display name updated to **Azure DevOps Community** to avoid confusion with the unmaintained
+  Microsoft plugin on JetBrains Marketplace.
+
+### Fixed
+
+- **Check-in failures with opaque errors** — `CheckinCommand` now surfaces `tf` stderr messages for
+  easier debugging.
+- **Reactive backend crashes on non-translatable server paths** — `TfsClient` handles
+  `ServerPathFormatException` and filters paths the SDK cannot map.
+- **Notification titles** — several TFVC error notifications no longer pass a redundant null title.
+- **File permission handling** in `TfsFileUtil` for more reliable local workspace operations.
+
 ## [2.0.0] — 2026-07-08
 
 First release of the revived community fork. The upstream Microsoft plugin (last targeting
@@ -56,5 +81,6 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.1
 [2.0.0]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.0
