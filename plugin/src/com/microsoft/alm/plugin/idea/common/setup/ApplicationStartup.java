@@ -5,8 +5,8 @@ package com.microsoft.alm.plugin.idea.common.setup;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.ide.AppLifecycleListener;
-import com.intellij.idea.Main;
 import com.intellij.openapi.application.ApplicationNamesInfo;
+import com.intellij.openapi.application.PathManager;
 import com.microsoft.alm.plugin.authentication.AuthHelper;
 import com.microsoft.alm.plugin.authentication.AuthTypes;
 import com.microsoft.alm.plugin.events.ServerPollingManager;
@@ -20,7 +20,6 @@ import com.microsoft.alm.plugin.idea.common.services.PropertyServiceImpl;
 import com.microsoft.alm.plugin.idea.common.services.ServerContextStoreImpl;
 import com.microsoft.alm.plugin.idea.common.statusBar.StatusBarManager;
 import com.microsoft.alm.plugin.services.PluginServiceProvider;
-import com.sun.jna.Platform;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +34,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Initializes and configures plugin at startup.
@@ -45,12 +42,9 @@ import java.util.regex.Pattern;
  */
 public class ApplicationStartup implements AppLifecycleListener {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationStartup.class);
-    private static final String CLASS_EXTENSION = ".class";
     private static final String USER_HOME_DIR = System.getProperty("user.home");
     private static final String VSTS_DIR = ".vsts";
     private static final String LOCATION_FILE = "locations.csv";
-    private static final String LINUX_EXE_DIR = "bin";
-    private static final String MAC_EXE_DIR = "MacOS";
     private static final String CSV_COMMA = ",";
 
     public ApplicationStartup() {
@@ -107,20 +101,10 @@ public class ApplicationStartup implements AppLifecycleListener {
     }
 
     /**
-     * Find the current location of the IDE running
-     *
-     * @return the IDE path or an empty string if not found
+     * Returns the IDE executable directory (bin on Linux/Windows, MacOS on macOS).
      */
     protected String getIdeLocation() {
-        final String resourcePath = Main.class.getResource(Main.class.getSimpleName() + CLASS_EXTENSION).getPath();
-        final Pattern pattern = Pattern.compile("file:(.*?)lib/bootstrap.jar!/" + Main.class.getName() + CLASS_EXTENSION);
-        final Matcher matcher = pattern.matcher(resourcePath);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        // if the IDE could not be found an empty string is returned
-        return StringUtils.EMPTY;
+        return PathManager.getBinPath();
     }
 
     /**
@@ -200,12 +184,8 @@ public class ApplicationStartup implements AppLifecycleListener {
      * Finds the OS type the plugin is running on and calls the setup for it
      */
     protected void doOsSetup(final File vstsDirectory, final String ideLocation) {
-        if (Platform.isMac()) {
-            logger.debug("Mac operating system detected");
-            cacheIdeLocation(vstsDirectory, ideLocation + MAC_EXE_DIR);
-        } else {
-            logger.debug("Linux operating system detected ");
-            cacheIdeLocation(vstsDirectory, ideLocation + LINUX_EXE_DIR);
+        if (StringUtils.isNotEmpty(ideLocation)) {
+            cacheIdeLocation(vstsDirectory, ideLocation);
         }
     }
 

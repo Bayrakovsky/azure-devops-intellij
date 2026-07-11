@@ -6,7 +6,9 @@ package com.microsoft.alm.plugin.idea.common.statusBar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.wm.StatusBar;
+import com.intellij.openapi.wm.StatusBarWidgetFactory;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager;
 import com.microsoft.alm.plugin.context.RepositoryContext;
 import com.microsoft.alm.plugin.events.ServerEvent;
 import com.microsoft.alm.plugin.events.ServerEventListener;
@@ -17,6 +19,7 @@ import com.microsoft.alm.plugin.idea.common.utils.VcsHelper;
 import com.microsoft.alm.plugin.operations.BuildStatusLookupOperation;
 import com.microsoft.alm.plugin.operations.Operation;
 import com.microsoft.alm.plugin.operations.OperationFactory;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +47,8 @@ public class StatusBarManager {
                                         // On project opened or repo changed we use the project context to update the status bar
                                         updateStatusBar(EventContextHelper.getProject(contextMap), false);
                                     } else if (EventContextHelper.isProjectClosing(contextMap)) {
-                                        // On project closing we remove our widgets from the status bar
-                                        removeWidgets(EventContextHelper.getProject(contextMap));
+                                        // Widget lifecycle is managed by StatusBarWidgetFactory on project close
+                                        refreshBuildWidgetAvailability(EventContextHelper.getProject(contextMap));
                                     } else {
                                         // If there isn't any context, then we were called by the polling timer
                                         // Just update all the status bars for all the projects
@@ -72,24 +75,24 @@ public class StatusBarManager {
     }
 
     public static void updateStatusBar(final Project project, final boolean allowPrompt) {
-        // remove widget if not a VSTS project in Rider
+        refreshBuildWidgetAvailability(project);
+
         if (IdeaHelper.isRider() && !VcsHelper.isVstsRepo(project)) {
-            removeWidgets(project);
-        } else {
-            final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-            if (statusBar != null) {
-                updateWidgets(statusBar, project, allowPrompt);
-            }
+            return;
+        }
+
+        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+        if (statusBar != null) {
+            updateWidgets(statusBar, project, allowPrompt);
         }
     }
 
     private static void updateWidgets(final StatusBar statusBar, final Project project, final boolean allowPrompt) {
-        // Update the build widget
         BuildWidget buildWidget = (BuildWidget) statusBar.getWidget(BuildWidget.getID());
         if (buildWidget == null) {
-            buildWidget = new BuildWidget();
-            statusBar.addWidget(buildWidget, project);
+            return;
         }
+
         // Attempt to get the current repository context (if none, then the status stays as it was)
         final RepositoryContext repositoryContext = VcsHelper.getRepositoryContext(project);
         if (repositoryContext != null) {
@@ -131,13 +134,24 @@ public class StatusBarManager {
         });
     }
 
-    private static void removeWidgets(final Project project) {
-        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        if (statusBar != null) {
-            // Remove build widget
-            if (statusBar.getWidget(BuildWidget.getID()) != null) {
-                statusBar.removeWidget(BuildWidget.getID());
+    private static void refreshBuildWidgetAvailability(@Nullable final Project project) {
+        if (project == null || project.isDisposed()) {
+            return;
+        }
+
+        final StatusBarWidgetFactory factory = findBuildWidgetFactory();
+        if (factory != null) {
+            project.getService(StatusBarWidgetsManager.class).updateWidget(factory);
+        }
+    }
+
+    @Nullable
+    private static StatusBarWidgetFactory findBuildWidgetFactory() {
+        for (final StatusBarWidgetFactory factory : StatusBarWidgetFactory.EP_NAME.getExtensions()) {
+            if (BuildWidget.getID().equals(factory.getId())) {
+                return factory;
             }
         }
+        return null;
     }
 }

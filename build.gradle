@@ -148,12 +148,13 @@ project(":plugin") {
         buildSearchableOptions = false
 
         pluginVerification {
-            // The inherited Microsoft code triggers plenty of deprecation/internal-API warnings; fail the build
-            // only on actual incompatibilities.
+            // Fail the build on binary incompatibilities and Marketplace-blocking API violations.
             failureLevel = [
                 VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
                 VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES,
-                VerifyPluginTask.FailureLevel.INVALID_PLUGIN
+                VerifyPluginTask.FailureLevel.INVALID_PLUGIN,
+                VerifyPluginTask.FailureLevel.INTERNAL_API_USAGES,
+                VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES,
             ]
 
             ides {

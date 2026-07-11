@@ -24,7 +24,8 @@ import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vfs.CharsetToolkit;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.plugin.idea.tfvc.core.tfs.TfsRevisionNumber;
 import com.microsoft.alm.plugin.idea.tfvc.exceptions.TfsException;
@@ -136,7 +137,8 @@ public abstract class TFSContentRevision implements ContentRevision {
         if (content == null) {
             return null;
         }
-        return CharsetToolkit.bytesToString(content, getFile().getCharset());
+        final Charset charset = Objects.requireNonNullElse(getFile().getCharset(), StandardCharsets.UTF_8);
+        return new String(content, charset);
     }
 
     @Nullable

@@ -133,7 +133,7 @@ public class IdeaHelper {
     public static void runOnUIThread(final Runnable runnable, final boolean wait) {
         runOnUIThread(runnable, wait,
                 ApplicationManager.getApplication() != null ?
-                        ApplicationManager.getApplication().getAnyModalityState() :
+                        ModalityState.defaultModalityState() :
                         null);
     }
 

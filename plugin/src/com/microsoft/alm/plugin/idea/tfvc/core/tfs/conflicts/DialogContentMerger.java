@@ -24,12 +24,14 @@ import com.intellij.diff.DiffRequestFactory;
 import com.intellij.diff.InvalidDiffRequestException;
 import com.intellij.diff.merge.MergeRequest;
 import com.intellij.diff.merge.MergeResult;
+import com.intellij.openapi.diff.DiffBundle;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.StreamUtil;
+import com.intellij.openapi.vcs.VcsBundle;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vcs.merge.MergeDialogCustomizer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.plugin.idea.tfvc.ui.resolve.ContentTriplet;
@@ -46,7 +48,14 @@ public class DialogContentMerger implements ContentMerger {
         ArgumentHelper.checkIfFileWriteable(new File(localFile.getPath()));
 
         Document document = Objects.requireNonNull(FileDocumentManager.getInstance().getDocument(localFile));
-        final MergeDialogCustomizer c = new MergeDialogCustomizer();
+        final String mergeWindowTitle = VcsBundle.message(
+                "multiple.file.merge.request.title",
+                FileUtil.toSystemDependentName(localFile.getPresentableUrl()));
+        final String leftPanelTitle = DiffBundle.message("merge.version.title.our");
+        final String centerPanelTitle = DiffBundle.message("merge.version.title.base");
+        final String rightPanelTitle = serverVersion != null
+                ? DiffBundle.message("merge.version.title.their.with.revision", serverVersion.asString())
+                : DiffBundle.message("merge.version.title.their");
         final MergeRequest request;
         AtomicReference<MergeResult> result = new AtomicReference<>();
         try {
@@ -59,12 +68,8 @@ public class DialogContentMerger implements ContentMerger {
                         StreamUtil.convertSeparators(contentTriplet.baseContent),
                         StreamUtil.convertSeparators(contentTriplet.serverContent)
                     ),
-                    c.getMergeWindowTitle(localFile),
-                    Arrays.asList(
-                            c.getLeftPanelTitle(localFile),
-                            c.getCenterPanelTitle(localFile),
-                            c.getRightPanelTitle(localFile, serverVersion)
-                    ), result::set);
+                    mergeWindowTitle,
+                    Arrays.asList(leftPanelTitle, centerPanelTitle, rightPanelTitle), result::set);
         } catch (InvalidDiffRequestException e) {
             throw new RuntimeException(e);
         }

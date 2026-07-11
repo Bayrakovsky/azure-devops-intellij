@@ -111,6 +111,9 @@
         <applicationService serviceInterface="com.microsoft.alm.plugin.context.RepositoryContextManager"
                             serviceImplementation="com.microsoft.alm.plugin.context.RepositoryContextManager"
                             testServiceImplementation="com.microsoft.alm.plugin.context.MockRepositoryContextManager" />
+
+        <statusBarWidgetFactory id="com.microsoft.alm.plugin.idea.common.statusBar.BuildWidget"
+                                implementation="com.microsoft.alm.plugin.idea.common.statusBar.BuildStatusBarWidgetFactory"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

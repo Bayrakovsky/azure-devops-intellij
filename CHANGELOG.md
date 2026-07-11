@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _Changes that will land in the next release will be listed here._
 
+## [2.0.2] — 2026-07-11
+
+Marketplace compliance release: replaces all Internal API and override-only API usages
+flagged by the JetBrains Plugin Verifier so the plugin can pass Marketplace moderation.
+
+### Fixed
+
+- **Marketplace rejection (Internal API)** — replaced private platform calls in `IdeaHelper`,
+  `ApplicationStartup`, `TFSContentRevision`, `RenameFileDirectory`, `DialogContentMerger`, and
+  the build status bar (`StatusBarWidgetFactory` extension point instead of `StatusBar.addWidget`).
+- CI `verifyPlugin` now fails on `INTERNAL_API_USAGES` and `OVERRIDE_ONLY_API_USAGES` to catch
+  regressions before upload.
+
 ## [2.0.1] — 2026-07-11
 
 Maintenance release after Marketplace listing approval. Renames the plugin for Marketplace
@@ -81,6 +94,7 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.2
 [2.0.1]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.1
 [2.0.0]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.0
