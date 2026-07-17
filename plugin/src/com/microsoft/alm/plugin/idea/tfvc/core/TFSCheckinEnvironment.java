@@ -23,18 +23,14 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.vcs.CheckinProjectPanel;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.changes.Change;
+import com.intellij.openapi.vcs.changes.CommitContext;
 import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.openapi.vcs.checkin.CheckinEnvironment;
-import com.intellij.openapi.vcs.ui.RefreshableOnComponent;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.FunctionUtil;
-import com.intellij.util.NullableFunction;
-import com.intellij.util.PairConsumer;
 import com.microsoft.alm.common.utils.UrlHelper;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.exceptions.TeamServicesException;
@@ -75,58 +71,6 @@ public class TFSCheckinEnvironment implements CheckinEnvironment {
         myVcs = vcs;
     }
 
-    @Nullable
-    public RefreshableOnComponent createAdditionalOptionsPanel(final CheckinProjectPanel checkinProjectPanel,
-                                                               PairConsumer<Object, Object> additionalDataConsumer) {
-//        boolean isAffected = false;
-//        for (File file : checkinProjectPanel.getFiles()) {
-//            if (TFSVcs.isUnderTFS(VcsUtil.getFilePath(file), checkinProjectPanel.getProject())) {
-//                isAffected = true;
-//                break;
-//            }
-//        }
-//        if (!isAffected) {
-//            return null;
-//        }
-//
-//        final JComponent panel = new JPanel();
-//        panel.setLayout(new BorderLayout(5, 0));
-//
-//        myVcs.getCheckinData().messageLabel = new BoldLabel() {
-//
-//            @Override
-//            public JToolTip createToolTip() {
-//                JToolTip toolTip = new JToolTip() {{
-//                    setUI(new MultiLineTooltipUI());
-//                }};
-//                toolTip.setComponent(this);
-//                return toolTip;
-//            }
-//
-//        };
-//
-//        panel.add(myVcs.getCheckinData().messageLabel, BorderLayout.WEST);
-//
-//        final JButton configureButton = new JButton("Configure...");
-//        panel.add(configureButton, BorderLayout.EAST);
-//
-//        configureButton.addActionListener(new ActionListener() {
-//
-//            public void actionPerformed(final ActionEvent event) {
-//                CheckinParameters copy = myVcs.getCheckinData().parameters.createCopy();
-//
-//                CheckinParametersDialog d = new CheckinParametersDialog(checkinProjectPanel.getProject(), copy);
-//                if (d.showAndGet()) {
-//                    myVcs.getCheckinData().parameters = copy;
-//                    updateMessage(myVcs.getCheckinData());
-//                }
-//            }
-//        });
-//
-//        return new TFSAdditionalOptionsPanel(panel, checkinProjectPanel, configureButton);
-        return null;
-    }
-
 //    public static void updateMessage(TFSVcs.CheckinData checkinData) {
 //        if (checkinData.parameters == null) {
 //            return;
@@ -150,11 +94,6 @@ public class TFSCheckinEnvironment implements CheckinEnvironment {
 //    }
 
     @Nullable
-    public String getDefaultMessageFor(final FilePath[] filesToCheckin) {
-        return null;
-    }
-
-    @Nullable
     @NonNls
     public String getHelpId() {
         return null;  // TODO: help id for check in
@@ -164,11 +103,12 @@ public class TFSCheckinEnvironment implements CheckinEnvironment {
         return CHECKIN_OPERATION_NAME;
     }
 
+    @Override
     @Nullable
     public List<VcsException> commit(List<? extends Change> changes,
                                      String preparedComment,
-                                     @NotNull NullableFunction<Object, Object> parametersHolder,
-                                     Set<? super String> feedback) {
+                                     @NotNull CommitContext commitContext,
+                                     @NotNull Set<? super String> feedback) {
         final List<VcsException> errors = new ArrayList<>();
 
         // set progress bar status
@@ -215,10 +155,6 @@ public class TFSCheckinEnvironment implements CheckinEnvironment {
         }
 
         return errors;
-    }
-
-    public List<VcsException> commit(List<? extends Change> changes, String preparedComment) {
-        return commit(changes, preparedComment, FunctionUtil.nullConstant(), null);
     }
 
     @Nullable

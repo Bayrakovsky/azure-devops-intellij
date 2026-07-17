@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _Changes that will land in the next release will be listed here._
 
+## [2.0.3] — 2026-07-17
+
+Maintenance release, no new features. JetBrains periodically deletes platform APIs that were
+"scheduled for removal", and a plugin that still calls them starts crashing on the next IDE
+update. This release replaces almost all such calls (49 flagged usages down to 2), so the
+plugin should survive platform 2026.2 and later. The two remaining warnings sit in the
+checkout dialog, where the replacement API requires a rewrite of the dialog itself; that is
+planned for a separate release.
+
+### Changed
+
+- Replaced platform APIs scheduled for removal throughout the TFVC and Git UI: progress
+  dialogs, file chooser fields, action event lookups, the TFVC server tree (popup menu,
+  speed search, data context), icons, tree colors, and the check-in environment.
+- Proxy settings are now read through the current platform proxy API instead of the removed
+  `HttpConfigurable`. One behavior change: proxy authentication is used whenever credentials
+  are saved for the proxy host, since the old "Proxy authentication" checkbox no longer
+  exists in the IDE settings.
+- Project open and close events now come from a startup activity and a `ProjectCloseListener`
+  instead of the removed `ProjectManagerListener`. In practice the status bar widget may show
+  up a moment later after a project opens.
+
+### Removed
+
+- `BackCompatibleUtils`, a reflection helper for IDEA 2016 and older that had no callers left.
+
 ## [2.0.2] — 2026-07-11
 
 Marketplace compliance release: replaces all Internal API and override-only API usages
@@ -94,7 +120,8 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.3...HEAD
+[2.0.3]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.3
 [2.0.2]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.2
 [2.0.1]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.1
 [2.0.0]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.0

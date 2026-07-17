@@ -61,9 +61,9 @@ public class SimpleCheckoutForm implements BasicForm {
 
             // Setup folder browser
             parentDirectory.getInsets().right = 0;
-            parentDirectory.addBrowseFolderListener(
-                    TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_DIALOG_PARENT_FOLDER_DIALOG_TITLE), null, null,
-                    new FileChooserDescriptor(false, true, false, false, false, false));
+            parentDirectory.addBrowseFolderListener(null,
+                    new FileChooserDescriptor(false, true, false, false, false, false)
+                            .withTitle(TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_DIALOG_PARENT_FOLDER_DIALOG_TITLE)));
 
             initialized = true;
         }

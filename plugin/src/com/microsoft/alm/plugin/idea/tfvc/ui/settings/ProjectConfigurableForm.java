@@ -106,9 +106,10 @@ public class ProjectConfigurableForm {
         downloadLink.setHyperlinkTarget(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_URL));
         downloadLink.setToolTipText(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_URL));
         pathLabel.setText(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_DESCRIPTION));
-        tfExeField.addBrowseFolderListener(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_TITLE),
-                TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_DESCRIPTION), project,
+        tfExeField.addBrowseFolderListener(project,
                 new FileChooserDescriptor(true, false, false ,false, false, false)
+                        .withTitle(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_TITLE))
+                        .withDescription(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_DESCRIPTION))
                         .withFileFilter(new Condition<VirtualFile>() {
                             @Override
                             public boolean value(VirtualFile virtualFile) {
@@ -168,10 +169,10 @@ public class ProjectConfigurableForm {
             visualStudioClientLabel.setText(
                     TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_VISUAL_STUDIO_CLIENT));
             visualStudioClientField.addBrowseFolderListener(
-                    TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_TITLE),
-                    TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_VISUAL_STUDIO_CLIENT),
                     project,
                     new FileChooserDescriptor(true, false, false ,false, false, false)
+                            .withTitle(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_TITLE))
+                            .withDescription(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_VISUAL_STUDIO_CLIENT))
                             .withFileFilter(virtualFile -> virtualFile.getName().equalsIgnoreCase("tf.exe"))
             );
             testVisualStudioClientButton.setText(

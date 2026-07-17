@@ -96,7 +96,7 @@ public abstract class MultipleItemAction<TItemInfo extends ItemInfo> extends Dum
                 // Get the local paths
                 final List<String> localPaths = new ArrayList<String>(files.length);
                 for (final VirtualFile file : files) {
-                    final FilePath localPath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(file);
+                    final FilePath localPath = VcsContextFactory.getInstance().createFilePathOn(file);
                     localPaths.add(localPath.getPath());
                 }
 

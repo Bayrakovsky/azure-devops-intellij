@@ -75,8 +75,8 @@ public class ApplicationStartup implements AppLifecycleListener {
         // Setup status bar
         StatusBarManager.setupStatusBar();
 
-        // Hook up to VCS and Project events
-        ProjectRepoEventManager.getInstance().startListening();
+        // Project and repository events are delivered via ProjectRepoEventManager's
+        // postStartupActivity and ProjectCloseListener registrations in plugin.xml.
 
         // Start polling for server events
         ServerPollingManager.getInstance().startPolling();

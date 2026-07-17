@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Objects;
 
 public class OpenFileInBrowserAction extends DumbAwareAction {
 
@@ -145,8 +146,8 @@ public class OpenFileInBrowserAction extends DumbAwareAction {
 
     @Override
     public void actionPerformed(final AnActionEvent anActionEvent) {
-        final Project project = anActionEvent.getRequiredData(CommonDataKeys.PROJECT);
-        final VirtualFile virtualFile = anActionEvent.getRequiredData(CommonDataKeys.VIRTUAL_FILE);
+        final Project project = Objects.requireNonNull(anActionEvent.getData(CommonDataKeys.PROJECT));
+        final VirtualFile virtualFile = Objects.requireNonNull(anActionEvent.getData(CommonDataKeys.VIRTUAL_FILE));
 
         final GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
         final GitRepository gitRepository = manager.getRepositoryForFileQuick(virtualFile);

@@ -19,15 +19,15 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.actions;
 
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsRunnable;
-import com.intellij.vcsUtil.VcsUtil;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.helpers.Path;
 import com.microsoft.alm.plugin.context.ServerContext;
@@ -85,9 +85,8 @@ public class MergeBranchAction extends SingleItemAction implements DumbAware {
         logger.info("targetServerPath: " + targetServerPath);
 
         try {
-            VcsUtil.runVcsProcessWithProgress(new VcsRunnable() {
-                @Override
-                public void run() throws VcsException {
+            ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                    (ThrowableComputable<Void, VcsException>) () -> {
                     try {
                         // Get the current workspace
                         final Workspace workspace = CommandUtils.getWorkspace(serverContext, actionContext.getProject());
@@ -141,8 +140,8 @@ public class MergeBranchAction extends SingleItemAction implements DumbAware {
                     } catch (final Throwable t) {
                         throw TFSVcs.convertToVcsException(t);
                     }
-                }
-            }, TfPluginBundle.message(TfPluginBundle.KEY_ACTIONS_TFVC_MERGE_BRANCH_PROGRESS_MERGING), false, project);
+                    return null;
+                    }, TfPluginBundle.message(TfPluginBundle.KEY_ACTIONS_TFVC_MERGE_BRANCH_PROGRESS_MERGING), false, project);
 
             // All done
             final String message = TfPluginBundle.message(TfPluginBundle.KEY_ACTIONS_TFVC_MERGE_BRANCH_SUCCESS, sourceServerPath, targetServerPath);

@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.system.CpuArch;
 import com.microsoft.alm.plugin.external.exceptions.VisualStudioClientVersionException;
 import com.microsoft.alm.plugin.external.models.ToolVersion;
 import com.microsoft.alm.plugin.services.PropertyService;
@@ -55,7 +56,7 @@ public class VisualStudioTfvcClient {
     @Nullable
     public static Path detectClientPath() {
         if (!SystemInfo.isWindows) return null;
-        String programFilesPath = SystemInfo.is32Bit ? System.getenv("ProgramFiles") : System.getenv("ProgramFiles(x86)");
+        String programFilesPath = CpuArch.CURRENT.width == 32 ? System.getenv("ProgramFiles") : System.getenv("ProgramFiles(x86)");
         if (StringUtils.isEmpty(programFilesPath))
             programFilesPath = "C:\\Program Files (x86)";
         Path visualStudioPath = Paths.get(programFilesPath, "Microsoft Visual Studio");

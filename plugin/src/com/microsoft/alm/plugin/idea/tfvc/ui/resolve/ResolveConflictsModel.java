@@ -21,9 +21,8 @@ package com.microsoft.alm.plugin.idea.tfvc.ui.resolve;
 
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.vcsUtil.VcsRunnable;
-import com.intellij.vcsUtil.VcsUtil;
 import com.microsoft.alm.plugin.external.commands.ResolveConflictsCommand;
 import com.microsoft.alm.plugin.external.models.Conflict;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
@@ -65,13 +64,12 @@ public class ResolveConflictsModel extends PageModelImpl {
     public void loadConflicts() {
         logger.debug("Loading conflicts into the table");
         try {
-            final VcsRunnable resolveRunnable = new VcsRunnable() {
-                public void run() throws VcsException {
-                    IdeaHelper.setProgress(ProgressManager.getInstance().getProgressIndicator(), 0.1, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_LOADING_CONFLICTS));
-                    conflictHelper.findConflicts(ResolveConflictsModel.this);
-                }
+            final ThrowableComputable<Void, VcsException> resolveRunnable = () -> {
+                IdeaHelper.setProgress(ProgressManager.getInstance().getProgressIndicator(), 0.1, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_LOADING_CONFLICTS));
+                conflictHelper.findConflicts(ResolveConflictsModel.this);
+                return null;
             };
-            VcsUtil.runVcsProcessWithProgress(resolveRunnable, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_LOADING_PROGRESS_BAR), false, project);
+            ProgressManager.getInstance().runProcessWithProgressSynchronously(resolveRunnable, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_LOADING_PROGRESS_BAR), false, project);
         } catch (VcsException e) {
             logger.error("Error while loading conflicts: " + e.getMessage());
             addError(ModelValidationInfo.createWithMessage(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_LOAD_ERROR)));

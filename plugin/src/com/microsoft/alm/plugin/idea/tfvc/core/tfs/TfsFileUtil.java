@@ -114,7 +114,7 @@ public class TfsFileUtil {
     }
 
     public static FilePath getFilePath(@NotNull final VirtualFile f) {
-        return VcsContextFactory.SERVICE.getInstance().createFilePathOn(f);
+        return VcsContextFactory.getInstance().createFilePathOn(f);
     }
 
     public static List<String> getFilePathStrings(@NotNull final Collection<VirtualFile> files) {

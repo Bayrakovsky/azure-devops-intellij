@@ -3,11 +3,11 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.ui.servertree;
 
-import com.intellij.ide.DataManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.DataKey;
-import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.DataSink;
+import com.intellij.openapi.actionSystem.UiDataProvider;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.PopupHandler;
@@ -21,7 +21,7 @@ import com.intellij.util.EventDispatcher;
 import com.intellij.util.ui.EmptyIcon;
 import com.intellij.util.ui.UIUtil;
 import com.microsoft.alm.plugin.context.ServerContext;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -37,7 +37,7 @@ import java.awt.Insets;
 import java.util.EventListener;
 import java.util.Set;
 
-public class TfsTreeForm implements Disposable, DataProvider {
+public class TfsTreeForm implements Disposable, UiDataProvider {
     private boolean canCreateVirtualFolders;
 
     {
@@ -105,6 +105,7 @@ public class TfsTreeForm implements Disposable, DataProvider {
     public static final Icon EMPTY_ICON = new EmptyIcon(0, UIUtil.getBalloonWarningIcon().getIconHeight());
 
     private JComponent contentPane;
+    private JComponent wrappedContentPane;
     private Tree tree;
     private JTextField pathField;
     private JLabel messageLabel;
@@ -114,8 +115,8 @@ public class TfsTreeForm implements Disposable, DataProvider {
     private SelectedItem selectedItem; // have to cache selected item to be available after form is disposed
 
     public TfsTreeForm() {
-        DataManager.registerDataProvider(tree, this);
-        new TreeSpeedSearch(tree);
+        wrappedContentPane = UiDataProvider.wrapComponent(contentPane, this);
+        TreeSpeedSearch.installOn(tree);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
@@ -124,7 +125,7 @@ public class TfsTreeForm implements Disposable, DataProvider {
                 eventDispatcher.getMulticaster().selectionChanged();
             }
         });
-        PopupHandler.installPopupHandler(tree, POPUP_ACTION_GROUP, ActionPlaces.REMOTE_HOST_DIALOG_POPUP);
+        PopupHandler.installPopupMenu(tree, POPUP_ACTION_GROUP, ActionPlaces.REMOTE_HOST_DIALOG_POPUP);
         setMessage(null, false);
     }
 
@@ -170,7 +171,7 @@ public class TfsTreeForm implements Disposable, DataProvider {
     }
 
     public JComponent getContentPane() {
-        return contentPane;
+        return wrappedContentPane;
     }
 
     public JComponent getPreferredFocusedComponent() {
@@ -182,11 +183,8 @@ public class TfsTreeForm implements Disposable, DataProvider {
     }
 
     @Override
-    public Object getData(@NonNls final String dataId) {
-        if (KEY.is(dataId)) {
-            return this;
-        }
-        return null;
+    public void uiDataSnapshot(@NotNull final DataSink sink) {
+        sink.set(KEY, this);
     }
 
     public void createVirtualFolder(final String folderName) {

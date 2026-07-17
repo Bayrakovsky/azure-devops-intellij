@@ -3,11 +3,11 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.ui.management;
 
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.vcsUtil.VcsRunnable;
-import com.intellij.vcsUtil.VcsUtil;
 import com.microsoft.alm.plugin.authentication.AuthenticationInfo;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.context.ServerContextManager;
@@ -63,11 +63,11 @@ public class ManageWorkspacesModel extends AbstractModel {
         logger.info("Reloading workspaces for server " + selectedServer.getName());
 
         try {
-            VcsUtil.runVcsProcessWithProgress(new VcsRunnable() {
-                public void run() throws VcsException {
-                    reloadWorkspaces(selectedServer);
-                }
-            }, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_MSG, selectedServer.getName()), true, project);
+            ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                    (ThrowableComputable<Void, VcsException>) () -> {
+                        reloadWorkspaces(selectedServer);
+                        return null;
+                    }, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_MSG, selectedServer.getName()), true, project);
         } catch (VcsException e) {
             logger.warn("Exception while trying to reload workspaces", e);
             Messages.showErrorDialog(project, e.getMessage(),
@@ -111,11 +111,11 @@ public class ManageWorkspacesModel extends AbstractModel {
         }
 
         try {
-            VcsUtil.runVcsProcessWithProgress(new VcsRunnable() {
-                public void run() throws VcsException {
-                    deleteWorkspace(selectedWorkspace);
-                }
-            }, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_MSG, selectedWorkspace.getName()), true, project);
+            ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                    (ThrowableComputable<Void, VcsException>) () -> {
+                        deleteWorkspace(selectedWorkspace);
+                        return null;
+                    }, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_MSG, selectedWorkspace.getName()), true, project);
         } catch (VcsException e) {
             logger.warn("Exception while trying to delete workspace", e);
             Messages.showErrorDialog(project, e.getMessage(),
@@ -154,11 +154,11 @@ public class ManageWorkspacesModel extends AbstractModel {
         logger.info("Editing workspace " + selectedWorkspace.getName());
 
         try {
-            VcsUtil.runVcsProcessWithProgress(new VcsRunnable() {
-                public void run() throws VcsException {
-                    editWorkspace(selectedWorkspace, update);
-                }
-            }, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_MSG, selectedWorkspace.getName()), true, project);
+            ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                    (ThrowableComputable<Void, VcsException>) () -> {
+                        editWorkspace(selectedWorkspace, update);
+                        return null;
+                    }, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_MSG, selectedWorkspace.getName()), true, project);
         } catch (VcsException e) {
             logger.warn("Exception while trying to edit workspace", e);
             Messages.showErrorDialog(project, e.getMessage(),

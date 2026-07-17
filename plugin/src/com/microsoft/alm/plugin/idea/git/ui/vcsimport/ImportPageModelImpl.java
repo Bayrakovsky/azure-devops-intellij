@@ -528,7 +528,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
                     if (remoteParams.size() == 0) {
                         //user chose to cancel import
                         logger.warn("setupRemoteOnLocalRepo: User chose to cancel import for project: {}, local repo: {}",
-                                project.getName(), localRepository.getGitDir().getUrl());
+                                project.getName(), localRepository.getRepositoryFiles().getRootDir().getUrl());
                         notifyImportError(project, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_CANCELED));
                         return false;
                     }

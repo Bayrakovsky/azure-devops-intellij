@@ -4,8 +4,8 @@
 package com.microsoft.alm.plugin.idea.common.setup;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.project.ProjectCloseListener;
+import com.intellij.openapi.startup.StartupActivity;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.plugin.events.ServerEventManager;
 import com.microsoft.alm.plugin.idea.common.utils.EventContextHelper;
@@ -20,13 +20,15 @@ import java.util.Map;
 /**
  * The purpose of this class is to listen for IDEA events like project changed or repository changed and
  * notify the ServerEventManager to fire all changed events.
+ * <p>
+ * The project opened event is delivered via {@link ProjectOpenedActivity} (registered as a
+ * {@code postStartupActivity} in plugin.xml), the project closing event via {@link ProjectCloseEventListener}
+ * (registered as a {@code projectListeners} entry on the {@link ProjectCloseListener} topic).
  */
 public class ProjectRepoEventManager {
     private static final Logger logger = LoggerFactory.getLogger(ProjectRepoEventManager.class);
 
     private static boolean repositoryChanging = false;
-
-    private ProjectEventListener projectEventListener;
 
     private static class Holder {
         private static final ProjectRepoEventManager INSTANCE = new ProjectRepoEventManager();
@@ -38,13 +40,6 @@ public class ProjectRepoEventManager {
 
     protected ProjectRepoEventManager() {
         logger.info("ProjectRepoEventManager created");
-    }
-
-    public void startListening() {
-        if (projectEventListener == null) {
-            projectEventListener = new ProjectEventListener();
-            ProjectManager.getInstance().addProjectManagerListener(projectEventListener);
-        }
     }
 
     private void triggerServerEvents(final String sender, final Project project, final GitRepository repository) {
@@ -61,47 +56,39 @@ public class ProjectRepoEventManager {
         ServerEventManager.getInstance().triggerAllEvents(context);
     }
 
-    private static class ProjectEventListener implements ProjectManagerListener {
+    private static void subscribeToRepoChangeEvents(@NotNull final Project project) {
+        project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, new GitRepositoryChangeListener() {
+            @Override
+            public void repositoryChanged(@NotNull final GitRepository repository) {
+                if (repositoryChanging) {
+                    // We are already in the middle of a change, so ignore the event
+                    // There is a case where we get into an infinite loop here if we don't ignore the message
+                    logger.info("Ignoring repository changed event since we are already in the middle of a change.");
+                } else {
+                    try {
+                        repositoryChanging = true;
+                        logger.info("repository changed");
+                        ProjectRepoEventManager.getInstance().triggerServerEvents(EventContextHelper.SENDER_REPO_CHANGED, project, repository);
+                    } finally {
+                        repositoryChanging = false;
+                    }
+                }
+            }
+        });
+    }
+
+    public static class ProjectOpenedActivity implements StartupActivity.DumbAware {
         @Override
-        public void projectOpened(final Project project) {
+        public void runActivity(@NotNull final Project project) {
             ProjectRepoEventManager.getInstance().triggerServerEvents(EventContextHelper.SENDER_PROJECT_OPENED, project, null);
             subscribeToRepoChangeEvents(project);
         }
+    }
 
+    public static class ProjectCloseEventListener implements ProjectCloseListener {
         @Override
-        public boolean canCloseProject(final Project project) {
-            return true;
-        }
-
-        @Override
-        public void projectClosed(final Project project) {
-            // nothing to do here
-        }
-
-        @Override
-        public void projectClosing(final Project project) {
+        public void projectClosing(@NotNull final Project project) {
             ProjectRepoEventManager.getInstance().triggerServerEvents(EventContextHelper.SENDER_PROJECT_CLOSING, project, null);
-        }
-
-        private void subscribeToRepoChangeEvents(@NotNull final Project project) {
-            project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, new GitRepositoryChangeListener() {
-                @Override
-                public void repositoryChanged(@NotNull final GitRepository repository) {
-                    if (repositoryChanging) {
-                        // We are already in the middle of a change, so ignore the event
-                        // There is a case where we get into an infinite loop here if we don't ignore the message
-                        logger.info("Ignoring repository changed event since we are already in the middle of a change.");
-                    } else {
-                        try {
-                            repositoryChanging = true;
-                            logger.info("repository changed");
-                            ProjectRepoEventManager.getInstance().triggerServerEvents(EventContextHelper.SENDER_REPO_CHANGED, project, repository);
-                        } finally {
-                            repositoryChanging = false;
-                        }
-                    }
-                }
-            });
         }
     }
 }

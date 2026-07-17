@@ -353,14 +353,6 @@ public class CreateBranchModel extends AbstractModel {
             }
 
             @Override
-            public void startNonCancelableSection() {
-            }
-
-            @Override
-            public void finishNonCancelableSection() {
-            }
-
-            @Override
             public boolean isModal() {
                 return false;
             }

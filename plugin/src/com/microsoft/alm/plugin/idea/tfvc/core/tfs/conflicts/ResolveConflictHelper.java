@@ -30,8 +30,8 @@ import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.CurrentContentRevision;
 import com.intellij.openapi.vcs.update.FileGroup;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsRunnable;
 import com.intellij.vcsUtil.VcsUtil;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.common.utils.SystemHelper;
@@ -289,12 +289,11 @@ public class ResolveConflictHelper {
                                                final ResolveConflictsModel model,
                                                final boolean updateFiles,
                                                final NameMergerResolution nameMergerResolution) throws VcsException {
-        final VcsRunnable resolveRunnable = new VcsRunnable() {
-            public void run() throws VcsException {
-                resolveConflict(localPath, updatedPath, type, context, model, updateFiles, nameMergerResolution);
-            }
+        final ThrowableComputable<Void, VcsException> resolveRunnable = () -> {
+            resolveConflict(localPath, updatedPath, type, context, model, updateFiles, nameMergerResolution);
+            return null;
         };
-        VcsUtil.runVcsProcessWithProgress(resolveRunnable, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_RESOLVING_PROGRESS_BAR), false, project);
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(resolveRunnable, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_RESOLVING_PROGRESS_BAR), false, project);
 
         // The following code is in this method instead of resolveConflict so that it will be called from tests
         if (nameMergerResolution != null && StringUtils.isEmpty(nameMergerResolution.getResolvedLocalPath())) {
@@ -352,12 +351,11 @@ public class ResolveConflictHelper {
     protected ContentTriplet populateThreeWayDiffWithProgress(final Conflict conflict, final File conflictPath,
                                                               final FilePath localPath, final ServerContext context) throws VcsException {
         final ContentTriplet contentTriplet = new ContentTriplet();
-        final VcsRunnable runnable = new VcsRunnable() {
-            public void run() throws VcsException {
-                populateThreeWayDiff(conflict, conflictPath, localPath, context, contentTriplet);
-            }
+        final ThrowableComputable<Void, VcsException> runnable = () -> {
+            populateThreeWayDiff(conflict, conflictPath, localPath, context, contentTriplet);
+            return null;
         };
-        VcsUtil.runVcsProcessWithProgress(runnable, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_MERGE_LOADING), false, project);
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_MERGE_LOADING), false, project);
         return contentTriplet;
     }
 

@@ -3,12 +3,15 @@
 
 package com.microsoft.alm.plugin.idea.common.services;
 
-import com.intellij.util.net.HttpConfigurable;
+import com.intellij.credentialStore.Credentials;
+import com.intellij.util.net.ProxyConfiguration;
+import com.intellij.util.net.ProxyCredentialStore;
+import com.intellij.util.net.ProxySettings;
 import com.microsoft.alm.common.utils.SystemHelper;
-import com.microsoft.alm.plugin.idea.common.utils.BackCompatibleUtils;
 import com.microsoft.alm.plugin.services.HttpProxyService;
 import com.microsoft.alm.plugin.services.PluginServiceProvider;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +32,33 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     private boolean useHttpProxyViaSystemProperties;
     private boolean useHttpProxyViaIntelliJProperties;
 
+    @Nullable
+    private static ProxyConfiguration.StaticProxyConfiguration getStaticProxyConfiguration() {
+        final ProxyConfiguration configuration = ProxySettings.getInstance().getProxyConfiguration();
+        if (configuration instanceof ProxyConfiguration.StaticProxyConfiguration) {
+            final ProxyConfiguration.StaticProxyConfiguration staticConfiguration =
+                    (ProxyConfiguration.StaticProxyConfiguration) configuration;
+            if (staticConfiguration.getProtocol() == ProxyConfiguration.ProxyProtocol.HTTP) {
+                return staticConfiguration;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Credentials getProxyCredentials() {
+        final ProxyConfiguration.StaticProxyConfiguration configuration = getStaticProxyConfiguration();
+        if (configuration == null) {
+            return null;
+        }
+        return ProxyCredentialStore.getInstance().getCredentials(configuration.getHost(), configuration.getPort());
+    }
+
     private void initialize() {
         useHttpProxyViaSystemProperties = StringUtils.equalsIgnoreCase(System.getProperty(PROP_PROXY_SET), "true");
         if (!useHttpProxyViaSystemProperties) {
             useHttpProxyViaIntelliJProperties = PluginServiceProvider.getInstance().isInsideIDE() &&
-                    HttpConfigurable.getInstance() != null &&
-                    HttpConfigurable.getInstance().USE_HTTP_PROXY;
+                    getStaticProxyConfiguration() != null;
         } else {
             useHttpProxyViaIntelliJProperties = false;
         }
@@ -51,9 +75,11 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     public boolean isAuthenticationRequired() {
         initialize();
         // We don't do authentication if we are using the system properties
+        final Credentials credentials = useHttpProxyViaIntelliJProperties ? getProxyCredentials() : null;
         final boolean result = !useHttpProxyViaSystemProperties &&
                 useHttpProxyViaIntelliJProperties &&
-                HttpConfigurable.getInstance().PROXY_AUTHENTICATION;
+                credentials != null &&
+                StringUtils.isNotEmpty(credentials.getUserName());
         logger.info("isAuthenticationRequired: " + result);
         return result;
     }
@@ -73,7 +99,10 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         if (useHttpProxyViaSystemProperties && System.getProperty(PROP_PROXY_HOST) != null) {
             proxyHost = System.getProperty(PROP_PROXY_HOST);
         } else if (useHttpProxyViaIntelliJProperties) {
-            proxyHost = HttpConfigurable.getInstance().PROXY_HOST;
+            final ProxyConfiguration.StaticProxyConfiguration configuration = getStaticProxyConfiguration();
+            if (configuration != null) {
+                proxyHost = configuration.getHost();
+            }
         }
         logger.info("getProxyHost: " + proxyHost);
         return proxyHost;
@@ -87,7 +116,10 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         if (useHttpProxyViaSystemProperties && System.getProperty(PROP_PROXY_PORT) != null) {
             proxyPort = SystemHelper.toInt(System.getProperty(PROP_PROXY_PORT), proxyPort);
         } else if (useHttpProxyViaIntelliJProperties) {
-            proxyPort = HttpConfigurable.getInstance().PROXY_PORT;
+            final ProxyConfiguration.StaticProxyConfiguration configuration = getStaticProxyConfiguration();
+            if (configuration != null) {
+                proxyPort = configuration.getPort();
+            }
         }
         logger.info("getProxyPort: " + proxyPort);
         return proxyPort;
@@ -98,7 +130,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         initialize();
         final String result;
         if (useHttpProxyViaIntelliJProperties) {
-            result = BackCompatibleUtils.getProxyLogin();
+            final Credentials credentials = getProxyCredentials();
+            result = credentials != null ? credentials.getUserName() : null;
         } else {
             result = null;
         }
@@ -112,7 +145,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         logger.info("getPassword called");
         initialize();
         if (useHttpProxyViaIntelliJProperties) {
-            return HttpConfigurable.getInstance().getPlainProxyPassword();
+            final Credentials credentials = getProxyCredentials();
+            return credentials != null ? credentials.getPasswordAsString() : null;
         } else {
             return null;
         }

@@ -189,7 +189,7 @@ public class MergeBranchForm {
         sourceText.setText(initialSourcePath);
         mySourceIsDirectory = initialSourcePathIsDirectory;
 
-        sourceText.getButton().addActionListener(new ActionListener() {
+        sourceText.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 final ServerBrowserDialog dialog =
                         new ServerBrowserDialog(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MERGE_BRANCH_BROWSE_TITLE),

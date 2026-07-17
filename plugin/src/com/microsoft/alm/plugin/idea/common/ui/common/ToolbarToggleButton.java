@@ -40,18 +40,13 @@ public class ToolbarToggleButton extends CheckboxAction implements DumbAware {
     }
 
     @Override
-    public boolean displayTextInToolbar() {
-        return true;
-    }
-
-    @Override
     public void update(AnActionEvent e) {
         super.update(e);
     }
 
     @Override
-    public JComponent createCustomComponent(Presentation presentation) {
-        final JComponent customComponent = super.createCustomComponent(presentation);
+    public JComponent createCustomComponent(Presentation presentation, String place) {
+        final JComponent customComponent = super.createCustomComponent(presentation, place);
         customComponent.setFocusable(false);
         customComponent.setOpaque(false);
         return customComponent;

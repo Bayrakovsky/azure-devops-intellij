@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 
 public class OpenCommitInBrowserAction extends DumbAwareAction {
 
@@ -73,8 +74,8 @@ public class OpenCommitInBrowserAction extends DumbAwareAction {
 
     @Override
     public void actionPerformed(@NotNull final AnActionEvent anActionEvent) {
-        final Project project = anActionEvent.getRequiredData(CommonDataKeys.PROJECT);
-        final VcsFullCommitDetails commit = anActionEvent.getRequiredData(VcsLogDataKeys.VCS_LOG).getSelectedDetails().get(0);
+        final Project project = Objects.requireNonNull(anActionEvent.getData(CommonDataKeys.PROJECT));
+        final VcsFullCommitDetails commit = Objects.requireNonNull(anActionEvent.getData(VcsLogDataKeys.VCS_LOG)).getSelectedDetails().get(0);
 
         final GitRepository gitRepository = GitUtil.getRepositoryManager(project).getRepositoryForRootQuick(commit.getRoot());
         if (gitRepository == null)

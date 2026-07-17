@@ -80,7 +80,7 @@ public abstract class SingleItemAction extends DumbAwareAction {
         }
 
         // checked by isEnabled()
-        final FilePath localPath = VcsContextFactory.SERVICE.getInstance().createFilePathOn(file);
+        final FilePath localPath = VcsContextFactory.getInstance().createFilePathOn(file);
 
         final String actionTitle = StringUtil.trimEnd(e.getPresentation().getText(), "...");
         try {

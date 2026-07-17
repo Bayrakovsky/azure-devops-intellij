@@ -114,6 +114,8 @@
 
         <statusBarWidgetFactory id="com.microsoft.alm.plugin.idea.common.statusBar.BuildWidget"
                                 implementation="com.microsoft.alm.plugin.idea.common.statusBar.BuildStatusBarWidgetFactory"/>
+
+        <postStartupActivity implementation="com.microsoft.alm.plugin.idea.common.setup.ProjectRepoEventManager$ProjectOpenedActivity"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -135,6 +137,11 @@
         <listener class="com.microsoft.alm.plugin.idea.common.setup.ApplicationStartup"
                   topic="com.intellij.ide.AppLifecycleListener"/>
     </applicationListeners>
+
+    <projectListeners>
+        <listener class="com.microsoft.alm.plugin.idea.common.setup.ProjectRepoEventManager$ProjectCloseEventListener"
+                  topic="com.intellij.openapi.project.ProjectCloseListener"/>
+    </projectListeners>
 
     <actions>
         <action id="VSO.Open.In.Browser" class="com.microsoft.alm.plugin.idea.common.actions.OpenFileInBrowserAction">

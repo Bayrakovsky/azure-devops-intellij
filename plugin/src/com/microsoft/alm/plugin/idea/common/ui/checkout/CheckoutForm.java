@@ -118,9 +118,9 @@ public class CheckoutForm implements BasicForm, Disposable {
 
             // Setup folder browser
             parentDirectory.getInsets().right = 0;
-            parentDirectory.addBrowseFolderListener(
-                    TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_DIALOG_PARENT_FOLDER_DIALOG_TITLE), null, null,
-                    new FileChooserDescriptor(false, true, false, false, false, false));
+            parentDirectory.addBrowseFolderListener(null,
+                    new FileChooserDescriptor(false, true, false, false, false, false)
+                            .withTitle(TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_DIALOG_PARENT_FOLDER_DIALOG_TITLE)));
 
             // Align the busy spinner with the height of the refresh button (has to be the refresh button height so the image isn't squashed and then disappears)
             // Also change the refresh button width so that the button is a perfect square

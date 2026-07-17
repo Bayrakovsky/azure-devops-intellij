@@ -83,7 +83,7 @@ public class TfsTreeNode extends SimpleNode {
             presentation.setIcon(Icons.VSLogoSmall);
         } else {
             if (isDirectory()) {
-                presentation.setIcon(PlatformIcons.DIRECTORY_CLOSED_ICON);
+                presentation.setIcon(PlatformIcons.FOLDER_ICON);
             } else {
                 presentation.setIcon(FileTypeManager.getInstance().getFileTypeByFileName(getFileName()).getIcon());
             }
