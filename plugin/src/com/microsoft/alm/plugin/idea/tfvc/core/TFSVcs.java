@@ -23,11 +23,8 @@ import com.google.common.util.concurrent.SettableFuture;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.options.ShowSettingsUtil;import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.progress.util.BackgroundTaskUtil;
 import com.intellij.openapi.project.Project;
@@ -144,7 +141,7 @@ public class TFSVcs extends AbstractVcs {
     @Override
     public void enableIntegration() {
         BackgroundTaskUtil.executeOnPooledThread(myProject, () -> {
-            Collection<VcsRoot> roots = ServiceManager.getService(myProject, VcsRootDetector.class).detect();
+            Collection<VcsRoot> roots = myProject.getService(VcsRootDetector.class).detect();
             new TfvcIntegrationEnabler(this).enable(roots);
         });
     }
@@ -298,7 +295,12 @@ public class TFSVcs extends AbstractVcs {
         IdeaHelper.runOnUIThread(() -> {
             final SettableFuture<String> versionMessage = SettableFuture.create();
             (new Task.Backgroundable(getProject(), TfPluginBundle.message(TfPluginBundle.KEY_TFVC_TF_VERSION_WARNING_PROGRESS),
-                    false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+                    false) {
+                @Override
+                public boolean shouldStartInBackground() {
+                    return true;
+                }
+
                 public void run(@NotNull final ProgressIndicator indicator) {
                     try {
                         logger.info("Attempting to check the version of the TF command line.");

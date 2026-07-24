@@ -405,6 +405,7 @@ public class ServerContextManager {
         ServerContext context = get(tfvcServerUrlString);
         logger.info("createContextFromTfvcServerUrl context exists: " + (context != null));
         if (context == null || context.getServerUri() == null ||
+                context.getAuthenticationInfo() == null ||
                 context.getTeamProjectCollectionReference() == null ||
                 context.getTeamProjectCollectionReference().getName() == null ||
                 context.getTeamProjectReference() == null ||
@@ -498,9 +499,11 @@ public class ServerContextManager {
     public AuthenticationInfo getAuthenticationInfo(URI serverUri, final boolean prompt) {
         AuthenticationInfo authenticationInfo = null;
 
-        // For now I will just do a linear search for an appropriate context info to copy the auth info from
+        // For now I will just do a linear search for an appropriate context info to copy the auth info from.
+        // Skip contexts that have no auth info so a null-auth sibling for the same account does not shadow a
+        // usable one (and does not leave us with null when a prompt would otherwise be possible).
         for (final ServerContext context : getAllServerContexts()) {
-            if (UrlHelper.haveSameAccount(serverUri, context.getUri())) {
+            if (UrlHelper.haveSameAccount(serverUri, context.getUri()) && context.getAuthenticationInfo() != null) {
                 logger.info("AuthenticatedInfo found for url " + serverUri);
                 authenticationInfo = context.getAuthenticationInfo();
                 break;
@@ -544,10 +547,14 @@ public class ServerContextManager {
         logger.info("refreshAuthInfo: refreshing auth info");
         for (final ServerContext context : getAllServerContexts()) {
             final AuthenticationInfo contextAuthInfo = context.getAuthenticationInfo();
-            if (authInfoMap.containsKey(contextAuthInfo)) {
+            final AuthenticationInfo newAuthInfo = authInfoMap.get(contextAuthInfo);
+            // Only replace the context when we actually obtained new credentials. If the user cancelled the
+            // prompt (or authentication failed) newAuthInfo is null; replacing with a null-auth context would
+            // leave a fully-populated but unauthenticated context behind and break later TFVC operations.
+            if (authInfoMap.containsKey(contextAuthInfo) && newAuthInfo != null) {
                 logger.info("refreshAuthInfo: Refreshing context auth info for: " + context.getKey());
                 remove(context.getKey());
-                add(new ServerContextBuilder(context).authentication(authInfoMap.get(contextAuthInfo)).build());
+                add(new ServerContextBuilder(context).authentication(newAuthInfo).build());
             }
         }
     }

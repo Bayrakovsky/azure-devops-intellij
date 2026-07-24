@@ -24,7 +24,7 @@ import com.intellij.openapi.vcs.VcsRoot;
 import com.intellij.openapi.vcs.roots.VcsIntegrationEnabler;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ObjectUtils;
+import java.util.Objects;
 import com.microsoft.alm.plugin.authentication.AuthenticationInfo;
 import com.microsoft.alm.plugin.authentication.AuthenticationListener;
 import com.microsoft.alm.plugin.authentication.AuthenticationProvider;
@@ -91,7 +91,7 @@ public class TfvcIntegrationEnabler extends VcsIntegrationEnabler {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 Path workspacePath = determineWorkspaceDirectory(Paths.get(basePath), indicator);
-                workspaceFile.set(ObjectUtils.notNull(
+                workspaceFile.set(Objects.requireNonNull(
                         LocalFileSystem.getInstance().findFileByIoFile(workspacePath.toFile())));
                 indicator.checkCanceled();
             }

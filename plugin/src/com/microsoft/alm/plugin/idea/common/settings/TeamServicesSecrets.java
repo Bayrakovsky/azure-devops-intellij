@@ -6,7 +6,7 @@ package com.microsoft.alm.plugin.idea.common.settings;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.microsoft.alm.plugin.authentication.AuthenticationInfo;
 import com.microsoft.alm.plugin.context.ServerContext;
 import org.apache.commons.lang.StringUtils;
@@ -19,7 +19,7 @@ public class TeamServicesSecrets {
     private static final Logger logger = LoggerFactory.getLogger(TeamServicesSecrets.class);
 
     public static TeamServicesSecrets getInstance() {
-        return ServiceManager.getService(TeamServicesSecrets.class);
+        return ApplicationManager.getApplication().getService(TeamServicesSecrets.class);
     }
 
     public static void forget(final String key) {

@@ -3,7 +3,7 @@
 
 package com.microsoft.alm.plugin.context;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class RepositoryContextManager {
     private Map<String, RepositoryContext> contextMap = new HashMap<String, RepositoryContext>();
 
     public static RepositoryContextManager getInstance() {
-        return ServiceManager.getService(RepositoryContextManager.class);
+        return ApplicationManager.getApplication().getService(RepositoryContextManager.class);
     }
 
     public synchronized void add(final RepositoryContext context) {

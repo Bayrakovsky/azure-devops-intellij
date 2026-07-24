@@ -4,7 +4,6 @@
 package com.microsoft.alm.plugin.idea.common.ui.common;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.openapi.vcs.changes.ui.SelectFilesDialog;
@@ -18,7 +17,7 @@ import java.util.List;
 
 public class IdeaFileSelector {
     public static IdeaFileSelector getInstance() {
-        return ServiceManager.getService(IdeaFileSelector.class);
+        return ApplicationManager.getApplication().getService(IdeaFileSelector.class);
     }
 
     @Nullable

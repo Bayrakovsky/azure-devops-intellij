@@ -3,7 +3,7 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.core;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.microsoft.alm.plugin.authentication.AuthenticationInfo;
@@ -40,7 +40,7 @@ public class ReactiveTfvcClient implements TfvcClient {
     private static final Logger ourLogger = Logger.getInstance(ReactiveTfvcClient.class);
 
     public static ReactiveTfvcClient getInstance() {
-        return ServiceManager.getService(ReactiveTfvcClient.class);
+        return ApplicationManager.getApplication().getService(ReactiveTfvcClient.class);
     }
 
     private static ServerIdentification getServerIdentification(ServerContext serverContext) {

@@ -11,7 +11,7 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.microsoft.alm.plugin.idea.common.resources.Icons;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.git.ui.vcsimport.ImportController;
-import git4idea.actions.BasicAction;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class ImportAction extends DumbAwareAction {
             return;
         }
 
-        BasicAction.saveAll();
+        FileDocumentManager.getInstance().saveAllDocuments();
 
         try {
             final ImportController controller = new ImportController(project);

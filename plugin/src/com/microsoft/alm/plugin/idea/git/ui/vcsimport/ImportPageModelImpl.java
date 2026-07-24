@@ -4,12 +4,10 @@
 package com.microsoft.alm.plugin.idea.git.ui.vcsimport;
 
 import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.application.ApplicationManager;import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
@@ -205,7 +203,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
     }
 
     private void doImport(final Project project, final ServerContext context, final String repositoryName) {
-        new Task.Backgroundable(project, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_IMPORTING_PROJECT), true, PerformInBackgroundOption.DEAF) {
+        new Task.Backgroundable(project, TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_IMPORTING_PROJECT), true) {
             @Override
             public void run(@NotNull final ProgressIndicator indicator) {
                 // Local context can change if the creation of the repo succeeds
@@ -222,7 +220,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
                     }
 
                     final GitRepository repo = getRepositoryForProject(project);
-                    final VirtualFile rootVirtualFile = repo != null ? repo.getRoot() : project.getBaseDir();
+                    final VirtualFile rootVirtualFile = repo != null ? repo.getRoot() : ProjectUtil.guessProjectDir(project);
 
                     final GitRepository localRepository = repo != null ? repo :
                             setupGitRepositoryForProject(project, rootVirtualFile, localContext, indicator);
@@ -293,7 +291,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
         } else {
             // either none or multiple repositories were found
             // try to find repository for project root
-            repo = repositoryManager.getRepositoryForFile(project.getBaseDir());
+            repo = repositoryManager.getRepositoryForFile(ProjectUtil.guessProjectDir(project));
         }
         return repo;
     }
@@ -566,7 +564,7 @@ public abstract class ImportPageModelImpl extends LoginPageModelImpl implements 
 
         //push all branches in local Git repo to remote
         indicator.setText(TfPluginBundle.message(TfPluginBundle.KEY_IMPORT_GIT_PUSH));
-        final Git git = ServiceManager.getService(Git.class);
+        final Git git = ApplicationManager.getApplication().getService(Git.class);
         final GitCommandResult result = git.push(localRepository, REMOTE_ORIGIN, remoteGitUrl, "*", true);
         if (!result.success()) {
             logger.error("pushChangesToRemoteRepo: push to remote: {} failed with error: {}, outuput: {}",

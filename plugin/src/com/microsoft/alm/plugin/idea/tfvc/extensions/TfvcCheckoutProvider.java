@@ -26,7 +26,7 @@ import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.ui.checkout.CheckoutController;
 import com.microsoft.alm.plugin.idea.common.utils.IdeaHelper;
 import com.microsoft.alm.plugin.idea.tfvc.ui.checkout.TfvcCheckoutModel;
-import git4idea.actions.BasicAction;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class TfvcCheckoutProvider implements CheckoutProvider {
 
     @Override
     public void doCheckout(@NotNull final Project project, final Listener listener) {
-        BasicAction.saveAll();
+        FileDocumentManager.getInstance().saveAllDocuments();
 
         if (!IdeaHelper.isTFConfigured(project)) {
             return;

@@ -3,7 +3,7 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.core;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.microsoft.alm.plugin.authentication.AuthenticationInfo;
@@ -41,7 +41,7 @@ public class ClassicTfvcClient implements TfvcClient {
     private static final Logger ourLogger = Logger.getInstance(ClassicTfvcClient.class);
 
     public static ClassicTfvcClient getInstance() {
-        return ServiceManager.getService(ClassicTfvcClient.class);
+        return ApplicationManager.getApplication().getService(ClassicTfvcClient.class);
     }
 
     @NotNull

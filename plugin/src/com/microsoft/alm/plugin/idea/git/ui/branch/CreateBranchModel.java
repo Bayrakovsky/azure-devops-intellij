@@ -8,10 +8,7 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.application.ModalityState;import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -167,7 +164,7 @@ public class CreateBranchModel extends AbstractModel {
         if (validationInfo == null) {
             final String gitRemoteUrl = TfGitHelper.getTfGitRemote(gitRepository).getFirstUrl();
             final Task.Backgroundable createBranchTask = new Task.Backgroundable(project, TfPluginBundle.message(TfPluginBundle.KEY_CREATE_BRANCH_DIALOG_TITLE),
-                    true, PerformInBackgroundOption.DEAF) {
+                    true) {
 
                 @Override
                 public void run(@NotNull final ProgressIndicator progressIndicator) {
@@ -226,7 +223,7 @@ public class CreateBranchModel extends AbstractModel {
                             public void run() {
                                 logger.info("Finishing: Checking out new branch: " + branchName);
                                 final String remoteBranchName = TfGitHelper.getRemoteBranchName(selectedRemoteBranch.getRemote(), branchName);
-                                final GitBrancher brancher = ServiceManager.getService(project, GitBrancher.class);
+                                final GitBrancher brancher = project.getService(GitBrancher.class);
                                 // Checkout a new branch from the remote branch that was created on the server and fetched above
                                 brancher.checkoutNewBranchStartingFrom(branchName,remoteBranchName,
                                         Collections.singletonList(gitRepository), null);

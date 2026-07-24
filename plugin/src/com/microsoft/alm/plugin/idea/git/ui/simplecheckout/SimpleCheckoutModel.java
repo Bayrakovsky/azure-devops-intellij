@@ -4,10 +4,7 @@
 package com.microsoft.alm.plugin.idea.git.ui.simplecheckout;
 
 import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.application.ApplicationManager;import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
@@ -167,7 +164,7 @@ public class SimpleCheckoutModel extends AbstractModel {
         final ModelValidationInfo validationInfo = validate();
         if (validationInfo == null) {
             final Task.Backgroundable createCloneTask = new Task.Backgroundable(project, TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_DIALOG_TITLE),
-                    true, PerformInBackgroundOption.DEAF) {
+                    true) {
                 final AtomicBoolean cloneResult = new AtomicBoolean();
 
                 @Override
@@ -183,7 +180,7 @@ public class SimpleCheckoutModel extends AbstractModel {
                     }
 
                     final String gitRepositoryStr = context.getUsableGitUrl();
-                    final Git git = ServiceManager.getService(Git.class);
+                    final Git git = ApplicationManager.getApplication().getService(Git.class);
                     logger.info("Cloning repo " + gitRepositoryStr);
                     cloneResult.set(git4idea.checkout.GitCheckoutProvider.doClone(project, git, getDirectoryName(), getParentDirectory(), gitRepositoryStr));
                 }
@@ -242,7 +239,7 @@ public class SimpleCheckoutModel extends AbstractModel {
                     // step to checkout the desired branch
                     manager.addInitializationRequest(VcsInitObject.AFTER_COMMON, new DumbAwareRunnable() {
                         public void run() {
-                            final GitRepositoryManager gitRepositoryManager = ServiceManager.getService(lastOpenedProject, GitRepositoryManager.class);
+                            final GitRepositoryManager gitRepositoryManager = lastOpenedProject.getService(GitRepositoryManager.class);
                             ArgumentHelper.checkNotNull(gitRepositoryManager, "GitRepositoryManager");
                             ArgumentHelper.checkNotNullOrEmpty(gitRepositoryManager.getRepositories(), "gitRepositoryManager.getRepositories()");
                             // TODO: use more direct manner to get repo but right now due to timing we can't
@@ -265,7 +262,7 @@ public class SimpleCheckoutModel extends AbstractModel {
                                     @Override
                                     public void run() {
                                         logger.info("Checking out branch " + remoteRef);
-                                        final GitBrancher brancher = ServiceManager.getService(lastOpenedProject, GitBrancher.class);
+                                        final GitBrancher brancher = lastOpenedProject.getService(GitBrancher.class);
                                         brancher.checkoutNewBranchStartingFrom(ref, remoteRef,
                                                 Collections.singletonList(gitRepository), null);
                                     }

@@ -10,7 +10,7 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.actions.RefreshAction;
-import com.intellij.util.ObjectUtils;
+import java.util.Objects;
 import com.microsoft.alm.plugin.external.models.Workspace;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.tfvc.core.TfvcWorkspaceLocator;
@@ -41,7 +41,7 @@ public class AddFileToTfIgnoreAction extends AnAction {
         ourLogger.info("Performing AddFileToTfIgnoreAction for " + myServerFilePath);
 
         Workspace partialWorkspace = TfvcWorkspaceLocator.getPartialWorkspace(myProject, true);
-        String filePath = ObjectUtils.assertNotNull(
+        String filePath = Objects.requireNonNull(
                 TfsFileUtil.translateServerItemToLocalItem(partialWorkspace.getMappings(), myServerFilePath, false));
         File localFile = new File(filePath);
         ourLogger.info("Local file path: " + localFile.getAbsolutePath());

@@ -5,6 +5,7 @@ package com.microsoft.alm.plugin.idea.common.utils;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -71,7 +72,7 @@ public class VcsHelper {
         final ProjectLevelVcsManager projectLevelVcsManager = ProjectLevelVcsManager.getInstance(project);
         AbstractVcs vcs = null;
         try {
-            vcs = projectLevelVcsManager.getVcsFor(project.getBaseDir());
+            vcs = projectLevelVcsManager.getVcsFor(ProjectUtil.guessProjectDir(project));
         } catch (Throwable t) {
             // This has been seen in PyCharm as a bug where it tries to open the site-packages as a source root
             // It has been fixed here going forward:
@@ -110,7 +111,7 @@ public class VcsHelper {
     public static GitRepository getGitRepository(final Project project) {
         if (isGitVcs(project)) {
             final GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
-            GitRepository repository = manager.getRepositoryForRootQuick(project.getBaseDir());
+            GitRepository repository = manager.getRepositoryForRootQuick(ProjectUtil.guessProjectDir(project));
 
             // in the case where the base dir of the Git repo and the base dir of IDEA project don't match this can be null
             if (repository == null) {

@@ -19,9 +19,7 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.core.tfs.conflicts;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.google.common.annotations.VisibleForTesting;import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -539,7 +537,7 @@ public class ResolveConflictHelper {
     public void acceptChangeAsync(final List<Conflict> conflicts, final ResolveConflictsCommand.AutoResolveType type, final ResolveConflictsModel model) {
         logger.info(String.format("Accepting changes to %s for file %s", type.name(), Arrays.toString(conflicts.toArray())));
         final Task.Backgroundable loadConflictsTask = new Task.Backgroundable(project, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_RESOLVING_PROGRESS_BAR),
-                true, PerformInBackgroundOption.DEAF) {
+                true) {
 
             @Override
             public void run(@NotNull final ProgressIndicator progressIndicator) {

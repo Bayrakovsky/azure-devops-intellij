@@ -5,7 +5,6 @@ package com.microsoft.alm.plugin.idea.common.settings;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.microsoft.alm.plugin.authentication.AuthenticationInfo;
@@ -41,7 +40,7 @@ public class TeamServicesSettingsService implements PersistentStateComponent<Set
     public static TeamServicesSettingsService getInstance() {
         TeamServicesSettingsService service = null;
         if (ApplicationManager.getApplication() != null) {
-            service = ServiceManager.getService(TeamServicesSettingsService.class);
+            service = ApplicationManager.getApplication().getService(TeamServicesSettingsService.class);
         }
 
         if (service == null) {

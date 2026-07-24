@@ -10,7 +10,7 @@ import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.ui.checkout.CheckoutController;
 import com.microsoft.alm.plugin.idea.common.utils.IdeaHelper;
 import com.microsoft.alm.plugin.idea.git.ui.checkout.GitCheckoutModel;
-import git4idea.actions.BasicAction;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class GitCheckoutProvider implements CheckoutProvider {
 
     @Override
     public void doCheckout(@NotNull final Project project, final Listener listener) {
-        BasicAction.saveAll();
+        FileDocumentManager.getInstance().saveAllDocuments();
 
         if(!IdeaHelper.isGitExeConfigured(project)) {
             return;

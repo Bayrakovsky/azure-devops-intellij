@@ -4,23 +4,20 @@
 package com.microsoft.alm.plugin.external.reactive;
 
 import com.intellij.execution.ExecutionException;
-import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.microsoft.alm.plugin.external.commands.ToolEulaNotAcceptedException;
 import com.microsoft.alm.plugin.idea.common.settings.SettingsChangedNotifier;
-import com.microsoft.alm.plugin.idea.common.utils.IdeaHelper;
 import com.microsoft.alm.plugin.idea.tfvc.ui.settings.EULADialog;
 import com.microsoft.alm.plugin.idea.tfvc.ui.settings.LicenseKind;
 import com.microsoft.alm.plugin.services.PropertyService;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -28,13 +25,14 @@ import java.util.concurrent.CompletionStage;
 public class ReactiveTfvcClientHolder implements Disposable {
 
     public static ReactiveTfvcClientHolder getInstance() {
-        return ServiceManager.getService(ReactiveTfvcClientHolder.class);
+        return ApplicationManager.getApplication().getService(ReactiveTfvcClientHolder.class);
     }
 
     public static Path getClientBackendPath() {
-        return Paths.get(
-                Objects.requireNonNull(PluginManager.getPlugin(IdeaHelper.PLUGIN_ID)).getPath().getAbsolutePath(),
-                "backend");
+        // Locate the plugin installation directory without the internal PluginManager API: the plugin's
+        // class jars live under <pluginRoot>/lib, so the bundled backend sits two directories up.
+        Path clientJar = Objects.requireNonNull(PathManager.getJarForClass(ReactiveTfvcClientHolder.class));
+        return clientJar.getParent().getParent().resolve("backend");
     }
 
     private final Object myClientLock = new Object();

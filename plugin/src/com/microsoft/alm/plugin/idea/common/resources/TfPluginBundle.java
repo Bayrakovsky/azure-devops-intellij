@@ -209,6 +209,10 @@ public class TfPluginBundle {
     public static final String KEY_PROMPT_CREDENTIALS_TITLE = "Prompt.Credentials.Title";
     @NonNls
     public static final String KEY_PROMPT_CREDENTIALS_MESSAGE = "Prompt.Credentials.Message";
+    @NonNls
+    public static final String KEY_PROMPT_CREDENTIALS_USERNAME = "Prompt.Credentials.UserName";
+    @NonNls
+    public static final String KEY_PROMPT_CREDENTIALS_PASSWORD = "Prompt.Credentials.Password";
 
     // Feedback dialog
     @NonNls

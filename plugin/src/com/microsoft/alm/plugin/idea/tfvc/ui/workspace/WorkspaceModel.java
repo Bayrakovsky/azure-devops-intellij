@@ -21,9 +21,7 @@ package com.microsoft.alm.plugin.idea.tfvc.ui.workspace;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.notification.NotificationListener;import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -301,7 +299,7 @@ public class WorkspaceModel extends AbstractModel {
         // Using IntelliJ's background framework here so the user can choose to wait or continue working
         final Task.Backgroundable backgroundTask = new Task.Backgroundable(project,
                 TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_PROGRESS_TITLE),
-                true, PerformInBackgroundOption.DEAF) {
+                true) {
             @Override
             public void run(@NotNull final ProgressIndicator indicator) {
                 saveWorkspaceInternal(serverContext, oldWorkspace, newWorkspace, indicator, project,
@@ -362,7 +360,7 @@ public class WorkspaceModel extends AbstractModel {
     public void syncWorkspaceAsync(final ServerContext context, final Project project, final String workspaceRootPath) {
         final Task.Backgroundable backgroundTask = new Task.Backgroundable(project,
                 TfPluginBundle.message(TfPluginBundle.KEY_WORKSPACE_DIALOG_PROGRESS_TITLE),
-                true, PerformInBackgroundOption.DEAF) {
+                true) {
             @Override
             public void run(@NotNull final ProgressIndicator indicator) {
                 try {

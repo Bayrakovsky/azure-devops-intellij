@@ -10,7 +10,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.LocalFilePath;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ObjectUtils;
+import java.util.Objects;
 import com.microsoft.alm.plugin.external.models.Workspace;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +80,7 @@ public class TfIgnoreUtil {
         String relativePath = FileUtil.getRelativePath(tfIgnore.getParentFile(), fileToIgnore);
         VirtualFile virtualTfIgnoreFile = LocalFileSystem.getInstance().findFileByIoFile(tfIgnore);
         if (virtualTfIgnoreFile == null) {
-            VirtualFile parentDir = ObjectUtils.assertNotNull( // should never be null because of the way we work with .tfignore
+            VirtualFile parentDir = Objects.requireNonNull( // should never be null because of the way we work with .tfignore
                     LocalFileSystem.getInstance().findFileByIoFile(tfIgnore.getParentFile()));
             virtualTfIgnoreFile = parentDir.createChildData(requestor, TFIGNORE_FILE_NAME);
         }
@@ -90,7 +90,7 @@ public class TfIgnoreUtil {
 
     private static void addLineToFile(VirtualFile file, String line) {
         FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-        Document document = ObjectUtils.assertNotNull(fileDocumentManager.getDocument(file));
+        Document document = Objects.requireNonNull(fileDocumentManager.getDocument(file));
         CharSequence contents = document.getCharsSequence();
         if (!StringUtil.isEmpty(contents) && !StringUtil.endsWith(contents, "\n")) {
             document.insertString(contents.length(), "\n");

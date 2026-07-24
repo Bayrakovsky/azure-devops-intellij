@@ -19,9 +19,7 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.ui.checkout;
 
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.dvcs.DvcsUtil;import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -75,7 +73,7 @@ public class TfvcCheckoutModel implements VcsSpecificCheckoutModel {
         final AtomicBoolean checkoutResult = new AtomicBoolean();
         (new Task.Backgroundable(project,
                 TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_TFVC_CREATING_WORKSPACE),
-                true, PerformInBackgroundOption.DEAF) {
+                true) {
             public void run(@NotNull final ProgressIndicator indicator) {
                 IdeaHelper.setProgress(indicator, 0.10, TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_TFVC_PROGRESS_CREATING));
 

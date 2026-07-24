@@ -3,7 +3,7 @@
 
 package com.microsoft.alm.plugin.idea.git.ui.checkout;
 
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.CheckoutProvider;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -26,7 +26,7 @@ public class GitCheckoutModel implements VcsSpecificCheckoutModel {
             boolean isAdvancedChecked,
             boolean isTfvcServerCheckout) {
         final String gitRepositoryStr = context.getUsableGitUrl();
-        final Git git = ServiceManager.getService(Git.class);
+        final Git git = ApplicationManager.getApplication().getService(Git.class);
         git4idea.checkout.GitCheckoutProvider.clone(project, git, listener,
                 destinationParent,
                 gitRepositoryStr,

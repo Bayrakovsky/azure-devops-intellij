@@ -18,10 +18,7 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.application.ModalityState;import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
@@ -473,7 +470,7 @@ public class CreatePullRequestModel extends AbstractModel {
         final CreatePullRequestModel createModel = this;
         /* Let's keep all server interactions to a background thread */
         final Task.Backgroundable createPullRequestTask = new Task.Backgroundable(project, TfPluginBundle.message(TfPluginBundle.KEY_CREATE_PR_DIALOG_TITLE),
-                true, PerformInBackgroundOption.DEAF) {
+                true) {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 ListenableFuture<Pair<String, GitCommandResult>> pushResult
@@ -524,7 +521,7 @@ public class CreatePullRequestModel extends AbstractModel {
                 = SettableFuture.<Pair<String, GitCommandResult>>create();
 
         indicator.setText(TfPluginBundle.message(TfPluginBundle.KEY_CREATE_PR_PUSH_TITLE));
-        final Git git = ServiceManager.getService(Git.class);
+        final Git git = ApplicationManager.getApplication().getService(Git.class);
 
         final GitRemoteBranch trackingBranch = localBranch.findTrackedBranch(gitRepository);
 
