@@ -58,6 +58,11 @@
     <change-notes><![CDATA[
       <br />
       <ul>
+        <li>2.0.5: Replaced a first batch of deprecated platform API calls with their current equivalents. No behavior changes.</li>
+        <li>2.0.4: The credentials prompt now opens on top of the Settings dialog and is modal to it. Cancelling "Update credentials" no longer stores an empty credential or breaks TFVC change detection. Removed the last internal API usage.</li>
+        <li>2.0.3: Replaced most platform APIs scheduled for removal so the plugin keeps working on 2026.2 and later. Proxy settings are now read through the current platform proxy API.</li>
+        <li>2.0.2: Replaced all internal and override-only API usages flagged by the Plugin Verifier (Marketplace compliance).</li>
+        <li>2.0.1: Renamed to "Azure DevOps Community", enabled signed publishing, and improved TFVC check-in error messages.</li>
         <li>2.0.0: Revived fork. Migrated to the IntelliJ Platform 2026.1 (works in Rider 2026.1+); updated the rd protocol and the TFVC reactive backend to run on JDK 21.</li>
       </ul>
       <br />

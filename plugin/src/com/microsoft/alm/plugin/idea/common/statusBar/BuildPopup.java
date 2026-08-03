@@ -85,7 +85,7 @@ public class BuildPopup extends JBPopupMenu {
     private void addFeedbackSubMenu() {
         // Add feedback submenu
         this.addSeparator();
-        final FeedbackAction feedbackAction = new FeedbackAction(model.getProject(), this.getClass().getName());
+        final FeedbackAction feedbackAction = new FeedbackAction();
         final JMenu subMenu = feedbackAction.getSubMenu();
         this.add(subMenu);
     }

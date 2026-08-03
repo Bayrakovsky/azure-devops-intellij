@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _Changes that will land in the next release will be listed here._
 
+## [2.0.5] — 2026-08-03
+
+Maintenance release, no new features. Replaces a first small batch of deprecated platform API
+calls with their current equivalents. All replacements are one-to-one with no intended behavior
+change; the rest of the deprecated and scheduled-for-removal warnings will be addressed in later
+releases.
+
+### Changed
+
+- Replaced deprecated platform APIs: the internal container `HashMap` (now `java.util.HashMap`),
+  `ModalityState.NON_MODAL` (now `ModalityState.nonModal()`), the `EmptyIcon` constructor (now
+  `EmptyIcon.create()`), stream reading via `StreamUtil` (now `InputStream.readAllBytes()`), and the
+  `ActionPlaces.isPopupPlace` place check (now `AnActionEvent.isFromContextMenu()`).
+- Reworked the Feedback button. It no longer opens the old Microsoft "Send a Smile / Send a Frown"
+  dialog, whose comment was never actually sent anywhere. It is now a small menu that links to the
+  community fork's own channels: the plugin's review page on JetBrains Marketplace, GitHub Issues, and
+  GitHub Discussions.
+
+### Fixed
+
+- Background UI updates were deferred until the current modal dialog closed, so several dialogs hung on
+  a spinner. This was a regression from 2.0.2, where the internal `getAnyModalityState()` call was
+  replaced with `defaultModalityState()`; on a background thread the latter resolves to a non-modal
+  state and postpones the update. Restored the original behavior through the public `ModalityState.any()`.
+  This fixes cloning a TFVC repository (the repository project list hung on "loading projects") and the
+  Edit Workspace dialog (every field stuck on "Loading...").
+- Adding a working folder before the workspace finished loading no longer throws
+  `ArrayIndexOutOfBoundsException`. The mappings table now creates its columns up front instead of only
+  after the workspace data arrives.
+- Cloning a Git repository ("Clone Repository" → "Azure DevOps Git") no longer fails immediately with an
+  "Access from Event Dispatch Thread (EDT) is not allowed" error. The Git executable version check now
+  runs on a background thread under a modal progress, as the current platform requires.
+
 ## [2.0.4] — 2026-07-24
 
 Maintenance release, no new features. Follows up on 2.0.3: removes the last internal API
@@ -146,7 +179,8 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.4...HEAD
+[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.5...HEAD
+[2.0.5]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.5
 [2.0.4]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.4
 [2.0.3]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.3
 [2.0.2]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.2

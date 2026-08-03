@@ -21,7 +21,9 @@ package com.microsoft.alm.plugin.idea.tfvc.ui.workspace;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.notification.NotificationListener;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -278,7 +280,10 @@ public class WorkspaceModel extends AbstractModel {
     }
 
     private void loadWorkspaceComplete() {
-        // Make sure to fire events only on the UI thread
+        // Make sure to fire events only on the UI thread. Use ModalityState.any() because this callback is
+        // scheduled from a background thread while the modal workspace dialog is already open; with the default
+        // (non-modal) state the UI update would be deferred until the dialog closes, leaving every field stuck
+        // on "Loading..." and the mappings table without columns.
         IdeaHelper.runOnUIThread(new Runnable() {
             @Override
             public void run() {
@@ -288,7 +293,7 @@ public class WorkspaceModel extends AbstractModel {
                 setLoading(false);
                 logger.info("loadWorkspace: done loading");
             }
-        });
+        }, false, ModalityState.any());
     }
 
     public void saveWorkspace(final Project project, final String workspaceRootPath, final boolean syncFiles, final Runnable onSuccess) {

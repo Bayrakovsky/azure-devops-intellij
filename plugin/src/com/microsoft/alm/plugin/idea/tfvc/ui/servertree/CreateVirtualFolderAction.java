@@ -3,7 +3,6 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.ui.servertree;
 
-import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.Messages;
@@ -18,7 +17,7 @@ public class CreateVirtualFolderAction extends DumbAwareAction {
     @Override
     public void update(final AnActionEvent e) {
         boolean isEnabled = isEnabled(e);
-        if (ActionPlaces.isPopupPlace(e.getPlace())) {
+        if (e.isFromContextMenu()) {
             e.getPresentation().setVisible(isEnabled);
         } else {
             e.getPresentation().setEnabled(isEnabled);

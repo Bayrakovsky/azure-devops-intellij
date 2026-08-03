@@ -72,7 +72,7 @@ public class BaseDialogImpl extends DialogWrapper implements BaseDialog {
     protected Action[] createLeftSideActions() {
         if (showFeedback) {
             final Action[] actions = new Action[1];
-            actions[0] = new FeedbackAction(project, feedbackContext);
+            actions[0] = new FeedbackAction();
             return actions;
         }
 

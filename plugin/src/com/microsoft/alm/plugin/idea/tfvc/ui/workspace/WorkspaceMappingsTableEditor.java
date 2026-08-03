@@ -93,6 +93,17 @@ public class WorkspaceMappingsTableEditor extends ValidatingTableEditor<Workspac
         this.project = project;
         this.serverContext = serverContext;
         this.validationDispatcher = validationDispatcher;
+        // Initialize the columns up front (with no rows) so the table is usable even before the workspace
+        // finishes loading. Otherwise the platform "Add" action would access column 1 of an empty column model
+        // and throw ArrayIndexOutOfBoundsException.
+        setModel(createColumns(), new ArrayList<Row>());
+    }
+
+    private ColumnInfo[] createColumns() {
+        return new ColumnInfo[]{
+                new MappingTypeColumn(),
+                new ServerPathColumn(project, serverContext),
+                new LocalPathColumn(project)};
     }
 
     public void setMappings(final List<Workspace.Mapping> mappings) {
@@ -102,7 +113,7 @@ public class WorkspaceMappingsTableEditor extends ValidatingTableEditor<Workspac
                 rows.add(new Row(mapping.getServerPath(), mapping.getLocalPath(),
                         mapping.isCloaked() ? MappingType.CLOAKED : MappingType.MAPPED));
             }
-            setModel(new ColumnInfo[]{new MappingTypeColumn(), new ServerPathColumn(project, serverContext), new LocalPathColumn(project)}, rows);
+            setModel(createColumns(), rows);
         }
     }
 

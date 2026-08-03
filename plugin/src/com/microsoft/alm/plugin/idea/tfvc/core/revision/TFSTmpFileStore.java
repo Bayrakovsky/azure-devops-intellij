@@ -20,7 +20,6 @@
 package com.microsoft.alm.plugin.idea.tfvc.core.revision;
 
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.io.StreamUtil;
 import com.microsoft.alm.plugin.idea.tfvc.core.tfs.TfsFileUtil;
 import com.microsoft.alm.plugin.idea.tfvc.exceptions.TfsException;
 import org.jetbrains.annotations.NonNls;
@@ -79,7 +78,7 @@ public class TFSTmpFileStore implements TFSContentStore {
         InputStream fileStream = null;
         try {
             fileStream = new FileInputStream(myTmpFile);
-            return StreamUtil.loadFromStream(fileStream);
+            return fileStream.readAllBytes();
         } finally {
             if (fileStream != null) {
                 fileStream.close();

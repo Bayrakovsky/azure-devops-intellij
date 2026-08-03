@@ -14,8 +14,6 @@ public class Icons {
     }
 
     public static final Icon Help = load("/icons/help.png");
-    public static final Icon Frown = load("/icons/frown.png");
-    public static final Icon Smile = load("/icons/smile.png");
     public static final Icon VSLogo = load("/icons/vs-logo.png");
     public static final Icon VSLogoSmall = load("/icons/vs-logo_small.png");
     public static final Icon WindowsAccount = load("/icons/windows-account.png");

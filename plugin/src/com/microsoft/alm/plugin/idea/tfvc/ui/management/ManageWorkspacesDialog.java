@@ -21,7 +21,7 @@ package com.microsoft.alm.plugin.idea.tfvc.ui.management;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.VcsDirtyScopeManager;
-import com.intellij.util.containers.HashMap;
+import java.util.HashMap;
 import com.microsoft.alm.plugin.external.models.Server;
 import com.microsoft.alm.plugin.external.models.Workspace;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;

@@ -102,7 +102,7 @@ public class TfsTreeForm implements Disposable, UiDataProvider {
 
     public static final DataKey<TfsTreeForm> KEY = DataKey.create("TfsTreeForm");
     public static final String POPUP_ACTION_GROUP = "TfvcTreePopupMenu";
-    public static final Icon EMPTY_ICON = new EmptyIcon(0, UIUtil.getBalloonWarningIcon().getIconHeight());
+    public static final Icon EMPTY_ICON = EmptyIcon.create(0, UIUtil.getBalloonWarningIcon().getIconHeight());
 
     private JComponent contentPane;
     private JComponent wrappedContentPane;

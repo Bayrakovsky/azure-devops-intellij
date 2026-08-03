@@ -105,7 +105,7 @@ public class TfvcIntegrationEnabler extends VcsIntegrationEnabler {
         ApplicationManager.getApplication().invokeLater(() -> Messages.showWarningDialog(
                 myProject,
                 TfPluginBundle.message(TfPluginBundle.KEY_VISUAL_STUDIO_CLIENT_AUTHENTICATION_ERROR, path),
-                TfPluginBundle.message(TfPluginBundle.KEY_VISUAL_STUDIO_CLIENT)), ModalityState.NON_MODAL);
+                TfPluginBundle.message(TfPluginBundle.KEY_VISUAL_STUDIO_CLIENT)), ModalityState.nonModal());
     }
 
     private CompletionStage<Workspace> getVsWorkspaceAsync(Path vsClient, Path path) {

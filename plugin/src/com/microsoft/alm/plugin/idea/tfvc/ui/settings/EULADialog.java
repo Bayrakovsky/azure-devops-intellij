@@ -10,7 +10,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.io.StreamUtil;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
 import com.microsoft.alm.helpers.Path;
@@ -22,7 +21,6 @@ import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.utils.IdeaHelper;
 import com.microsoft.alm.plugin.idea.tfvc.core.TFVCNotifications;
 import com.microsoft.alm.plugin.services.PropertyService;
-import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -131,7 +129,7 @@ public class EULADialog extends DialogWrapper {
             jarFile = new JarFile(path);
             eulaStream = jarFile.getInputStream(jarFile.getEntry("eula.txt"));
 
-            return StreamUtil.readText(eulaStream, Charsets.UTF_8);
+            return new String(eulaStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             logger.error("Cannot read EULA text from: " + jarName, e);
         } finally {

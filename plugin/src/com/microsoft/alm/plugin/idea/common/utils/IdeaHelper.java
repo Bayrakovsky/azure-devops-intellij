@@ -10,9 +10,11 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.openapi.wm.IdeFrame;
 import com.microsoft.alm.plugin.external.tools.TfTool;
@@ -84,7 +86,16 @@ public class IdeaHelper {
      * @return true if Git exe is configured, false if Git exe is not correctly configured
      */
     public static boolean isGitExeConfigured(@NotNull final Project project) {
-        if (!GitExecutableManager.getInstance().testGitExecutableVersionValid(project)) {
+        // testGitExecutableVersionValid must run on a background thread in the current platform, but this
+        // method is called from the checkout provider on the EDT. Run the check under a modal progress so the
+        // version detection happens off the EDT, then report the result back here.
+        final boolean valid = ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                (ThrowableComputable<Boolean, RuntimeException>) () ->
+                        GitExecutableManager.getInstance().testGitExecutableVersionValid(project),
+                TfPluginBundle.message(TfPluginBundle.KEY_GIT_CHECKING_EXECUTABLE),
+                true,
+                project);
+        if (!valid) {
             //Git.exe is not configured, show warning message in addition to notification from Git plugin
             Messages.showWarningDialog(project,
                     TfPluginBundle.message(TfPluginBundle.KEY_GIT_NOT_CONFIGURED),
@@ -131,9 +142,13 @@ public class IdeaHelper {
     }
 
     public static void runOnUIThread(final Runnable runnable, final boolean wait) {
+        // Use ModalityState.any() (the public replacement for the removed internal getAnyModalityState())
+        // so background-to-UI updates also run while a modal dialog is open. With defaultModalityState()
+        // computed on a background thread this resolves to NON_MODAL, which defers the update until the
+        // modal dialog closes and makes flows like cloning a repository hang on "loading projects".
         runOnUIThread(runnable, wait,
                 ApplicationManager.getApplication() != null ?
-                        ModalityState.defaultModalityState() :
+                        ModalityState.any() :
                         null);
     }
 

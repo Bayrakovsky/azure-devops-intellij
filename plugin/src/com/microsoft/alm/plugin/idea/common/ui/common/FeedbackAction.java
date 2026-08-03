@@ -3,15 +3,11 @@
 
 package com.microsoft.alm.plugin.idea.common.ui.common;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.util.PlatformIcons;
-import com.microsoft.alm.plugin.idea.common.resources.Icons;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
-import com.microsoft.alm.plugin.idea.common.ui.common.forms.FeedbackForm;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -20,24 +16,27 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Feedback entry point. Opens the community fork's own channels in the browser instead of the
+ * unmaintained Microsoft "Send a Smile / Send a Frown" flow.
+ */
 public class FeedbackAction extends AbstractAction {
-    public static final String CMD_SEND_SMILE = "sendSmile";
-    public static final String CMD_SEND_FROWN = "sendFrown";
+    private static final String URL_MARKETPLACE_REVIEWS =
+            "https://plugins.jetbrains.com/plugin/32811-azure-devops-community/reviews";
+    private static final String URL_GITHUB_ISSUES =
+            "https://github.com/Bayrakovsky/azure-devops-intellij/issues";
+    private static final String URL_GITHUB_DISCUSSIONS =
+            "https://github.com/Bayrakovsky/azure-devops-intellij/discussions";
 
-    private final Project project;
-    private final String feedbackContextInfo;
-    private static final String URL_PRIVACY_POLICY = "https://go.microsoft.com/fwlink/?LinkID=277167"; // This is the same URL used by Visual Studio Send a Smile
-
-    public FeedbackAction(final Project project, final String feedbackContextInfo) {
-        super(TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_DIALOG_TITLE), PlatformIcons.COMBOBOX_ARROW_ICON);
-        this.project = project;
-        this.feedbackContextInfo = feedbackContextInfo;
+    public FeedbackAction() {
+        super(TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_DIALOG_TITLE));
     }
 
     public JMenu getSubMenu() {
         final JMenu menu = new JMenu(TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_DIALOG_TITLE));
-        menu.add(createMenuItem(TfPluginBundle.KEY_FEEDBACK_DIALOG_OK_SMILE, Icons.Smile, CMD_SEND_SMILE));
-        menu.add(createMenuItem(TfPluginBundle.KEY_FEEDBACK_DIALOG_OK_FROWN, Icons.Frown, CMD_SEND_FROWN));
+        for (final JBMenuItem item : createItems()) {
+            menu.add(item);
+        }
         return menu;
     }
 
@@ -48,48 +47,29 @@ public class FeedbackAction extends AbstractAction {
         if (e.getSource() instanceof Component) {
             final Component buttonSource = (Component) e.getSource();
             final JBPopupMenu popupMenu = new JBPopupMenu();
-            popupMenu.add(createMenuItem(TfPluginBundle.KEY_FEEDBACK_DIALOG_OK_SMILE, Icons.Smile, CMD_SEND_SMILE));
-            popupMenu.add(createMenuItem(TfPluginBundle.KEY_FEEDBACK_DIALOG_OK_FROWN, Icons.Frown, CMD_SEND_FROWN));
+            for (final JBMenuItem item : createItems()) {
+                popupMenu.add(item);
+            }
             popupMenu.show(buttonSource, 0, buttonSource.getHeight());
         }
     }
 
-    public void sendFeedback(final boolean smile) {
-        final FeedbackDialog dialog = new FeedbackDialog(project, smile);
-
-        dialog.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (FeedbackForm.CMD_GOTO_PRIVACY.equalsIgnoreCase(e.getActionCommand())) {
-                    BrowserUtil.browse(URL_PRIVACY_POLICY);
-                }
-            }
-        });
-
-        if (dialog.showAndGet()) {
-            VcsNotifier.getInstance(project).notifySuccess(
-                    null,
-                    TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_DIALOG_TITLE),
-                    TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_NOTIFICATION));
-        }
+    private JBMenuItem[] createItems() {
+        return new JBMenuItem[] {
+                createMenuItem(TfPluginBundle.KEY_FEEDBACK_MENU_RATE, AllIcons.Nodes.Favorite, URL_MARKETPLACE_REVIEWS),
+                createMenuItem(TfPluginBundle.KEY_FEEDBACK_MENU_REPORT_ISSUE, AllIcons.Vcs.Vendors.Github, URL_GITHUB_ISSUES),
+                createMenuItem(TfPluginBundle.KEY_FEEDBACK_MENU_DISCUSSIONS, AllIcons.General.Balloon, URL_GITHUB_DISCUSSIONS)
+        };
     }
 
-    private JBMenuItem createMenuItem(final String resourceKey, final Icon icon, final String actionCommand) {
-        final String text = TfPluginBundle.message(resourceKey);
-        final JBMenuItem menuItem = new JBMenuItem(text, icon);
-        menuItem.setActionCommand(actionCommand);
+    private JBMenuItem createMenuItem(final String resourceKey, final Icon icon, final String url) {
+        final JBMenuItem menuItem = new JBMenuItem(TfPluginBundle.message(resourceKey), icon);
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                menuItemAction(e);
+                BrowserUtil.browse(url);
             }
         });
-
         return menuItem;
-    }
-
-    private void menuItemAction(final ActionEvent e) {
-        final boolean smile = CMD_SEND_SMILE.equalsIgnoreCase(e.getActionCommand());
-        sendFeedback(smile);
     }
 }

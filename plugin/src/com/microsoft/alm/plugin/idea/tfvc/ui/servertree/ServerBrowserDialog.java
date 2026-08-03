@@ -21,7 +21,7 @@ package com.microsoft.alm.plugin.idea.tfvc.ui.servertree;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.util.containers.HashMap;
+import java.util.HashMap;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.ui.common.BaseDialogImpl;

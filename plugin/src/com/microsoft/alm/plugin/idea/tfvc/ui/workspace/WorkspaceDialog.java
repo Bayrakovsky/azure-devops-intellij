@@ -21,7 +21,7 @@ package com.microsoft.alm.plugin.idea.tfvc.ui.workspace;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.util.containers.HashMap;
+import java.util.HashMap;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.external.models.Workspace;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;

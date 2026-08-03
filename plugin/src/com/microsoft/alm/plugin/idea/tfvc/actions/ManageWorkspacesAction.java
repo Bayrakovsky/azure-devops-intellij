@@ -3,7 +3,6 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.actions;
 
-import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -22,7 +21,7 @@ public class ManageWorkspacesAction extends DumbAwareAction {
     @Override
     public void update(final AnActionEvent e) {
         final Project project = CommonDataKeys.PROJECT.getData(e.getDataContext());
-        if (ActionPlaces.isPopupPlace(e.getPlace())) {
+        if (e.isFromContextMenu()) {
             e.getPresentation().setVisible(project != null);
         } else {
             e.getPresentation().setEnabled(project != null);

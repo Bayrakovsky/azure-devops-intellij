@@ -63,7 +63,7 @@ public class TFVCNotifications {
                 notification.notify(project);
             }
         });
-        ApplicationManager.getApplication().invokeLater(ourQueue::activate, ModalityState.NON_MODAL);
+        ApplicationManager.getApplication().invokeLater(ourQueue::activate, ModalityState.nonModal());
     }
 
     public static Notification createSdkEulaNotification() {

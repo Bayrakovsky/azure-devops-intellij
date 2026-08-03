@@ -15,7 +15,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.JBMenuItem;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.util.ui.JBUI;
-import com.microsoft.alm.plugin.idea.common.resources.Icons;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.ui.common.ActionListenerContainer;
 import com.microsoft.alm.plugin.idea.common.ui.common.FeedbackAction;
@@ -217,11 +216,10 @@ public abstract class TabFormImpl<T extends FilteredModel> implements TabForm<T>
      */
     protected DefaultActionGroup createFeedbackGroup() {
         final AnAction sendFeedback = new AnAction(TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_DIALOG_TITLE),
-                TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_DIALOG_TITLE), Icons.Smile) {
+                TfPluginBundle.message(TfPluginBundle.KEY_FEEDBACK_DIALOG_TITLE), AllIcons.Nodes.Favorite) {
             @Override
             public void actionPerformed(AnActionEvent anActionEvent) {
-                final FeedbackAction action = new FeedbackAction(anActionEvent.getProject(),
-                        TfPluginBundle.message(tabTitle));
+                final FeedbackAction action = new FeedbackAction();
                 action.actionPerformed(new ActionEvent(anActionEvent.getInputEvent().getSource(),
                         anActionEvent.getInputEvent().getID(), CMD_SEND_FEEDBACK));
             }

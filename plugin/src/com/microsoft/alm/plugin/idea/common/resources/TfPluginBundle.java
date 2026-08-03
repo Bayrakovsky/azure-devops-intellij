@@ -54,6 +54,8 @@ public class TfPluginBundle {
     @NonNls
     public static final String KEY_GIT_NOT_CONFIGURED = "Plugin.Error.GitExeNotConfigured";
     @NonNls
+    public static final String KEY_GIT_CHECKING_EXECUTABLE = "Plugin.Git.CheckingExecutable";
+    @NonNls
     public static final String KEY_TFVC = "Providers.TfvcCheckoutProvider";
     @NonNls
     public static final String KEY_TFVC_NOT_CONFIGURED = "Plugin.Error.TFNotConfigured";
@@ -214,17 +216,15 @@ public class TfPluginBundle {
     @NonNls
     public static final String KEY_PROMPT_CREDENTIALS_PASSWORD = "Prompt.Credentials.Password";
 
-    // Feedback dialog
+    // Feedback menu
     @NonNls
     public static final String KEY_FEEDBACK_DIALOG_TITLE = "Feedback.Dialog.Title";
     @NonNls
-    public static final String KEY_FEEDBACK_DIALOG_OK_FROWN = "Feedback.Dialog.OkButtonText.Frown";
+    public static final String KEY_FEEDBACK_MENU_RATE = "Feedback.Menu.Rate";
     @NonNls
-    public static final String KEY_FEEDBACK_DIALOG_OK_SMILE = "Feedback.Dialog.OkButtonText.Smile";
+    public static final String KEY_FEEDBACK_MENU_REPORT_ISSUE = "Feedback.Menu.ReportIssue";
     @NonNls
-    public static final String KEY_FEEDBACK_DIALOG_COMMENT_LABEL_FROWN = "Feedback.Dialog.CommentLabel.Frown";
-    @NonNls
-    public static final String KEY_FEEDBACK_NOTIFICATION = "Feedback.Notification";
+    public static final String KEY_FEEDBACK_MENU_DISCUSSIONS = "Feedback.Menu.Discussions";
 
     // Select work items dialog
     @NonNls
