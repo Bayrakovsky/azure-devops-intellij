@@ -60,7 +60,7 @@ public class ManageWorkspacesDialog extends BaseDialogImpl {
 
     @NotNull
     protected Action[] createActions() {
-        return new Action[]{getOKAction(), getHelpAction()};
+        return new Action[]{getOKAction()};
     }
 
 

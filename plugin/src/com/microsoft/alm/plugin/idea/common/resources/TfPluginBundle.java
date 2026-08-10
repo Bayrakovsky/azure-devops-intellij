@@ -4,7 +4,6 @@
 package com.microsoft.alm.plugin.idea.common.resources;
 
 import com.intellij.CommonBundle;
-import com.intellij.reference.SoftReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
@@ -36,7 +35,7 @@ public class TfPluginBundle {
                 logger.warn("Locale could not be found for resource bundle so defaulting to english", e);
                 bundle = ResourceBundle.getBundle(BUNDLE_NAME, Locale.ENGLISH);
             }
-            thisBundle = new SoftReference<ResourceBundle>(bundle);
+            thisBundle = new java.lang.ref.SoftReference<>(bundle);
         }
         return bundle;
     }
@@ -155,6 +154,8 @@ public class TfPluginBundle {
     public static final String KEY_CHECKOUT_DIALOG_CREATE_WORKSPACE_BUTTON = "CheckoutDialog.CreateWorkspaceButton";
     @NonNls
     public static final String KEY_CHECKOUT_DIALOG_TITLE = "CheckoutDialog.Title";
+    @NonNls
+    public static final String KEY_CHECKOUT_DIALOG_CLONE_HINT = "CheckoutDialog.CloneHint";
     @NonNls
     public static final String KEY_CHECKOUT_DIALOG_FILTER_HINT = "CheckoutDialog.FilterHint";
     @NonNls

@@ -26,11 +26,11 @@ public class PRTreeNodeForm {
     public PRTreeNodeForm(final boolean selected, final boolean hasFocus) {
         SwingHelper.setMargin(panel, JBUI.scale(5));
         panel.setBackground(selected ?
-                (hasFocus ? UIUtil.getTreeSelectionBackground() : UIUtil.getTreeUnfocusedSelectionBackground())
+                (hasFocus ? UIUtil.getTreeSelectionBackground(true) : UIUtil.getTreeSelectionBackground(false))
                 : UIUtil.getTreeBackground());
 
-        titleLabel.setForeground(selected && hasFocus ? UIUtil.getTreeSelectionForeground() : UIUtil.getTreeForeground());
-        summaryLabel.setForeground(selected && hasFocus ? UIUtil.getTreeSelectionForeground() : SimpleTextAttributes.GRAY_ATTRIBUTES.getFgColor());
+        titleLabel.setForeground(selected && hasFocus ? UIUtil.getTreeSelectionForeground(true) : UIUtil.getTreeForeground());
+        summaryLabel.setForeground(selected && hasFocus ? UIUtil.getTreeSelectionForeground(true) : SimpleTextAttributes.GRAY_ATTRIBUTES.getFgColor());
     }
 
     public JComponent getPanel() {

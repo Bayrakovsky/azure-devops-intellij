@@ -10,7 +10,7 @@ import javax.swing.Icon;
 public class Icons {
 
     private static Icon load(String path) {
-        return IconLoader.getIcon(path);
+        return IconLoader.getIcon(path, Icons.class);
     }
 
     public static final Icon Help = load("/icons/help.png");

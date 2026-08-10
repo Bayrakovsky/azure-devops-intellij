@@ -3,45 +3,30 @@
 
 package com.microsoft.alm.plugin.idea.git.extensions;
 
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.CheckoutProvider;
-import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vcs.ui.VcsCloneComponent;
+import com.intellij.openapi.vcs.ui.cloneDialog.VcsCloneDialogComponentStateListener;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
-import com.microsoft.alm.plugin.idea.common.ui.checkout.CheckoutController;
+import com.microsoft.alm.plugin.idea.common.ui.checkout.CheckoutCloneComponent;
 import com.microsoft.alm.plugin.idea.common.utils.IdeaHelper;
 import com.microsoft.alm.plugin.idea.git.ui.checkout.GitCheckoutModel;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GitCheckoutProvider implements CheckoutProvider {
-
-    private final Logger logger = LoggerFactory.getLogger(GitCheckoutProvider.class);
 
     @Override
     public String getVcsName() {
         return TfPluginBundle.message(TfPluginBundle.KEY_TF_GIT);
     }
 
+    @NotNull
     @Override
-    public void doCheckout(@NotNull final Project project, final Listener listener) {
-        FileDocumentManager.getInstance().saveAllDocuments();
-
-        if(!IdeaHelper.isGitExeConfigured(project)) {
-            return;
-        }
-
-        //Git.exe is configured, proceed with checkout
-        try {
-
-            final CheckoutController controller = new CheckoutController(project, listener, new GitCheckoutModel());
-            controller.showModalDialog();
-        } catch (Throwable t) {
-            //unexpected error
-            logger.warn("doCheckout failed unexpected error", t);
-            VcsNotifier.getInstance(project).notifyError(null, TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_DIALOG_TITLE),
-                    TfPluginBundle.message(TfPluginBundle.KEY_CHECKOUT_ERRORS_UNEXPECTED, t.getMessage()));
-        }
+    public VcsCloneComponent buildVcsCloneComponent(
+            @NotNull final Project project,
+            @NotNull final ModalityState modalityState,
+            @NotNull final VcsCloneDialogComponentStateListener dialogStateListener) {
+        return new CheckoutCloneComponent(project, new GitCheckoutModel(), IdeaHelper::isGitExeConfigured);
     }
 }

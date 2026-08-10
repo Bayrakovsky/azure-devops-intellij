@@ -235,16 +235,30 @@ public class TFSFileSystemListener implements LocalFileOperationsHandler, Dispos
         return renameOrMove(virtualFile, Path.combine(toDirectory.getPath(), virtualFile.getName()));
     }
 
+    // Note on the copy/copyFile pair: on 2026.1 the platform calls the (abstract) copy method, on 2026.2+ it calls
+    // copyFile whose default implementation delegates to the removed copy and throws. Both are implemented here so the
+    // plugin behaves identically ("copying is not intercepted") on every supported platform version; copyFile
+    // intentionally has no @Override, as the method does not exist in the 2026.1 interface we compile against.
     @Nullable
     @Override
-    public File copy(final VirtualFile virtualFile, final VirtualFile virtualFile1, final String s) {
+    public File copy(final VirtualFile file, final VirtualFile toDir, final String copyName) {
         return null;
+    }
+
+    public boolean copyFile(@NotNull final VirtualFile file, @NotNull final VirtualFile toDir, @NotNull final String copyName) {
+        return false;
     }
 
     @Override
     public boolean rename(final VirtualFile virtualFile, final String s) throws IOException {
         ourLogger.info(String.format("Renaming file %s to %s", virtualFile.getName(), s));
         return renameOrMove(virtualFile, Path.combine(virtualFile.getParent().getPath(), s));
+    }
+
+    // Required by the interface until the 2026.1 support baseline is dropped; became a deprecated default in 2026.2.
+    @Override
+    public void afterDone(final ThrowableConsumer<? super LocalFileOperationsHandler, ? extends IOException> throwableConsumer) {
+        // nothing to do
     }
 
     /**
@@ -303,11 +317,6 @@ public class TFSFileSystemListener implements LocalFileOperationsHandler, Dispos
     @Override
     public boolean createDirectory(@NotNull final VirtualFile dir, @NotNull final String name) {
         return false;
-    }
-
-    @Override
-    public void afterDone(final ThrowableConsumer<? super LocalFileOperationsHandler, ? extends IOException> throwableConsumer) {
-        // nothing to do
     }
 
     /**
