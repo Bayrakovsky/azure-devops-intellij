@@ -4,7 +4,6 @@
 package com.microsoft.alm.plugin.idea.common.resources;
 
 import com.intellij.CommonBundle;
-import com.intellij.reference.SoftReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
@@ -36,7 +35,7 @@ public class TfPluginBundle {
                 logger.warn("Locale could not be found for resource bundle so defaulting to english", e);
                 bundle = ResourceBundle.getBundle(BUNDLE_NAME, Locale.ENGLISH);
             }
-            thisBundle = new SoftReference<ResourceBundle>(bundle);
+            thisBundle = new java.lang.ref.SoftReference<>(bundle);
         }
         return bundle;
     }

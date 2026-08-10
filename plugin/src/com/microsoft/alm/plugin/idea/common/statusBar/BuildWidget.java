@@ -37,7 +37,7 @@ public class BuildWidget implements StatusBarWidget, StatusBarWidget.IconPresent
 
     @Nullable
     @Override
-    public WidgetPresentation getPresentation(@NotNull final PlatformType type) {
+    public WidgetPresentation getPresentation() {
         // This class implements the WidgetPresentation needed here
         return this;
     }

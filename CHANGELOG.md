@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _Changes that will land in the next release will be listed here._
 
+## [2.0.6] — 2026-08-09
+
+Maintenance release, no new features. Continues the gradual, low-risk replacement of deprecated
+platform API calls started in 2.0.5. All replacements are one-to-one with no intended behavior
+change. The remaining deprecated and scheduled-for-removal warnings are larger migrations and will
+be addressed in later, dedicated releases.
+
+### Changed
+
+- Replaced deprecated platform APIs: the single-argument `IconLoader.getIcon(String)` (now passes an
+  explicit anchor class), the no-argument `UIUtil` tree selection color getters (now the current
+  boolean overloads), the deprecated `com.intellij.reference.SoftReference` constructor in the string
+  bundle cache (now `java.lang.ref.SoftReference`), and the build status bar widget's
+  `getPresentation(PlatformType)` override (now the no-argument `getPresentation()`, which also drops
+  the deprecated `PlatformType` enum).
+
+### Fixed
+
+- The "Manage Workspaces" dialog no longer shows a non-working help ("?") button. It was a leftover
+  from the original Microsoft plugin with no help content wired up, so clicking it only logged a "null
+  topic" error. The button has been removed.
+
 ## [2.0.5] — 2026-08-03
 
 Maintenance release, no new features. Replaces a first small batch of deprecated platform API
@@ -179,7 +201,8 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.5...HEAD
+[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.6...HEAD
+[2.0.6]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.6
 [2.0.5]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.5
 [2.0.4]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.4
 [2.0.3]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.3

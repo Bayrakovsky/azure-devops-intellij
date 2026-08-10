@@ -58,7 +58,8 @@
     <change-notes><![CDATA[
       <br />
       <ul>
-        <li>2.0.5: Replaced a first batch of deprecated platform API calls with their current equivalents. No behavior changes.</li>
+        <li>2.0.6: Removed the non-working help ("?") button from the Manage Workspaces dialog. Replaced another batch of deprecated platform API calls with their current equivalents. No behavior changes.</li>
+        <li>2.0.5: Reworked the Feedback button — it now links to the plugin's JetBrains Marketplace reviews, GitHub Issues, and GitHub Discussions instead of the old, non-functional Microsoft feedback dialog. Replaced a first batch of deprecated platform API calls. No behavior changes.</li>
         <li>2.0.4: The credentials prompt now opens on top of the Settings dialog and is modal to it. Cancelling "Update credentials" no longer stores an empty credential or breaks TFVC change detection. Removed the last internal API usage.</li>
         <li>2.0.3: Replaced most platform APIs scheduled for removal so the plugin keeps working on 2026.2 and later. Proxy settings are now read through the current platform proxy API.</li>
         <li>2.0.2: Replaced all internal and override-only API usages flagged by the Plugin Verifier (Marketplace compliance).</li>
