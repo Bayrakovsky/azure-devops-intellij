@@ -19,7 +19,7 @@ import org.junit.Assert;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
 
 public class CheckoutPageModelTest extends IdeaLightweightTest {
     /**

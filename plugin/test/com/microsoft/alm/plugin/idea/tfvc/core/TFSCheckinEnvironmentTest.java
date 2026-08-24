@@ -41,7 +41,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TFSCheckinEnvironmentTest extends MockedIdeaApplicationTest {
@@ -135,10 +134,8 @@ public class TFSCheckinEnvironmentTest extends MockedIdeaApplicationTest {
 
         List<VcsException> exceptions =
                 tfsCheckinEnvironment.scheduleUnversionedFilesForAddition(mockFiles);
-        verifyStatic(TfsFileUtil.class, times(1));
-        TfsFileUtil.markFileDirty(any(Project.class), eq(mockFiles.get(0)));
-        verifyStatic(TfsFileUtil.class, times(1));
-        TfsFileUtil.markFileDirty(any(Project.class), eq(mockFiles.get(1)));
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.markFileDirty(any(Project.class), eq(mockFiles.get(0))), times(1));
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.markFileDirty(any(Project.class), eq(mockFiles.get(1))), times(1));
         assertTrue(exceptions.isEmpty());
     }
 
@@ -149,8 +146,7 @@ public class TFSCheckinEnvironmentTest extends MockedIdeaApplicationTest {
 
         List<VcsException> exceptions =
                 tfsCheckinEnvironment.scheduleUnversionedFilesForAddition(mockFiles);
-        verifyStatic(TfsFileUtil.class, times(1));
-        TfsFileUtil.markFileDirty(any(Project.class), eq(mockFiles.get(0)));
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.markFileDirty(any(Project.class), eq(mockFiles.get(0))), times(1));
         assertEquals(1, exceptions.size());
         assertEquals(
                 TfPluginBundle.message(TfPluginBundle.KEY_TFVC_ADD_ERROR, filePaths.get(1)).replace('\\', '/'),

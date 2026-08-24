@@ -6,7 +6,6 @@ package com.microsoft.alm.plugin.idea;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vcs.FileStatusFactory;
-import com.intellij.openapi.vcs.FileStatusFactoryImpl;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -28,6 +27,6 @@ public class MockedIdeaApplicationTest extends IdeaAbstractTest {
 
         // This is required to get FileStatus items in certain tests, since they access an application-bound service in
         // enum item constructor.
-        lenient().when(mockApplication.getService(FileStatusFactory.class)).thenReturn(new FileStatusFactoryImpl());
+        lenient().when(mockApplication.getService(FileStatusFactory.class)).thenReturn(org.mockito.Mockito.mock(FileStatusFactory.class));
     }
 }

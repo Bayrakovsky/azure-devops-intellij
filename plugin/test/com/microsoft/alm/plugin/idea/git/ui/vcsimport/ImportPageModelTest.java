@@ -13,7 +13,7 @@ import com.microsoft.alm.plugin.idea.common.ui.common.mocks.MockObserver;
 import com.microsoft.alm.plugin.idea.git.ui.vcsimport.mocks.MockImportPageModel;
 import org.junit.Assert;
 
-import java.util.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
 
 public class ImportPageModelTest extends IdeaLightweightTest {
 

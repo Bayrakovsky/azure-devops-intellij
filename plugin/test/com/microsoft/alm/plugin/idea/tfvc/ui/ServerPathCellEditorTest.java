@@ -21,7 +21,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServerPathCellEditorTest {
@@ -78,8 +77,7 @@ public class ServerPathCellEditorTest {
         doReturn(StringUtils.EMPTY).when(spy).getServerPath();
 
         spy.createBrowserDialog();
-        verifyStatic(Messages.class, times(1));
-        Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_ACTIONS_TFVC_SERVER_TREE_NO_ROOT_MSG)),
-                eq(TfPluginBundle.message(TfPluginBundle.KEY_ACTIONS_TFVC_SERVER_TREE_NO_ROOT_TITLE)));
+                messagesStatic.verify(() -> Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_ACTIONS_TFVC_SERVER_TREE_NO_ROOT_MSG)),
+                eq(TfPluginBundle.message(TfPluginBundle.KEY_ACTIONS_TFVC_SERVER_TREE_NO_ROOT_TITLE))), times(1));
     }
 }

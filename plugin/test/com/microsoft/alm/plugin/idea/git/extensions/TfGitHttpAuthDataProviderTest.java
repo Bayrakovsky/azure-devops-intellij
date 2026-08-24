@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.api.mockito.PowerMockito;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -84,7 +83,7 @@ public class TfGitHttpAuthDataProviderTest extends IdeaAbstractTest {
 
     @Test
     public void testAuthDataWithOneRemote() {
-        GitRemote gitRemote = PowerMockito.mock(GitRemote.class);
+        GitRemote gitRemote = Mockito.mock(GitRemote.class);
         when(gitRemote.getFirstUrl()).thenReturn("https://dev.azure.com/username/myproject/_git/myproject");
         tfGitHelper.when(() -> TfGitHelper.getTfGitRemotes(any(Project.class)))
                 .thenReturn(Collections.singleton(gitRemote));

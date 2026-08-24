@@ -78,31 +78,31 @@ public class ApplicationStarterBaseTest extends IdeaAbstractTest {
 
     @Test
     public void testCheckArgumentsUriHappy() {
-        String[] args = {ApplicationStarterBase.VSTS_COMMAND, URI_ARG};
+        List<String> args = Arrays.asList(ApplicationStarterBase.VSTS_COMMAND, URI_ARG);
         Assert.assertTrue(starterBase.checkArguments(args));
     }
 
     @Test
     public void testCheckArgumentsCommandsHappy() {
-        String[] args = {ApplicationStarterBase.VSTS_COMMAND, SUB_COMMAND, VALID_GIT_URL};
+        List<String> args = Arrays.asList(ApplicationStarterBase.VSTS_COMMAND, SUB_COMMAND, VALID_GIT_URL);
         Assert.assertTrue(starterBase.checkArguments(args));
     }
 
     @Test
     public void testCheckArgumentsIncorrectCommand() {
-        String[] args = {"vstsssss", SUB_COMMAND, VALID_GIT_URL};
+        List<String> args = Arrays.asList("vstsssss", SUB_COMMAND, VALID_GIT_URL);
         Assert.assertFalse(starterBase.checkArguments(args));
     }
 
     @Test
     public void testCheckArgumentsIncorrectArgsNumber() {
-        String[] argsFew = {ApplicationStarterBase.VSTS_COMMAND};
+        List<String> argsFew = Arrays.asList(ApplicationStarterBase.VSTS_COMMAND);
         Assert.assertFalse(starterBase.checkArguments(argsFew));
     }
 
     @Test
     public void testMainUriArgs() {
-        String[] args = {ApplicationStarterBase.VSTS_COMMAND, URI_ARG};
+        List<String> args = Arrays.asList(ApplicationStarterBase.VSTS_COMMAND, URI_ARG);
         starterBase.main(args);
         Assert.assertEquals(URI_MINUS_PREFIX, processUriArgs);
         Assert.assertEquals(Collections.emptyList(), processCommandArgs);
@@ -110,7 +110,7 @@ public class ApplicationStarterBaseTest extends IdeaAbstractTest {
 
     @Test
     public void testMainCommandArgs() {
-        String[] args = {ApplicationStarterBase.VSTS_COMMAND, SUB_COMMAND, VALID_GIT_URL};
+        List<String> args = Arrays.asList(ApplicationStarterBase.VSTS_COMMAND, SUB_COMMAND, VALID_GIT_URL);
         List<String> expectedParams = Arrays.asList(SUB_COMMAND, VALID_GIT_URL);
         starterBase.main(args);
         Assert.assertEquals(StringUtils.EMPTY, processUriArgs);

@@ -48,7 +48,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TFSUpdateEnvironmentTest extends IdeaAbstractTest {
@@ -125,8 +124,7 @@ public class TFSUpdateEnvironmentTest extends IdeaAbstractTest {
         UpdateSession session = updateEnvironment.updateDirectories(filePaths, mockUpdatedFiles, mockProgressIndicator, mockUpdatesContext);
         verifyNoMoreInteractions(mockUpdatedFiles, mockConflictsHandler);
         assertTrue(session.getExceptions().isEmpty());
-        verifyStatic(TfsFileUtil.class, times(1));
-        TfsFileUtil.refreshAndInvalidate(mockProject, filePaths, false);
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.refreshAndInvalidate(mockProject, filePaths, false), times(1));
     }
 
     @Test
@@ -143,8 +141,7 @@ public class TFSUpdateEnvironmentTest extends IdeaAbstractTest {
         verifyNoMoreInteractions(mockFileGroupRemove, mockFileGroupCreate, mockFileGroupUpdate, mockConflictsHandler);
         verifyNoMoreInteractions(mockConflictsHandler);
         assertEquals(1, session.getExceptions().size());
-        verifyStatic(TfsFileUtil.class, times(1));
-        TfsFileUtil.refreshAndInvalidate(mockProject, filePaths, false);
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.refreshAndInvalidate(mockProject, filePaths, false), times(1));
     }
 
     @Test
@@ -157,8 +154,7 @@ public class TFSUpdateEnvironmentTest extends IdeaAbstractTest {
         verify(mockConflictsHandler).resolveConflicts(eq(mockProject), any(ResolveConflictHelper.class));
         verifyNoMoreInteractions(mockUpdatedFiles);
         assertTrue(session.getExceptions().isEmpty());
-        verifyStatic(TfsFileUtil.class, times(1));
-        TfsFileUtil.refreshAndInvalidate(mockProject, filePaths, false);
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.refreshAndInvalidate(mockProject, filePaths, false), times(1));
     }
 
     private FilePath[] setupUpdate(final SyncResults syncResults) {

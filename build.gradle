@@ -86,6 +86,17 @@ configure(mainProjects) {
 
     test {
         forkEvery = 10
+        // Mockito's inline mock maker must be loaded as a Java agent. It normally self-attaches at runtime, but
+        // JBR/JDK 21+ blocks that, so every mock fails with "Could not modify all classes". Load mockito-core
+        // (a valid agent jar: Premain-Class org.mockito.internal.PremainAttach) explicitly via -javaagent.
+        // JBR runs Java 25, which ByteBuddy (bundled with Mockito) does not yet recognize; allow it to proceed.
+        jvmArgs '-Dnet.bytebuddy.experimental=true'
+        doFirst {
+            def mockitoAgent = classpath.files.find { it.name.startsWith('mockito-core') }
+            if (mockitoAgent != null) {
+                jvmArgs "-javaagent:${mockitoAgent.absolutePath}"
+            }
+        }
     }
 }
 

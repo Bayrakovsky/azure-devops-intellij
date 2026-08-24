@@ -9,7 +9,7 @@ import com.microsoft.alm.plugin.AbstractTest;
 import com.microsoft.alm.plugin.context.soap.CatalogServiceImpl;
 import com.microsoft.alm.plugin.exceptions.TeamServicesException;
 import com.microsoft.alm.plugin.mocks.MockCatalogService;
-import org.apache.commons.httpclient.HttpException;
+import org.apache.http.HttpException;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -21,7 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.URI;
-import java.util.Observer;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observer;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;

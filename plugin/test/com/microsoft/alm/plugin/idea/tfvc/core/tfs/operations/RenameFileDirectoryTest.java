@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS;
+import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -44,7 +44,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RenameFileDirectoryTest extends IdeaAbstractTest {
@@ -80,7 +79,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
     private ServerContext mockServerContext;
 
     @Mock
-    private PersistentFS mockPersistentFS;
+    private RefreshQueue mockRefreshQueue;
 
     @Mock
     private PendingChange mockPendingChange;
@@ -89,7 +88,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
     private MockedStatic<CommandUtils> commandUtilsStatic;
 
     @Mock
-    private MockedStatic<PersistentFS> persistentFSStatic;
+    private MockedStatic<RefreshQueue> refreshQueueStatic;
 
     @Mock
     private MockedStatic<RenameUtil> renameUtilStatic;
@@ -114,7 +113,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         tfvcClientStatic.when(TfvcClient::getInstance).thenReturn(new ClassicTfvcClient());
         tfsVcsStatic.when(() -> TFSVcs.getInstance(mockProject)).thenReturn(mockTFSVcs);
         //noinspection ResultOfMethodCallIgnored
-        persistentFSStatic.when(PersistentFS::getInstance).thenReturn(mockPersistentFS);
+        refreshQueueStatic.when(RefreshQueue::getInstance).thenReturn(mockRefreshQueue);
     }
 
     @Test(expected = IncorrectOperationException.class)
@@ -131,13 +130,11 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
 
         RenameFileDirectory.execute(mockPsiFile, NEW_FILE_NAME, usageInfos, mockListener);
 
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH));
-        verify(mockPersistentFS).processEvents(anyList());
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
+        verify(mockRefreshQueue).refresh(anyBoolean(), anyBoolean(), any());
         verify(mockListener).elementRenamed(mockPsiFile);
 
-        verifyStatic(RenameUtil.class, never());
-        RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class));
+                renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class)), never());
     }
 
     @Test
@@ -149,13 +146,11 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
 
         RenameFileDirectory.execute(mockPsiFile, NEW_DIRECTORY_NAME, usageInfos, mockListener);
 
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(dirName), eq(Path.combine("/path/to/the", "newDirectory")));
-        verify(mockPersistentFS).processEvents(anyList());
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(dirName), eq(Path.combine("/path/to/the", "newDirectory"))), times(1));
+        verify(mockRefreshQueue).refresh(anyBoolean(), anyBoolean(), any());
         verify(mockListener).elementRenamed(mockPsiFile);
 
-        verifyStatic(RenameUtil.class, never());
-        RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class));
+                renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class)), never());
     }
 
     @Test
@@ -167,13 +162,11 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
 
         RenameFileDirectory.execute(mockPsiFile, NEW_FILE_NAME, usageInfos, mockListener);
 
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH));
-        verify(mockPersistentFS).processEvents(anyList());
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
+        verify(mockRefreshQueue).refresh(anyBoolean(), anyBoolean(), any());
         verify(mockListener).elementRenamed(mockPsiFile);
 
-        verifyStatic(RenameUtil.class, never());
-        RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class));
+                renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class)), never());
     }
 
     @Test
@@ -188,7 +181,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         commandUtilsStatic.verify(
                 () -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)),
                 times(1));
-        verify(mockPersistentFS, times(1)).processEvents(any(List.class));
+        verify(mockRefreshQueue, times(1)).refresh(anyBoolean(), anyBoolean(), any());
         verify(mockListener).elementRenamed(mockPsiFile);
 
         renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(), any(), any(), any()), never());
@@ -203,12 +196,10 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
 
         RenameFileDirectory.execute(mockPsiFile, NEW_FILE_NAME, usageInfos, mockListener);
 
-        verifyStatic(RenameUtil.class, times(1));
-        RenameUtil.doRenameGenericNamedElement(mockPsiFile, NEW_FILE_NAME, usageInfos, mockListener);
+                renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(mockPsiFile, NEW_FILE_NAME, usageInfos, mockListener), times(1));
         verify(mockListener).elementRenamed(mockPsiFile);
 
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class));
-        verify(mockPersistentFS, never()).processEvents(any());
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class)), never());
+        verify(mockRefreshQueue, never()).refresh(anyBoolean(), anyBoolean(), any());
     }
 }

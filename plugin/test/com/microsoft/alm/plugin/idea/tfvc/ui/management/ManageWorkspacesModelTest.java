@@ -52,7 +52,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ManageWorkspacesModelTest extends IdeaAbstractTest {
@@ -127,8 +126,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         manageWorkspacesModel.reloadWorkspacesWithProgress(server);
 
         observer.assertAndClearLastUpdate(manageWorkspacesModel, ManageWorkspacesModel.REFRESH_SERVER);
-        verifyStatic(Messages.class, never());
-        Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class));
+                messagesStatic.verify(() -> Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class)), never());
     }
 
     @Test
@@ -144,9 +142,8 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         manageWorkspacesModel.reloadWorkspacesWithProgress(server);
 
         observer.assertAndClearLastUpdate(manageWorkspacesModel, ManageWorkspacesModel.REFRESH_SERVER);
-        verifyStatic(Messages.class, times(1));
-        Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_ERROR_MSG, server.getName())),
-                eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_ERROR_TITLE)));
+                messagesStatic.verify(() -> Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_ERROR_MSG, server.getName())),
+                eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_ERROR_TITLE))), times(1));
     }
 
     @Test
@@ -155,8 +152,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         when(mockServerContextManager.getAuthenticationInfo(server.getName(), true)).thenReturn(mockAuthInfo);
 
         manageWorkspacesModel.reloadWorkspaces(server);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.refreshWorkspacesForServer(mockAuthInfo, server.getName());
+                commandUtilsStatic.verify(() -> CommandUtils.refreshWorkspacesForServer(mockAuthInfo, server.getName()), times(1));
     }
 
     @Test(expected = VcsException.class)
@@ -184,10 +180,8 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         manageWorkspacesModel.deleteWorkspaceWithProgress(workspace1);
 
         observer.assertUpdateNeverOccurred(ManageWorkspacesModel.REFRESH_WORKSPACE);
-        verifyStatic(VcsUtil.class, never());
-        VcsUtil.runVcsProcessWithProgress(any(VcsRunnable.class), any(String.class), any(Boolean.class), any(Project.class));
-        verifyStatic(Messages.class, never());
-        Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class));
+                vcsUtilStatic.verify(() -> VcsUtil.runVcsProcessWithProgress(any(VcsRunnable.class), any(String.class), any(Boolean.class), any(Project.class)), never());
+                messagesStatic.verify(() -> Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class)), never());
     }
 
     @Test
@@ -198,8 +192,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         manageWorkspacesModel.deleteWorkspaceWithProgress(workspace1);
 
         observer.assertAndClearLastUpdate(manageWorkspacesModel, ManageWorkspacesModel.REFRESH_WORKSPACE);
-        verifyStatic(Messages.class, never());
-        Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class));
+                messagesStatic.verify(() -> Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class)), never());
     }
 
     @Test
@@ -212,9 +205,8 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         manageWorkspacesModel.deleteWorkspaceWithProgress(workspace1);
 
         observer.assertAndClearLastUpdate(manageWorkspacesModel, ManageWorkspacesModel.REFRESH_WORKSPACE);
-        verifyStatic(Messages.class, times(1));
-        Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_ERROR_MSG, workspace1.getName())),
-                eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_ERROR_TITLE)));
+                messagesStatic.verify(() -> Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_ERROR_MSG, workspace1.getName())),
+                eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_ERROR_TITLE))), times(1));
     }
 
     @Test
@@ -222,8 +214,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         doReturn(workspace1).when(manageWorkspacesModel).getPartialWorkspace(server.getName(), workspace1.getName());
 
         manageWorkspacesModel.deleteWorkspace(workspace1);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.deleteWorkspace(mockServerContext, workspace1.getName());
+                commandUtilsStatic.verify(() -> CommandUtils.deleteWorkspace(mockServerContext, workspace1.getName()), times(1));
     }
 
     @Test(expected = VcsException.class)
@@ -244,8 +235,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
     public void testEditWorkspaceWithProgress_Happy() throws Exception {
         manageWorkspacesModel.editWorkspaceWithProgress(workspace1, mockRunnable);
 
-        verifyStatic(Messages.class, never());
-        Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class));
+                messagesStatic.verify(() -> Messages.showErrorDialog(any(Project.class), any(String.class), any(String.class)), never());
     }
 
     @Test
@@ -254,9 +244,8 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
                 .thenThrow(new VcsException(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_ERROR_MSG, workspace1.getName())));
         manageWorkspacesModel.editWorkspaceWithProgress(workspace1, mockRunnable);
 
-        verifyStatic(Messages.class, times(1));
-        Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_ERROR_MSG, workspace1.getName())),
-                eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_ERROR_TITLE)));
+                messagesStatic.verify(() -> Messages.showErrorDialog(eq(mockProject), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_ERROR_MSG, workspace1.getName())),
+                eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_ERROR_TITLE))), times(1));
     }
 
     @Test
@@ -267,8 +256,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         when(CommandUtils.getDetailedWorkspace(server.getName(), workspace1.getName(), mockAuthInfo)).thenReturn(workspace1);
 
         manageWorkspacesModel.editWorkspace(workspace1, mockRunnable);
-        verifyStatic(IdeaHelper.class, times(1));
-        IdeaHelper.runOnUIThread(any(Runnable.class), eq(true));
+                ideaHelperStatic.verify(() -> IdeaHelper.runOnUIThread(any(Runnable.class), eq(true)), times(1));
     }
 
     @Test(expected = VcsException.class)
@@ -331,8 +319,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         })) {
             manageWorkspacesModel.editProxy(server);
             observer.assertAndClearLastUpdate(manageWorkspacesModel, ManageWorkspacesModel.REFRESH_SERVER);
-            verifyStatic(WorkspaceHelper.class, times(1));
-            WorkspaceHelper.setProxyServer(server.getName(), "http://testUri.com");
+                        workspaceHelperStatic.verify(() -> WorkspaceHelper.setProxyServer(server.getName(), "http://testUri.com"), times(1));
         }
     }
 
@@ -358,8 +345,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
             Assert.assertEquals(1, dialogs.size());
             var dialog = dialogs.get(0);
             verify(dialog, never()).getProxyUri();
-            verifyStatic(WorkspaceHelper.class, never());
-            WorkspaceHelper.setProxyServer(server.getName(), "http://testUri.com");
+                        workspaceHelperStatic.verify(() -> WorkspaceHelper.setProxyServer(server.getName(), "http://testUri.com"), never());
         }
     }
 

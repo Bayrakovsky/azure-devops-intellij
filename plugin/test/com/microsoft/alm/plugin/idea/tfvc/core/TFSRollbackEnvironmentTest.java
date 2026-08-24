@@ -40,7 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TFSRollbackEnvironmentTest extends IdeaAbstractTest {
@@ -113,8 +112,7 @@ public class TFSRollbackEnvironmentTest extends IdeaAbstractTest {
 
         rollbackEnvironment.rollbackChanges(changes, exceptions, mockRollbackProgressListener);
         ArgumentCaptor<List> arg = ArgumentCaptor.forClass(List.class);
-        verifyStatic(TfsFileUtil.class, times(1));
-        TfsFileUtil.refreshAndMarkDirty(eq(mockProject), arg.capture(), eq(true));
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.refreshAndMarkDirty(eq(mockProject), arg.capture(), eq(true)), times(1));
         assertEquals(3, arg.getValue().size());
         assertTrue(exceptions.isEmpty());
     }
@@ -125,8 +123,7 @@ public class TFSRollbackEnvironmentTest extends IdeaAbstractTest {
         when(CommandUtils.undoLocalFiles(mockServerContext, filePaths)).thenThrow(new RuntimeException("test error"));
 
         rollbackEnvironment.rollbackChanges(changes, exceptions, mockRollbackProgressListener);
-        verifyStatic(TfsFileUtil.class, never());
-        TfsFileUtil.refreshAndMarkDirty(any(Project.class), any(List.class), anyBoolean());
+                tfsFileUtilStatic.verify(() -> TfsFileUtil.refreshAndMarkDirty(any(Project.class), any(List.class), anyBoolean()), never());
         assertEquals(1, exceptions.size());
     }
 
@@ -134,12 +131,9 @@ public class TFSRollbackEnvironmentTest extends IdeaAbstractTest {
     public void testRollbackMissingFileDeletion_Happy() {
         rollbackEnvironment.rollbackMissingFileDeletion(ImmutableList.of(filePath1, filePath2, filePath3),
                 exceptions, mockRollbackProgressListener);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.forceGetFile(mockServerContext, "/path/to/file1");
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.forceGetFile(mockServerContext, "/path/to/file2");
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.forceGetFile(mockServerContext, "/path/to/file3");
+                commandUtilsStatic.verify(() -> CommandUtils.forceGetFile(mockServerContext, "/path/to/file1"), times(1));
+                commandUtilsStatic.verify(() -> CommandUtils.forceGetFile(mockServerContext, "/path/to/file2"), times(1));
+                commandUtilsStatic.verify(() -> CommandUtils.forceGetFile(mockServerContext, "/path/to/file3"), times(1));
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationNamesInfo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.wm.StatusBar;
+import com.intellij.openapi.wm.StatusBarWidgetFactory;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager;
 import com.microsoft.alm.plugin.context.RepositoryContext;
@@ -116,7 +117,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
     @Test
     public void testSetupStatusBar() {
         StatusBarManager.setupStatusBar();
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(0)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(0)).updateWidget(any(StatusBarWidgetFactory.class));
     }
 
     @Test
@@ -125,7 +126,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map = EventContextHelper.createContext(EventContextHelper.SENDER_PROJECT_OPENED);
         EventContextHelper.setProject(map, project);
         ServerEventManager.getInstance().triggerAllEvents(map);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any(StatusBarWidgetFactory.class));
         buildStatusLookupOperation.onLookupStarted();
         buildStatusLookupOperation.onLookupResults(new BuildStatusLookupOperation.BuildStatusResults(
                 new ServerContextBuilder().uri("https://test.visualstudio.com/").type(ServerContext.Type.VSO).build(),
@@ -142,7 +143,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map = EventContextHelper.createContext(EventContextHelper.SENDER_PROJECT_OPENED);
         EventContextHelper.setProject(map, project);
         ServerEventManager.getInstance().triggerAllEvents(map);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any(StatusBarWidgetFactory.class));
         buildStatusLookupOperation.onLookupStarted();
         buildStatusLookupOperation.onLookupResults(new BuildStatusLookupOperation.BuildStatusResults(
                 new ServerContextBuilder().uri("https://test.visualstudio.com/").type(ServerContext.Type.VSO).build(),
@@ -160,7 +161,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map = EventContextHelper.createContext(EventContextHelper.SENDER_PROJECT_OPENED);
         EventContextHelper.setProject(map, project);
         ServerEventManager.getInstance().triggerAllEvents(map);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any(StatusBarWidgetFactory.class));
         verify(statusBar, VerificationModeFactory.times(0)).updateWidget(anyString());
     }
 
@@ -170,7 +171,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map = EventContextHelper.createContext(EventContextHelper.SENDER_REPO_CHANGED);
         EventContextHelper.setProject(map, project);
         ServerEventManager.getInstance().triggerAllEvents(map);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any(StatusBarWidgetFactory.class));
         buildStatusLookupOperation.onLookupStarted();
         buildStatusLookupOperation.onLookupResults(new BuildStatusLookupOperation.BuildStatusResults(
                 new ServerContextBuilder().uri("https://test.visualstudio.com/").type(ServerContext.Type.VSO).build(),
@@ -184,7 +185,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map = EventContextHelper.createContext(EventContextHelper.SENDER_PROJECT_CLOSING);
         EventContextHelper.setProject(map, project);
         ServerEventManager.getInstance().triggerAllEvents(map);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any(StatusBarWidgetFactory.class));
     }
 
     @Test
@@ -193,7 +194,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map = EventContextHelper.createContext(EventContextHelper.SENDER_PROJECT_OPENED);
         EventContextHelper.setProject(map, project);
         ServerEventManager.getInstance().triggerAllEvents(map);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any(StatusBarWidgetFactory.class));
         buildStatusLookupOperation.onLookupStarted();
         buildStatusLookupOperation.onLookupResults(new BuildStatusLookupOperation.BuildStatusResults(
                 new ServerContextBuilder().uri("https://test.visualstudio.com/").type(ServerContext.Type.VSO).build(),
@@ -204,7 +205,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map2 = EventContextHelper.createContext(EventContextHelper.SENDER_PROJECT_CLOSING);
         EventContextHelper.setProject(map2, project);
         ServerEventManager.getInstance().triggerAllEvents(map2);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(2)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(2)).updateWidget(any(StatusBarWidgetFactory.class));
     }
 
     @Test
@@ -214,7 +215,7 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
         Map<String, Object> map = EventContextHelper.createContext("TestSender");
         EventContextHelper.setProject(map, project);
         ServerEventManager.getInstance().triggerAllEvents(map);
-        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any());
+        verify(statusBarWidgetsManager, VerificationModeFactory.times(1)).updateWidget(any(StatusBarWidgetFactory.class));
     }
 
     private class MyBuildStatusLookupOperation extends BuildStatusLookupOperation {

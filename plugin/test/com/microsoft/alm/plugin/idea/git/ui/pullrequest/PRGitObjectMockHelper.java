@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcs.log.VcsUser;
 import com.intellij.vcs.log.impl.HashImpl;
 import git4idea.GitCommit;
+import git4idea.history.GitCommitRequirements;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRemote;
@@ -64,6 +65,7 @@ public class PRGitObjectMockHelper {
                 message,
                 user,
                 date,
-                Collections.EMPTY_LIST);
+                Collections.EMPTY_LIST,
+                GitCommitRequirements.DEFAULT);
     }
 }

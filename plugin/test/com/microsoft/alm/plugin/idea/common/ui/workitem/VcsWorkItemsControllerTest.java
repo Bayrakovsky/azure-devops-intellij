@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.api.mockito.PowerMockito;
 
 import java.awt.event.ActionEvent;
 
@@ -29,7 +28,7 @@ public class VcsWorkItemsControllerTest extends IdeaAbstractTest {
     @Mock
     Project mockProject;
     @Mock
-    TabImpl mockTab;
+    private MockedConstruction<TabImpl> tabImplConstruction;
 
     @Mock
     private MockedConstruction<VcsWorkItemsForm> vcsWorkItemsFormConstruction;
@@ -39,7 +38,6 @@ public class VcsWorkItemsControllerTest extends IdeaAbstractTest {
 
     @Before
     public void setUp() throws Exception {
-        PowerMockito.whenNew(TabImpl.class).withAnyArguments().thenReturn(mockTab);
 
         underTest = new VcsWorkItemsController(mockProject);
     }

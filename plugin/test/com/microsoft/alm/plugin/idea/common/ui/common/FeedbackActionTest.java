@@ -13,7 +13,7 @@ public class FeedbackActionTest extends IdeaAbstractTest {
 
     @Test
     public void testActionPerformed() throws Exception {
-        FeedbackAction action = new FeedbackAction(null, "context");
+        FeedbackAction action = new FeedbackAction();
 
         try {
             action.actionPerformed(null);

@@ -11,7 +11,7 @@ import com.microsoft.alm.plugin.idea.IdeaAbstractTest;
 import git4idea.GitCommit;
 import git4idea.GitRevisionNumber;
 import git4idea.repo.GitRepository;
-import git4idea.util.GitCommitCompareInfo;
+import com.microsoft.alm.plugin.idea.git.ui.pullrequest.GitCommitCompareInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

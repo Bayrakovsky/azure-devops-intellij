@@ -43,7 +43,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TFSFileSystemListenerTest extends IdeaAbstractTest {
@@ -150,8 +149,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.rename(mockVirtualFile, NEW_FILE_NAME);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class)), never());
     }
 
     @Test
@@ -162,8 +160,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.rename(mockVirtualFile, NEW_FILE_NAME);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
     }
 
     @Test
@@ -174,8 +171,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.rename(mockVirtualFile, NEW_FILE_NAME);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
     }
 
     @Test
@@ -186,8 +182,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.rename(mockVirtualFile, NEW_FILE_NAME);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
     }
 
     @Test
@@ -200,8 +195,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.rename(mockVirtualFile, NEW_FILE_NAME);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class)), never());
     }
 
     @Test
@@ -213,8 +207,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.rename(mockVirtualFile, NEW_FILE_NAME);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
     }
 
     @Test
@@ -225,8 +218,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.move(mockVirtualFile, mockNewDirectory);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH)), times(1));
     }
 
     @Test
@@ -237,8 +229,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.move(mockVirtualFile, mockNewDirectory);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH)), times(1));
     }
 
     @Test
@@ -249,8 +240,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.move(mockVirtualFile, mockNewDirectory);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH)), times(1));
     }
 
     @Test
@@ -263,8 +253,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.move(mockVirtualFile, mockNewDirectory);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class)), never());
     }
 
     @Test
@@ -276,8 +265,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.move(mockVirtualFile, mockNewDirectory);
 
         assertTrue(result);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH));
+                commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(MOVED_FILE_PATH)), times(1));
     }
 
     @Test
@@ -287,10 +275,8 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.delete(mockVirtualFile);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class));
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class));
+                commandUtilsStatic.verify(() -> CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class)), never());
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class)), never());
     }
 
     @Test
@@ -300,10 +286,8 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.delete(mockVirtualFile);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class));
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class));
+                commandUtilsStatic.verify(() -> CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class)), never());
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class)), never());
     }
 
     @Test
@@ -327,10 +311,8 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.delete(mockVirtualFile);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class));
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class));
+                commandUtilsStatic.verify(() -> CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class)), never());
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class)), never());
     }
 
     @Test
@@ -358,8 +340,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
 
         assertFalse(result);
         verifyUndoCmd(CURRENT_FILE_PATH);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class));
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class)), never());
     }
 
     @Test
@@ -372,10 +353,8 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.delete(mockVirtualFile);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.undoLocalFiles(eq(mockServerContext), any(List.class));
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class));
+                commandUtilsStatic.verify(() -> CommandUtils.undoLocalFiles(eq(mockServerContext), any(List.class)), never());
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class)), never());
     }
 
     @Test
@@ -417,10 +396,8 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
         boolean result = tfsFileSystemListener.delete(mockVirtualFile);
 
         assertFalse(result);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class));
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class));
+                commandUtilsStatic.verify(() -> CommandUtils.undoLocalFiles(any(ServerContext.class), any(List.class)), never());
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class)), never());
     }
 
     @Test
@@ -450,8 +427,7 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
 
         assertFalse(result);
         verifyUndoCmd(CURRENT_FILE_PATH);
-        verifyStatic(CommandUtils.class, never());
-        CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class));
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(any(ServerContext.class), any(List.class), any(String.class), any(Boolean.class)), never());
     }
 
     private void verifyDeleteCmd(final String path) {
@@ -460,16 +436,14 @@ public class TFSFileSystemListenerTest extends IdeaAbstractTest {
 
     private void verifyDeleteCmd(final String path, @Nullable String workspace) {
         ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.deleteFiles(eq(mockServerContext), listArgumentCaptor.capture(), eq(workspace), eq(true));
+                commandUtilsStatic.verify(() -> CommandUtils.deleteFiles(eq(mockServerContext), listArgumentCaptor.capture(), eq(workspace), eq(true)), times(1));
         assertEquals(1, listArgumentCaptor.getValue().size());
         assertEquals(path, listArgumentCaptor.getValue().get(0));
     }
 
     private void verifyUndoCmd(final String path) {
         ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verifyStatic(CommandUtils.class, times(1));
-        CommandUtils.undoLocalFiles(eq(mockServerContext), listArgumentCaptor.capture());
+                commandUtilsStatic.verify(() -> CommandUtils.undoLocalFiles(eq(mockServerContext), listArgumentCaptor.capture()), times(1));
         assertEquals(1, listArgumentCaptor.getValue().size());
         assertEquals(path, listArgumentCaptor.getValue().get(0));
     }

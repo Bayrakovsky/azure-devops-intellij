@@ -16,7 +16,7 @@ import git4idea.repo.GitHooksInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepoInfo;
 import git4idea.repo.GitRepository;
-import git4idea.util.GitCommitCompareInfo;
+import com.microsoft.alm.plugin.idea.git.ui.pullrequest.GitCommitCompareInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Observer;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

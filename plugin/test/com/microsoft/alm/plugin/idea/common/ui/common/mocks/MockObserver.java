@@ -3,12 +3,12 @@
 
 package com.microsoft.alm.plugin.idea.common.ui.common.mocks;
 
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observer;
 import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 public class MockObserver implements Observer {
     private Observable lastObservable = null;
