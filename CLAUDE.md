@@ -20,7 +20,8 @@ Run from the repository root; the Gradle wrapper pins **Gradle 9.0.0**, and the 
 - `./gradlew :plugin:buildPlugin` — build the plugin; output zip (`azure-devops-<version>.zip`, reactive backend bundled inside) lands in `plugin/build/distributions/`. The version comes from `buildNumber` in `gradle.properties`; override with `-PbuildNumber=X.Y.Z` (the release workflow does this from the git tag).
 - `./gradlew :plugin:runIde` — launch a sandbox IDE with the plugin (and reactive backend) installed.
 - `./gradlew verifyPlugin` — JetBrains Plugin Verifier (uses the local Rider.app when present, otherwise downloads Rider).
-- **Unit tests are NOT currently runnable**: the test sources still use PowerMock (incompatible with JDK 21) and do not compile. Avoid `check`/`test` tasks until the tests are migrated to Mockito 5; `buildPlugin` does not compile tests.
+- `./gradlew :plugin:unitTest` — run the plain-JVM unit tests in the `plugin/test-unit` source set (JUnit 4, IDE-independent, no PowerMock). This is the runnable test set; put new fast tests here.
+- **The legacy `test` source set is still NOT runnable**: it uses PowerMock (incompatible with JDK 21) and does not compile. Avoid `check`/`test` until it is migrated to Mockito 5; `buildPlugin` compiles neither the legacy tests nor `test-unit`.
 
 ### Quality gates
 - **Checkstyle** (`config/checkstyle/custom-rules.xml`) runs on the main projects and **fails the build on violations**. It enforces the MIT license header — every Java source file must start with:

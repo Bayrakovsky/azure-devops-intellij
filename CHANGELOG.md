@@ -9,6 +9,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _Changes that will land in the next release will be listed here._
 
+## [2.0.7] — 2026-08-11
+
+Maintenance release, no new features. Completes the bulk of the deprecated API cleanup started in
+2.0.5: the Plugin Verifier warning count against the 2026.2 platform drops from 4 scheduled-for-removal
+plus 47 deprecated usages to 2 plus 1, and the remaining three are overrides of platform methods that
+must stay while the plugin still supports 2026.1.
+
+### Changed
+
+- The Git and TFVC checkout providers now plug into the "Get from Version Control" dialog through the
+  current `VcsCloneComponent` API instead of the `doCheckout` method scheduled for removal. The
+  familiar Azure DevOps login/repository selection UI is embedded into the dialog and behaves as
+  before.
+- Replaced the deprecated `java.util.Observable`/`Observer` (deprecated since Java 9) across all UI
+  models and controllers with the plugin's own drop-in implementation with identical semantics,
+  covered by new unit tests.
+- Replaced the remaining batch of deprecated platform and JDK APIs one-to-one: commit selection in the
+  VCS log toolbar action, right-click detection in the Pull Requests and Work Items tabs, the string
+  bundle lookup, the changes refresh after editing `.tfignore`, TFVC root detection (`VcsRootChecker`
+  now asked through `VirtualFile`), the download link in the TFVC settings page, showing the conflict
+  resolution dialog, `FilePath` construction, the checkbox label in the Create Branch form, the pull
+  request diff browser (now the async variant), the push error type, and URL validation (now built on
+  `java.net.URI`, which additionally rejects malformed URLs with raw spaces or non-punycode hosts).
+- Prepared `TFSFileSystemListener` for the 2026.2 file operations API: the new `copyFile` method is
+  implemented alongside the legacy `copy`/`afterDone` pair that platform 2026.1 still requires.
+
+### Added
+
+- A new `test-unit` source set with plain JVM unit tests (`./gradlew :plugin:unitTest`) that compiles
+  and runs independently of the legacy PowerMock-based test suite; it covers the new
+  `Observable`/`Observer` implementation and URL validation.
+
+### Fixed
+
+- The TFVC "Create Branch" dialog now validates the target: it must be a server path starting with `$/`
+  (for example `$/TeamProject/NewBranch`). Previously a bare name like `qw12` was passed straight to the
+  `tf` client, which failed in the background with a cryptic "First free argument must be a server path"
+  error; the dialog now keeps the Create button disabled and shows a clear hint until a valid path is
+  entered.
+- The context menu in the Pull Requests and Work Items tabs is now rendered through the platform popup
+  factory instead of a raw Swing popup menu, which on the current platform showed the items collapsed on
+  top of each other, without hover highlight and effectively unclickable. The menu contents and actions
+  are unchanged.
+- Right-clicking a row in the Pull Requests or Work Items tab now selects that row (it also highlights),
+  so the context-menu action runs against the item under the cursor. Previously the selection was left
+  unchanged, and in particular "Create Branch" in the Work Items tab could throw an
+  `IndexOutOfBoundsException` when nothing was selected; that action is now also guarded against an empty
+  selection.
+- TFVC checkout no longer leaves an orphaned server workspace behind. A TFVC workspace is named after
+  the target folder and is registered on the server, so a second checkout into a folder of the same name
+  used to fail because the workspace from a cancelled attempt still existed. Cancelling the "Edit the
+  workspace before getting sources" dialog now deletes the workspace that was just created.
+- TFVC checkout no longer fails silently when it cannot create the workspace. The "workspace already
+  exists" error is now detected reliably (it is matched on the stable part of the tf message rather than
+  an exact template) and reported with a clear dialog that names the workspace. The dialog offers a "Fix
+  Workspace on Server" button that deletes the conflicting workspace and retries the checkout in place;
+  the default OK button leaves it untouched (it can still be removed later from Manage Workspaces). Any
+  other workspace-creation failure is now surfaced as an error dialog too, instead of the progress bar
+  just disappearing with no feedback.
+
 ## [2.0.6] — 2026-08-09
 
 Maintenance release, no new features. Continues the gradual, low-risk replacement of deprecated
@@ -201,7 +261,8 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.6...HEAD
+[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.7...HEAD
+[2.0.7]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.7
 [2.0.6]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.6
 [2.0.5]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.5
 [2.0.4]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.4

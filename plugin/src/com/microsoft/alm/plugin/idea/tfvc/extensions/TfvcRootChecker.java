@@ -31,7 +31,7 @@ public class TfvcRootChecker extends VcsRootChecker {
      * <p>
      * Must never call the TFVC client: this runs on project open before the reactive backend is warm, and any
      * blocking call here freezes the IDE. The cache-aware logic answers from {@link TfvcRootCache} only; an
-     * {@code UNKNOWN} status yields {@code true}, and {@link #isRoot(String)} resolves it later.
+     * {@code UNKNOWN} status yields {@code true}, and {@link #isRoot(VirtualFile)} resolves it later.
      */
     @Override
     public boolean validateRoot(@NotNull VirtualFile file) {
@@ -55,7 +55,11 @@ public class TfvcRootChecker extends VcsRootChecker {
     }
 
     @Override
-    public boolean isRoot(@NotNull String path) {
+    public boolean isRoot(@NotNull VirtualFile file) {
+        return isRootPath(file.getPath());
+    }
+
+    private boolean isRootPath(@NotNull String path) {
         if (!validateRoot(path))
             return false;
 

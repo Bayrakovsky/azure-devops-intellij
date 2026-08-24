@@ -25,6 +25,7 @@ import com.intellij.util.ui.JBUI;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.ui.common.BaseDialogImpl;
+import com.microsoft.alm.plugin.idea.common.utils.VcsHelper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -71,7 +72,30 @@ public class CreateBranchDialog extends BaseDialogImpl {
     }
 
     private void revalidate() {
-        setOkEnabled(StringUtil.isNotEmpty(form.getTargetPath()));
+        final String targetPath = form.getTargetPath();
+        if (StringUtil.isEmpty(targetPath)) {
+            // Initial/empty state: keep the OK button disabled but do not nag the user with an error yet.
+            setErrorText(null);
+            setOkEnabled(false);
+        } else if (!isValidServerPath(targetPath)) {
+            // A TFVC branch target must be a server path (e.g. $/Project/Branch). Passing a bare name straight to the
+            // 'tf' client fails with a cryptic "First free argument must be a server path" error, so catch it here and
+            // tell the user what is expected instead.
+            setErrorText(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_BRANCH_DIALOG_ERRORS_INVALID_SERVER_PATH));
+            setOkEnabled(false);
+        } else {
+            setErrorText(null);
+            setOkEnabled(true);
+        }
+    }
+
+    /**
+     * A valid TFVC server path starts with "$/" and names something below the root.
+     */
+    private static boolean isValidServerPath(final String path) {
+        return path != null
+                && path.startsWith(VcsHelper.TFVC_ROOT)
+                && path.length() > VcsHelper.TFVC_ROOT.length();
     }
 
     //@Nullable

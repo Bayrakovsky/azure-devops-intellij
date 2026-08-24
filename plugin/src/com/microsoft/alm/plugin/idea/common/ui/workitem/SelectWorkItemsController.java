@@ -9,7 +9,7 @@ import com.microsoft.alm.plugin.idea.common.utils.VcsHelper;
 
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
-import java.util.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
 
 public class SelectWorkItemsController extends AbstractController {
     private final SelectWorkItemsModel model;

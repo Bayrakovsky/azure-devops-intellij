@@ -200,7 +200,7 @@ public class TFSFileListener extends VcsVFSListener {
         // Refreshes the files so that the changes show up in the Local Changes tab
         final Collection<FilePath> invalidate = new ArrayList<>(movedFiles.size());
         for (final MovedFileInfo info : movedFiles) {
-            invalidate.add(VcsUtil.getFilePath(info.myOldPath));
+            invalidate.add(VcsUtil.getFilePath(info.myOldPath, false));
         }
         TfsFileUtil.markDirtyRecursively(myProject, invalidate);
     }

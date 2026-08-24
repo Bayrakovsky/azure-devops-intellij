@@ -5,15 +5,19 @@ package com.microsoft.alm.plugin.idea.common.ui.common.tabs;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.JBMenuItem;
-import com.intellij.openapi.ui.JBPopupMenu;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.JBUI;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.ui.common.ActionListenerContainer;
@@ -38,6 +42,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
@@ -309,12 +314,25 @@ public abstract class TabFormImpl<T extends FilteredModel> implements TabForm<T>
      * @param listener
      */
     protected void showPopupMenu(final Component component, final int x, final int y, final ActionListener listener) {
-        final JBPopupMenu menu = new JBPopupMenu();
+        // Render the context menu through the platform popup factory instead of a raw Swing JBPopupMenu: on the
+        // current platform the Swing menu items rendered collapsed on top of each other, without hover highlight
+        // and effectively unclickable. Each existing menu item is wrapped in an AnAction that just re-fires it via
+        // doClick(), so the per-tab menu contents and the action-command dispatch stay exactly the same.
         final List<JBMenuItem> openMenuItems = getMenuItems(listener);
-        for (JBMenuItem menuItem : openMenuItems) {
-            menu.add(menuItem);
+        final DefaultActionGroup group = new DefaultActionGroup();
+        for (final JBMenuItem menuItem : openMenuItems) {
+            group.add(new AnAction(menuItem.getText()) {
+                @Override
+                public void actionPerformed(AnActionEvent anActionEvent) {
+                    menuItem.doClick();
+                }
+            });
         }
-        menu.show(component, x, y);
+
+        final DataContext dataContext = DataManager.getInstance().getDataContext(component);
+        final ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
+                null, group, dataContext, JBPopupFactory.ActionSelectionAid.MNEMONICS, false);
+        popup.show(new RelativePoint(component, new Point(x, y)));
     }
 
     /**

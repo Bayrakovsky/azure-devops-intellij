@@ -3,8 +3,6 @@
 
 package com.microsoft.alm.plugin.idea.common.ui.common;
 
-import java.util.Observer;
-
 /**
  * This interface represents the model for either the VSO or TFS "checkout from version control" pages.
  * There is a base class implementation of this interface thru CheckoutPageModelImpl.

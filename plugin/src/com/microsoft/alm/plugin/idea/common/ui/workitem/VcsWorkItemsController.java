@@ -11,7 +11,7 @@ import com.microsoft.alm.plugin.idea.common.ui.controls.WorkItemQueryDropDown;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.ActionEvent;
-import java.util.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
 
 /**
  * Controller for the WorkItems VC tab

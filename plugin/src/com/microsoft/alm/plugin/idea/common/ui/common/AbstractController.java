@@ -6,8 +6,6 @@ package com.microsoft.alm.plugin.idea.common.ui.common;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
 
 public abstract class AbstractController implements Observer, ActionListener {
     @Override

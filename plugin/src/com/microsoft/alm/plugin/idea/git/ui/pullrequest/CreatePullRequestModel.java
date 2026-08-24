@@ -44,7 +44,6 @@ import com.microsoft.visualstudio.services.webapi.patch.json.JsonPatchDocument;
 import com.microsoft.visualstudio.services.webapi.patch.json.JsonPatchOperation;
 import git4idea.GitBranch;
 import git4idea.GitCommit;
-import git4idea.GitExecutionException;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.commands.Git;
@@ -546,7 +545,7 @@ public class CreatePullRequestModel extends AbstractModel {
             pushResult.set(Pair.create(createdBranchNameOnServer, result));
         } else {
             final String errMsg = result.getErrorOutputAsJoinedString();
-            pushResult.setException(new GitExecutionException(errMsg, null));
+            pushResult.setException(new VcsException(errMsg));
         }
 
         return pushResult;

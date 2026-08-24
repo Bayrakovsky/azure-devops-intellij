@@ -58,6 +58,14 @@
     <change-notes><![CDATA[
       <br />
       <ul>
+        <li>2.0.7:
+          <ul>
+            <li>TFVC checkout handles an existing server workspace properly. A TFVC workspace is named after the target folder and lives on the server, so deleting the local folder does not remove it and a second checkout into the same name used to fail. Now checkout shows a dialog that names the workspace and offers a "Fix Workspace on Server" button to delete it and retry (OK leaves it untouched). Cancelling the "Edit the workspace before getting sources" dialog no longer leaves an orphaned workspace behind, and a failed workspace creation reports an error instead of the progress bar quietly disappearing.</li>
+            <li>The context menu in the Pull Requests and Work Items tabs renders correctly again. On the current platform the old Swing menu showed the entries collapsed on top of each other, without hover highlight and effectively unclickable; it now goes through the platform popup factory. Right-clicking a row also selects it, and "Create Branch" in the Work Items tab no longer throws when nothing is selected.</li>
+            <li>The TFVC "Create Branch" dialog checks the target path. It must be a server path starting with "$/" (for example $/TeamProject/NewBranch). A bare name previously reached the tf client and failed with a confusing "First free argument must be a server path" error; the dialog now keeps Create disabled and explains what is expected.</li>
+            <li>Under the hood: the Git and TFVC checkout providers use the current VcsCloneComponent API instead of the removed doCheckout, and java.util.Observable/Observer plus the remaining deprecated platform and JDK calls are replaced (the Plugin Verifier is down to three overrides that have to stay while 2026.1 is supported). No behavior change from these. Also added a small plain-JVM unit test set that builds and runs without the legacy test suite.</li>
+          </ul>
+        </li>
         <li>2.0.6: Removed the non-working help ("?") button from the Manage Workspaces dialog. Replaced another batch of deprecated platform API calls with their current equivalents. No behavior changes.</li>
         <li>2.0.5: Reworked the Feedback button — it now links to the plugin's JetBrains Marketplace reviews, GitHub Issues, and GitHub Discussions instead of the old, non-functional Microsoft feedback dialog. Replaced a first batch of deprecated platform API calls. No behavior changes.</li>
         <li>2.0.4: The credentials prompt now opens on top of the Settings dialog and is modal to it. Cancelling "Update credentials" no longer stores an empty credential or breaks TFVC change detection. Removed the last internal API usage.</li>

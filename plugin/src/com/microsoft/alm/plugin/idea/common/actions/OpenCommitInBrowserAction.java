@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.VcsFullCommitDetails;
-import com.intellij.vcs.log.VcsLog;
+import com.intellij.vcs.log.VcsLogCommitSelection;
 import com.intellij.vcs.log.VcsLogDataKeys;
 import com.microsoft.alm.common.utils.UrlHelper;
 import com.microsoft.alm.plugin.idea.common.resources.Icons;
@@ -43,13 +43,13 @@ public class OpenCommitInBrowserAction extends DumbAwareAction {
         final Presentation presentation = anActionEvent.getPresentation();
 
         final Project project = anActionEvent.getData(CommonDataKeys.PROJECT);
-        final VcsLog log = anActionEvent.getData(VcsLogDataKeys.VCS_LOG);
-        if (project == null || project.isDisposed() || log == null) {
+        final VcsLogCommitSelection selection = anActionEvent.getData(VcsLogDataKeys.VCS_LOG_COMMIT_SELECTION);
+        if (project == null || project.isDisposed() || selection == null) {
             presentation.setEnabledAndVisible(false);
             return;
         }
 
-        final List<VcsFullCommitDetails> commits = log.getSelectedDetails();
+        final List<VcsFullCommitDetails> commits = selection.getCachedFullDetails();
         if (commits.size() == 0) {
             presentation.setEnabledAndVisible(false);
             return;
@@ -75,7 +75,8 @@ public class OpenCommitInBrowserAction extends DumbAwareAction {
     @Override
     public void actionPerformed(@NotNull final AnActionEvent anActionEvent) {
         final Project project = Objects.requireNonNull(anActionEvent.getData(CommonDataKeys.PROJECT));
-        final VcsFullCommitDetails commit = Objects.requireNonNull(anActionEvent.getData(VcsLogDataKeys.VCS_LOG)).getSelectedDetails().get(0);
+        final VcsFullCommitDetails commit = Objects.requireNonNull(anActionEvent.getData(VcsLogDataKeys.VCS_LOG_COMMIT_SELECTION))
+                .getCachedFullDetails().get(0);
 
         final GitRepository gitRepository = GitUtil.getRepositoryManager(project).getRepositoryForRootQuick(commit.getRoot());
         if (gitRepository == null)

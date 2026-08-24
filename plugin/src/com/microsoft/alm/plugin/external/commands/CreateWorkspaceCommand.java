@@ -10,9 +10,6 @@ import com.microsoft.alm.plugin.external.exceptions.WorkspaceAlreadyExistsExcept
 import com.microsoft.alm.plugin.external.models.Workspace;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * This command creates a new workspace.
  * <p/>
@@ -20,7 +17,11 @@ import java.util.regex.Pattern;
  * [/filetime:current|checkin] [/permission:Private|PublicLimited|Public] [<workspacename;[workspaceowner]>]
  */
 public class CreateWorkspaceCommand extends Command<String> {
-    private static final String WORKSPACE_EXISTS_ERROR = "An error occurred: The workspace %s;.* already exists on computer .*";
+    // Stable core of the tf "workspace already exists" error. The full message ("An error occurred: The workspace
+    // <name>;<owner> already exists on computer <machine>.") varies by tf client/version, so match on this substring
+    // instead of a templated regex (which also treated the workspace name as a pattern). Creating a workspace only
+    // reports this phrase when the name is already taken.
+    private static final String WORKSPACE_EXISTS_ERROR = "already exists on computer";
 
     private final String workspaceName;
     private final String comment;
@@ -105,11 +106,8 @@ public class CreateWorkspaceCommand extends Command<String> {
      */
     @Override
     protected void throwIfError(final String stderr) {
-        if (StringUtils.isNotEmpty(stderr)) {
-            final Pattern pattern = Pattern.compile(String.format(WORKSPACE_EXISTS_ERROR, workspaceName));
-            final Matcher matcher = pattern.matcher(stderr);
-            if (matcher.find())
-                throw new WorkspaceAlreadyExistsException(workspaceName);
+        if (StringUtils.isNotEmpty(stderr) && StringUtils.containsIgnoreCase(stderr, WORKSPACE_EXISTS_ERROR)) {
+            throw new WorkspaceAlreadyExistsException(workspaceName);
         }
         super.throwIfError(stderr);
     }

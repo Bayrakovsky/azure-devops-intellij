@@ -12,12 +12,13 @@ import com.microsoft.alm.plugin.idea.common.ui.common.tabs.TabFormImpl;
 import com.microsoft.alm.plugin.operations.Operation;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.tree.TreePath;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -127,7 +128,13 @@ public class VcsPullRequestsForm extends TabFormImpl<PullRequestsTreeModel> {
                 //double click
                 if (mouseEvent.getClickCount() == 2) {
                     triggerEvent(CMD_OPEN_SELECTED_ITEM_IN_BROWSER);
-                } else if (mouseEvent.isPopupTrigger() || ((mouseEvent.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+                } else if (mouseEvent.isPopupTrigger() || SwingUtilities.isRightMouseButton(mouseEvent)) {
+                    // A right click does not change the tree selection by default, so select the node under the
+                    // cursor first. This gives the expected highlight and makes the popup act on that node.
+                    final TreePath path = pullRequestsTree.getPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+                    if (path != null) {
+                        pullRequestsTree.setSelectionPath(path);
+                    }
                     //right click, show pop up
                     showPopupMenu(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY(), listener);
                 }

@@ -16,7 +16,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
@@ -63,11 +62,17 @@ public class UrlHelper {
     }
 
     public static boolean isValidUrl(final String serverUrl) {
+        if (serverUrl == null) {
+            // the previously used URL(String) constructor treated null as a malformed URL; keep that behavior
+            logger.warn("isValidUrl: URL is null");
+            return false;
+        }
         try {
-            new URL(serverUrl);
+            // the URL(String) constructor is deprecated since Java 20; construct through URI instead
+            new URI(serverUrl).toURL();
 
             return true;
-        } catch (MalformedURLException e) {
+        } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
             //URL is not in a valid form
             logger.warn(serverUrl, e);
         }

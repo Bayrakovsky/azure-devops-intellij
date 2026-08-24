@@ -100,9 +100,9 @@ public class ProjectConfigurableForm {
         checkinPolicyLabel.setVisible(false);
         noteLabel.setVisible(false);
         downloadLinkPane.setVisible(false);
-        downloadLink.setHyperlinkText(
-                TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_LABEL),
-                TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_TEXT), "");
+        downloadLink.setTextWithHyperlink(
+                TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_LABEL)
+                        + "<hyperlink>" + TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_TEXT) + "</hyperlink>");
         downloadLink.setHyperlinkTarget(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_URL));
         downloadLink.setToolTipText(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_LINK_URL));
         pathLabel.setText(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_SETTINGS_DESCRIPTION));

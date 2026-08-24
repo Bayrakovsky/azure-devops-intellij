@@ -7,8 +7,8 @@ import com.intellij.openapi.project.Project;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observer;
 
 /**
  * Controller for the ManageWorkspaces dialog

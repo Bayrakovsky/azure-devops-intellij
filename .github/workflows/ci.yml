@@ -25,6 +25,9 @@ jobs:
       - name: Build plugin (includes Checkstyle)
         run: ./gradlew :plugin:buildPlugin :plugin:checkstyleMain
 
+      - name: Run unit tests
+        run: ./gradlew :plugin:unitTest
+
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4
         with:

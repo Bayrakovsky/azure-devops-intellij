@@ -196,6 +196,38 @@ project(":plugin") {
         archiveBaseName = 'com.microsoft.alm.plugin.idea'
     }
 
+    // A separate source set for plain JVM unit tests. The legacy 'test' source set does not compile until the
+    // PowerMock -> Mockito migration is finished, so fast IDE-independent tests live in 'test-unit' and run
+    // via the 'unitTest' task.
+    sourceSets {
+        unitTest {
+            java {
+                srcDir 'test-unit'
+            }
+            compileClasspath += sourceSets.main.output
+            runtimeClasspath += sourceSets.main.output
+        }
+    }
+
+    configurations {
+        unitTestImplementation.extendsFrom implementation
+        unitTestRuntimeOnly.extendsFrom runtimeOnly
+    }
+
+    dependencies {
+        unitTestImplementation group: 'junit', name: 'junit', version: '4.13.2'
+        // provided by the IntelliJ Platform at runtime, so it is not part of the 'implementation' configuration
+        unitTestRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
+    }
+
+    tasks.register('unitTest', Test) {
+        description = 'Runs plain JVM unit tests from the test-unit source set.'
+        group = 'verification'
+        testClassesDirs = sourceSets.unitTest.output.classesDirs
+        classpath = sourceSets.unitTest.runtimeClasspath
+        useJUnit()
+    }
+
     task showVersion() {
         doLast {
             println("version = " + buildNumber)

@@ -3,7 +3,7 @@
 
 package com.microsoft.alm.plugin.idea.common.resources;
 
-import com.intellij.CommonBundle;
+import com.intellij.AbstractBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
@@ -42,7 +42,7 @@ public class TfPluginBundle {
 
     public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE_NAME) String key,
                                  @NotNull Object... params) {
-        return CommonBundle.message(getBundle(), key, params);
+        return AbstractBundle.message(getBundle(), key, params);
     }
 
     // Plugin general
@@ -194,6 +194,12 @@ public class TfPluginBundle {
     public static final String KEY_CHECKOUT_TFVC_PROGRESS_SYNC = "CheckoutDialog.Tfvc.Progress.Sync";
     @NonNls
     public static final String KEY_CHECKOUT_TFVC_FAILED_TITLE = "CheckoutDialog.Tfvc.Failed.Title";
+    @NonNls
+    public static final String KEY_CHECKOUT_TFVC_WORKSPACE_EXISTS = "CheckoutDialog.Tfvc.WorkspaceExists";
+    @NonNls
+    public static final String KEY_CHECKOUT_TFVC_WORKSPACE_EXISTS_FIX = "CheckoutDialog.Tfvc.WorkspaceExists.Fix";
+    @NonNls
+    public static final String KEY_CHECKOUT_TFVC_DELETING_WORKSPACE = "CheckoutDialog.Tfvc.DeletingWorkspace";
 
     // Tool exceptions:
     @NonNls
@@ -662,6 +668,8 @@ public class TfPluginBundle {
     public static final String KEY_TFVC_BRANCH_DIALOG_TITLE = "Tfvc.Branch.Dialog.Title";
     @NonNls
     public static final String KEY_TFVC_BRANCH_DIALOG_OK_BUTTON = "Tfvc.Branch.Dialog.OkButton";
+    @NonNls
+    public static final String KEY_TFVC_BRANCH_DIALOG_ERRORS_INVALID_SERVER_PATH = "Tfvc.Branch.Dialog.Errors.InvalidServerPath";
 
     //TFVC Merge Branch Action
     @NonNls

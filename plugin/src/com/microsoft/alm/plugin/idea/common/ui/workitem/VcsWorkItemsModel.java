@@ -104,8 +104,14 @@ public class VcsWorkItemsModel extends TabModelImpl<WorkItemsTableModel> {
             return;
         }
 
+        final List<WorkItem> selectedWorkItems = viewForModel.getSelectedWorkItems();
+        if (selectedWorkItems.isEmpty()) {
+            logger.warn("createBranch: no work item is selected");
+            return;
+        }
+
         final ServerContext context = ServerContextManager.getInstance().get(repositoryContext.getUrl());
-        final WorkItem workItem = viewForModel.getSelectedWorkItems().get(0); // TODO: associate multiple work items with a branch
+        final WorkItem workItem = selectedWorkItems.get(0); // TODO: associate multiple work items with a branch
 
         // call the Create Branch dialog and get the branch name from the user
         final CreateBranchController controller = new CreateBranchController(project,

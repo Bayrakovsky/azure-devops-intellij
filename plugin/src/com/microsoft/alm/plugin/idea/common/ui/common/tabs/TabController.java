@@ -5,7 +5,7 @@ package com.microsoft.alm.plugin.idea.common.ui.common.tabs;
 
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
-import java.util.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
 
 /**
  * Interface for tab controllers

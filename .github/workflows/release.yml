@@ -38,6 +38,9 @@ jobs:
       - name: Build plugin
         run: ./gradlew :plugin:buildPlugin -PbuildNumber=${{ steps.version.outputs.version }}
 
+      - name: Run unit tests
+        run: ./gradlew :plugin:unitTest -PbuildNumber=${{ steps.version.outputs.version }}
+
       - name: Verify plugin against Rider
         run: ./gradlew :plugin:verifyPlugin -PbuildNumber=${{ steps.version.outputs.version }}
 

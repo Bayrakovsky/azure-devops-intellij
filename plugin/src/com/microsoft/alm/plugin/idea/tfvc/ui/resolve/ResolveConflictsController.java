@@ -26,8 +26,8 @@ import com.microsoft.alm.plugin.idea.tfvc.core.tfs.conflicts.ResolveConflictHelp
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observer;
 
 /**
  * Controller for resolving conflicts interactively with users

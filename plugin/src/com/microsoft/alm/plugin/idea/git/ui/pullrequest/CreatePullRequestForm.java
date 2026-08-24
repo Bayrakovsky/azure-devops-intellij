@@ -6,7 +6,7 @@ package com.microsoft.alm.plugin.idea.git.ui.pullrequest;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ui.SimpleChangesBrowser;
+import com.intellij.openapi.vcs.changes.ui.SimpleAsyncChangesBrowser;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.JBUI;
@@ -213,7 +213,7 @@ public class CreatePullRequestForm implements BasicForm {
 
     private JComponent createDiffPaneBrowser(final Project project, final GitCommitCompareInfo compareInfo) {
         List<Change> diff = compareInfo.getTotalDiff();
-        final SimpleChangesBrowser changesBrowser = new  SimpleChangesBrowser(project,diff);
+        final SimpleAsyncChangesBrowser changesBrowser = new SimpleAsyncChangesBrowser(project, false, false);
 
         changesBrowser.setChangesToDisplay(diff);
         return changesBrowser;

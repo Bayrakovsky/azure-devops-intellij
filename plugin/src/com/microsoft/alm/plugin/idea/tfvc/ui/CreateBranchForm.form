@@ -69,7 +69,6 @@
         </constraints>
         <properties>
           <actionCommand value="Create local copy of new branch"/>
-          <label value="Create local copy of new branch"/>
           <text resource-bundle="com/microsoft/alm/plugin/idea/ui/tfplugin" key="CreateBranchForm.SyncNewBranch"/>
         </properties>
       </component>

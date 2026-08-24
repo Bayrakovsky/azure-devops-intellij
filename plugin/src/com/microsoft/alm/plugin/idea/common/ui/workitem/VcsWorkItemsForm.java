@@ -22,13 +22,13 @@ import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -138,7 +138,14 @@ public class VcsWorkItemsForm extends TabFormImpl<WorkItemsTableModel> {
                 //double click
                 if (mouseEvent.getClickCount() == 2) {
                     triggerEvent(CMD_OPEN_SELECTED_ITEM_IN_BROWSER);
-                } else if (mouseEvent.isPopupTrigger() || ((mouseEvent.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK)) {
+                } else if (mouseEvent.isPopupTrigger() || SwingUtilities.isRightMouseButton(mouseEvent)) {
+                    // A right click does not change the table selection by default, so select the row under the
+                    // cursor first. This gives the expected highlight and makes the popup act on that row instead
+                    // of a stale/empty selection.
+                    final int row = workItemsTable.rowAtPoint(mouseEvent.getPoint());
+                    if (row >= 0 && !workItemsTable.isRowSelected(row)) {
+                        workItemsTable.setRowSelectionInterval(row, row);
+                    }
                     //right click, show pop up
                     showPopupMenu(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY(), listener);
                 }

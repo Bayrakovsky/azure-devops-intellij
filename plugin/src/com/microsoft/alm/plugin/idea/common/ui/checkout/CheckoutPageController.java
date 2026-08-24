@@ -12,7 +12,7 @@ import com.microsoft.alm.plugin.idea.common.ui.controls.UserAccountPanel;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
-import java.util.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
 
 /**
  * This class binds the UI with the Model by attaching listeners to both and keeping them

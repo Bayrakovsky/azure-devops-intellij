@@ -9,7 +9,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.changes.actions.RefreshAction;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.vcs.changes.VcsDirtyScopeManager;
 import java.util.Objects;
 import com.microsoft.alm.plugin.external.models.Workspace;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
@@ -64,7 +65,8 @@ public class AddFileToTfIgnoreAction extends AnAction {
 
             // Usually the TFVC is already in a bad state (i.e. all the changed files are lost) before this action gets
             // called, so we need to refresh the VCS changes afterwards.
-            RefreshAction.doRefresh(myProject);
+            FileDocumentManager.getInstance().saveAllDocuments();
+            VcsDirtyScopeManager.getInstance(myProject).markEverythingDirty();
         }
     }
 }

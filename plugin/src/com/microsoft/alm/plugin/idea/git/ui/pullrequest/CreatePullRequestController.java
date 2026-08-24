@@ -15,8 +15,8 @@ import git4idea.repo.GitRepository;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observer;
 import java.util.concurrent.TimeUnit;
 
 /**

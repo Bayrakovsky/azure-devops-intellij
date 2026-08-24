@@ -53,19 +53,26 @@ Checkstyle runs as part of the build and **fails it on violations**:
 - 4-space indent, no tabs.
 - No wildcard imports.
 
-## Tests — known gap
+## Tests
 
-The unit test sources still use PowerMock, which is incompatible with JDK 21, and are currently
-**not compiled or run** (neither locally nor in CI). Migrating them to Mockito 5 +
-`mockito-inline` is a welcome contribution. Integration tests (`L2Tests`) additionally require a
-real Azure DevOps organization and `MSVSTS_INTELLIJ_*` environment variables (see the upstream
-README history for the full list).
+Fast, IDE-independent unit tests live in the `plugin/test-unit` source set (plain JUnit 4) and run with:
+
+```
+./gradlew :plugin:unitTest
+```
+
+Add tests here for new logic that can be exercised without the IntelliJ platform. This set is separate
+from the legacy `test` source set, which still uses PowerMock (incompatible with JDK 21) and is **not
+compiled or run** (neither locally nor in CI); migrating it to Mockito 5 + `mockito-inline` is a welcome
+contribution. Integration tests (`L2Tests`) additionally require a real Azure DevOps organization and
+`MSVSTS_INTELLIJ_*` environment variables (see the upstream README history for the full list).
 
 ## Pull requests
 
 Before opening a PR, please check:
 
 - [ ] `./gradlew :plugin:buildPlugin` is green (this includes Checkstyle).
+- [ ] `./gradlew :plugin:unitTest` is green (add tests under `plugin/test-unit` for new testable logic).
 - [ ] New Java files carry the license header.
 - [ ] The change is described in `CHANGELOG.md` under `[Unreleased]` if user-visible.
 - [ ] For TFVC behavior changes: describe how you verified them against a real workspace

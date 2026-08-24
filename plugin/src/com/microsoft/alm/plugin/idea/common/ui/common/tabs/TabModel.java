@@ -7,7 +7,7 @@ import com.microsoft.alm.plugin.idea.common.ui.common.FilteredModel;
 import com.microsoft.alm.plugin.idea.common.ui.common.VcsTabStatus;
 import com.microsoft.alm.plugin.operations.Operation;
 
-import java.util.Observer;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observer;
 
 /**
  * Interface for Tab models

@@ -6,8 +6,6 @@ package com.microsoft.alm.plugin.idea.common.ui.common;
 import com.intellij.ide.BrowserUtil;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Observable;
-
 /**
  * This class is a simple base class for all UI Models.
  * It provides one additional method on to of Observable that combines setChanged and Notify.

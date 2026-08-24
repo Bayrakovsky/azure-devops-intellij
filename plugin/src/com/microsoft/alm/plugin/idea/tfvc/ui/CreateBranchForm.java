@@ -152,7 +152,6 @@ public class CreateBranchForm {
         contentPane.add(spacer2, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         syncNewBranchCheckBox = new JCheckBox();
         syncNewBranchCheckBox.setActionCommand("Create local copy of new branch");
-        syncNewBranchCheckBox.setLabel("Create local copy of new branch");
         this.$$$loadButtonText$$$(syncNewBranchCheckBox, ResourceBundle.getBundle("com/microsoft/alm/plugin/idea/ui/tfplugin").getString("CreateBranchForm.SyncNewBranch"));
         contentPane.add(syncNewBranchCheckBox, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(sourceText);

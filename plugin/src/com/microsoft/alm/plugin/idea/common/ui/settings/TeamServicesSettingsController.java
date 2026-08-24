@@ -9,7 +9,7 @@ import com.microsoft.alm.plugin.idea.common.utils.IdeaHelper;
 
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
-import java.util.Observable;
+import com.microsoft.alm.plugin.idea.common.ui.common.Observable;
 
 /**
  * Controller for the general settings page
