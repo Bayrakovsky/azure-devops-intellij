@@ -28,6 +28,9 @@ jobs:
       - name: Run unit tests
         run: ./gradlew :plugin:unitTest
 
+      - name: Run platform tests
+        run: ./gradlew :plugin:test
+
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4
         with:
