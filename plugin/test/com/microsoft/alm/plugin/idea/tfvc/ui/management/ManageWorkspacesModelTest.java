@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.vcsUtil.VcsRunnable;
 import com.intellij.vcsUtil.VcsUtil;
@@ -132,12 +133,11 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
     @Test
     public void testReloadWorkspacesWithProgress_Exception() throws Exception {
         final MockObserver observer = new MockObserver(manageWorkspacesModel);
-        vcsUtilStatic.when(
-                () -> VcsUtil.runVcsProcessWithProgress(
-                        any(VcsRunnable.class),
-                        eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_MSG, server.getName())),
-                        eq(true),
-                        eq(mockProject)))
+        when(mockProgressManager.runProcessWithProgressSynchronously(
+                any(ThrowableComputable.class),
+                eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_MSG, server.getName())),
+                eq(true),
+                eq(mockProject)))
                 .thenThrow(new VcsException(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_RELOAD_ERROR_MSG, server.getName())));
         manageWorkspacesModel.reloadWorkspacesWithProgress(server);
 
@@ -200,7 +200,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
         final MockObserver observer = new MockObserver(manageWorkspacesModel);
         when(Messages.showYesNoDialog(mockProject, TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_CONFIRM_MSG, workspace1.getName()),
                 TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_CONFIRM_TITLE), Messages.getWarningIcon())).thenReturn(Messages.YES);
-        when(VcsUtil.runVcsProcessWithProgress(any(VcsRunnable.class), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_MSG, workspace1.getName())), eq(true), eq(mockProject)))
+        when(mockProgressManager.runProcessWithProgressSynchronously(any(ThrowableComputable.class), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_MSG, workspace1.getName())), eq(true), eq(mockProject)))
                 .thenThrow(new VcsException(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_DELETE_ERROR_MSG, workspace1.getName())));
         manageWorkspacesModel.deleteWorkspaceWithProgress(workspace1);
 
@@ -240,7 +240,7 @@ public class ManageWorkspacesModelTest extends IdeaAbstractTest {
 
     @Test
     public void testEditWorkspaceWithProgress_Exception() throws Exception {
-        when(VcsUtil.runVcsProcessWithProgress(any(VcsRunnable.class), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_MSG, workspace1.getName())), eq(true), eq(mockProject)))
+        when(mockProgressManager.runProcessWithProgressSynchronously(any(ThrowableComputable.class), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_MSG, workspace1.getName())), eq(true), eq(mockProject)))
                 .thenThrow(new VcsException(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_MANAGE_WORKSPACES_EDIT_ERROR_MSG, workspace1.getName())));
         manageWorkspacesModel.editWorkspaceWithProgress(workspace1, mockRunnable);
 

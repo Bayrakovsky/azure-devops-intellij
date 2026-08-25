@@ -6,9 +6,8 @@ package com.microsoft.alm.plugin.idea.tfvc.ui.resolve;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.vcsUtil.VcsRunnable;
-import com.intellij.vcsUtil.VcsUtil;
 import com.microsoft.alm.plugin.external.commands.ResolveConflictsCommand;
 import com.microsoft.alm.plugin.external.models.Conflict;
 import com.microsoft.alm.plugin.idea.IdeaAbstractTest;
@@ -56,9 +55,6 @@ public class ResolveConflictsModelTest extends IdeaAbstractTest {
     @Mock
     private MockedStatic<ProgressManager> progressManagerStatic;
 
-    @Mock
-    private MockedStatic<VcsUtil> vcsUtilStatic;
-
     @Before
     public void setUp() {
         progressManagerStatic.when(ProgressManager::getInstance).thenReturn(mockProgressManager);
@@ -69,7 +65,7 @@ public class ResolveConflictsModelTest extends IdeaAbstractTest {
 
     @Test
     public void testLoadConflicts_Errors() throws Exception {
-        when(VcsUtil.runVcsProcessWithProgress(any(VcsRunnable.class), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_LOADING_PROGRESS_BAR)), eq(false), eq(mockProject))).thenThrow(new VcsException("Test Error"));
+        when(mockProgressManager.runProcessWithProgressSynchronously(any(ThrowableComputable.class), eq(TfPluginBundle.message(TfPluginBundle.KEY_TFVC_CONFLICT_LOADING_PROGRESS_BAR)), eq(false), eq(mockProject))).thenThrow(new VcsException("Test Error"));
         resolveConflictsModel.loadConflicts();
 
         assertEquals(1, resolveConflictsModel.getErrors().size());

@@ -13,7 +13,7 @@ import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.NullableFunction;
+import com.intellij.openapi.vcs.changes.CommitContext;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.external.utils.CommandUtils;
 import com.microsoft.alm.plugin.idea.MockedIdeaApplicationTest;
@@ -29,6 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ public class TFSCheckinEnvironmentTest extends MockedIdeaApplicationTest {
     ServerContext mockServerContext;
 
     @Mock
-    NullableFunction mockNullableFunction;
+    CommitContext mockCommitContext;
 
     @Mock
     private MockedStatic<CommandUtils> commandUtilsStatic;
@@ -99,7 +100,7 @@ public class TFSCheckinEnvironmentTest extends MockedIdeaApplicationTest {
                 comment, null)).thenReturn("12345");
 
         List<VcsException> exceptions =
-                tfsCheckinEnvironment.commit(changes, comment, mockNullableFunction, null);
+                tfsCheckinEnvironment.commit(changes, comment, mockCommitContext, new HashSet<>());
         assertTrue(exceptions.isEmpty());
     }
 
@@ -110,7 +111,7 @@ public class TFSCheckinEnvironmentTest extends MockedIdeaApplicationTest {
                 thenThrow(new RuntimeException("test exception"));
 
         List<VcsException> exceptions =
-                tfsCheckinEnvironment.commit(changes, comment, mockNullableFunction, null);
+                tfsCheckinEnvironment.commit(changes, comment, mockCommitContext, new HashSet<>());
         assertEquals(1, exceptions.size());
     }
 

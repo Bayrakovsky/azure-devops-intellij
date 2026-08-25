@@ -155,7 +155,6 @@ public class StatusBarManagerTest extends IdeaAbstractTest {
     public void testProjectOpenedEvent_RiderNotVsts() {
         when(applicationNamesInfo.getProductName()).thenReturn(IdeaHelper.RIDER_PRODUCT_NAME);
         vcsHelper.when(() -> VcsHelper.isVstsRepo(project)).thenReturn(false);
-        when(statusBar.getWidget(anyString())).thenReturn(null);
 
         StatusBarManager.setupStatusBar();
         Map<String, Object> map = EventContextHelper.createContext(EventContextHelper.SENDER_PROJECT_OPENED);

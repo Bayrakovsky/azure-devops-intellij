@@ -11,6 +11,7 @@ import com.microsoft.alm.plugin.idea.common.services.IdeaCertificateService;
 import com.microsoft.alm.plugin.idea.common.services.LocalizationServiceImpl;
 import com.microsoft.alm.plugin.idea.common.services.PropertyServiceImpl;
 import com.microsoft.alm.plugin.idea.common.services.ServerContextStoreImpl;
+import com.intellij.testFramework.TestApplicationManager;
 import com.microsoft.alm.plugin.services.PluginServiceProvider;
 import org.junit.BeforeClass;
 
@@ -21,6 +22,11 @@ public class IdeaAbstractTest extends AbstractTest {
 
     @BeforeClass
     public static void setup() {
+        // Boot a headless IntelliJ application so platform classes that Mockito instruments
+        // (e.g. VcsUtil -> FileSizeLimit, which reads the Registry) can initialize, and so
+        // Application.getService()/getAnyModalityState() calls do not NPE during these tests.
+        TestApplicationManager.getInstance();
+
         PluginServiceProvider.getInstance().forceInitialize(
                 new ServerContextStoreImpl(),
                 new CredentialsPromptImpl(),

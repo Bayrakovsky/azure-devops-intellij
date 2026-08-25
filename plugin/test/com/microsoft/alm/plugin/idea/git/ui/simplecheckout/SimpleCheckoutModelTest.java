@@ -7,6 +7,7 @@ import com.google.common.io.Files;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.CheckoutProvider;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.microsoft.alm.plugin.idea.IdeaAbstractTest;
 import com.microsoft.alm.plugin.idea.common.resources.TfPluginBundle;
 import com.microsoft.alm.plugin.idea.common.ui.common.ModelValidationInfo;
@@ -23,6 +24,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.io.IOException;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -124,6 +127,13 @@ public class SimpleCheckoutModelTest extends IdeaAbstractTest {
         when(propertyService.getProperty(PropertyService.PROP_REPO_ROOT)).thenReturn(repoRoot);
         when(PluginServiceProvider.getInstance()).thenReturn(pluginServiceProvider);
         when(pluginServiceProvider.getPropertyService()).thenReturn(propertyService);
+
+        // A real headless application is now booted for these tests, so validate() takes the
+        // in-IntelliJ branch that resolves the parent directory through LocalFileSystem. Stub it
+        // to a found file so an existing parent directory validates. lenient() because tests that
+        // return earlier (empty/missing parent) never reach this branch.
+        lenient().when(LocalFileSystem.getInstance()).thenReturn(localFileSystem);
+        lenient().when(localFileSystem.findFileByPath(anyString())).thenReturn(mock(VirtualFile.class));
 
         return new SimpleCheckoutModel(mockProject, mockListener, gitUrl, StringUtils.EMPTY);
     }

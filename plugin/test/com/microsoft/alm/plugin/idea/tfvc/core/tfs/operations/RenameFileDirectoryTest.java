@@ -6,8 +6,8 @@ package com.microsoft.alm.plugin.idea.tfvc.core.tfs.operations;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -79,7 +79,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
     private ServerContext mockServerContext;
 
     @Mock
-    private RefreshQueue mockRefreshQueue;
+    private LocalFileSystem mockLocalFileSystem;
 
     @Mock
     private PendingChange mockPendingChange;
@@ -88,7 +88,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
     private MockedStatic<CommandUtils> commandUtilsStatic;
 
     @Mock
-    private MockedStatic<RefreshQueue> refreshQueueStatic;
+    private MockedStatic<LocalFileSystem> localFileSystemStatic;
 
     @Mock
     private MockedStatic<RenameUtil> renameUtilStatic;
@@ -113,7 +113,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         tfvcClientStatic.when(TfvcClient::getInstance).thenReturn(new ClassicTfvcClient());
         tfsVcsStatic.when(() -> TFSVcs.getInstance(mockProject)).thenReturn(mockTFSVcs);
         //noinspection ResultOfMethodCallIgnored
-        refreshQueueStatic.when(RefreshQueue::getInstance).thenReturn(mockRefreshQueue);
+        localFileSystemStatic.when(LocalFileSystem::getInstance).thenReturn(mockLocalFileSystem);
     }
 
     @Test(expected = IncorrectOperationException.class)
@@ -131,7 +131,8 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         RenameFileDirectory.execute(mockPsiFile, NEW_FILE_NAME, usageInfos, mockListener);
 
                 commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
-        verify(mockRefreshQueue).refresh(anyBoolean(), anyBoolean(), any());
+        verify(mockVirtualFile).refresh(false, false);
+        verify(mockLocalFileSystem).refreshAndFindFileByPath(NEW_FILE_PATH);
         verify(mockListener).elementRenamed(mockPsiFile);
 
                 renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class)), never());
@@ -147,7 +148,8 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         RenameFileDirectory.execute(mockPsiFile, NEW_DIRECTORY_NAME, usageInfos, mockListener);
 
                 commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(dirName), eq(Path.combine("/path/to/the", "newDirectory"))), times(1));
-        verify(mockRefreshQueue).refresh(anyBoolean(), anyBoolean(), any());
+        verify(mockVirtualFile).refresh(false, false);
+        verify(mockLocalFileSystem).refreshAndFindFileByPath(Path.combine("/path/to/the", "newDirectory"));
         verify(mockListener).elementRenamed(mockPsiFile);
 
                 renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class)), never());
@@ -163,7 +165,8 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         RenameFileDirectory.execute(mockPsiFile, NEW_FILE_NAME, usageInfos, mockListener);
 
                 commandUtilsStatic.verify(() -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)), times(1));
-        verify(mockRefreshQueue).refresh(anyBoolean(), anyBoolean(), any());
+        verify(mockVirtualFile).refresh(false, false);
+        verify(mockLocalFileSystem).refreshAndFindFileByPath(NEW_FILE_PATH);
         verify(mockListener).elementRenamed(mockPsiFile);
 
                 renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(PsiElement.class), any(String.class), any(UsageInfo[].class), any(RefactoringElementListener.class)), never());
@@ -181,7 +184,8 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         commandUtilsStatic.verify(
                 () -> CommandUtils.renameFile(eq(mockServerContext), eq(CURRENT_FILE_PATH), eq(NEW_FILE_PATH)),
                 times(1));
-        verify(mockRefreshQueue, times(1)).refresh(anyBoolean(), anyBoolean(), any());
+        verify(mockVirtualFile, times(1)).refresh(false, false);
+        verify(mockLocalFileSystem, times(1)).refreshAndFindFileByPath(NEW_FILE_PATH);
         verify(mockListener).elementRenamed(mockPsiFile);
 
         renameUtilStatic.verify(() -> RenameUtil.doRenameGenericNamedElement(any(), any(), any(), any()), never());
@@ -200,6 +204,7 @@ public class RenameFileDirectoryTest extends IdeaAbstractTest {
         verify(mockListener).elementRenamed(mockPsiFile);
 
                 commandUtilsStatic.verify(() -> CommandUtils.renameFile(any(ServerContext.class), any(String.class), any(String.class)), never());
-        verify(mockRefreshQueue, never()).refresh(anyBoolean(), anyBoolean(), any());
+        verify(mockVirtualFile, never()).refresh(anyBoolean(), anyBoolean());
+        verify(mockLocalFileSystem, never()).refreshAndFindFileByPath(any());
     }
 }

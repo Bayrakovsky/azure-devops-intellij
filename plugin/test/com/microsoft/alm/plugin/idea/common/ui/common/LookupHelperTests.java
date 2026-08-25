@@ -5,6 +5,8 @@ package com.microsoft.alm.plugin.idea.common.ui.common;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.TestDialog;
+import com.intellij.openapi.ui.TestDialogManager;
 import com.microsoft.alm.plugin.authentication.AuthenticationInfo;
 import com.microsoft.alm.plugin.authentication.AuthenticationListener;
 import com.microsoft.alm.plugin.authentication.AuthenticationProvider;
@@ -13,6 +15,7 @@ import com.microsoft.alm.plugin.idea.IdeaAbstractTest;
 import com.microsoft.alm.plugin.operations.AccountLookupOperation;
 import com.microsoft.alm.plugin.operations.OperationFactory;
 import com.microsoft.alm.plugin.operations.ServerContextLookupOperation;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +58,16 @@ public class LookupHelperTests extends IdeaAbstractTest {
 
         accountLookupOperation = new MyAccountLookupOperation();
         operationFactoryStatic.when(OperationFactory::createAccountLookupOperation).thenReturn(accountLookupOperation);
+
+        // A real headless application is booted for these tests, so the "no application" guard in
+        // IdeaHelper.showErrorDialog no longer short-circuits and the profile-does-not-exist path
+        // reaches Messages.showErrorDialog. Answer that dialog headlessly instead of failing.
+        TestDialogManager.setTestDialog(TestDialog.OK);
+    }
+
+    @After
+    public void tearDownLocalTest() {
+        TestDialogManager.setTestDialog(TestDialog.DEFAULT);
     }
 
     @Test

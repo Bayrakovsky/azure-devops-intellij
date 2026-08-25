@@ -108,11 +108,29 @@ public class CheckinCommandTest extends AbstractCommandTest {
         }
     }
 
+    @Test
+    public void testParseOutput_noParsableStdoutError_surfacesStderr() {
+        // stdout carries only recognized lines (a workspace path header and "Checking in" lines),
+        // so the concrete failure lives only on stderr and is surfaced directly rather than as a
+        // generic "unknown error".
+        final CheckinCommand cmd = new CheckinCommand(null, files, "comment", null);
+        try {
+            cmd.parseOutput("/Users/user/workspaceHome:\n" +
+                    "Checking in edit: file1.txt\n" +
+                    "Checking in edit: file2.txt\n", "TF400324: connection error");
+            Assert.fail("Expected a RuntimeException surfacing the stderr message");
+        } catch (RuntimeException e) {
+            Assert.assertEquals("TF400324: connection error", e.getMessage());
+        }
+    }
+
     @Test (expected = TeamServicesException.class)
     public void testParseOutput_errorsUnknown() {
+        // Neither stdout (only recognized lines) nor stderr (blank) yields a concrete error, so the
+        // generic unknown-error exception is thrown.
         final CheckinCommand cmd = new CheckinCommand(null, files, "comment", null);
         cmd.parseOutput("/Users/user/workspaceHome:\n" +
                 "Checking in edit: file1.txt\n" +
-                "Checking in edit: file2.txt\n", "error");
+                "Checking in edit: file2.txt\n", " ");
     }
 }
