@@ -76,7 +76,7 @@ public class TeamServicesSettingsModel extends AbstractModel {
      */
     private void populateContextTable() {
         final List<ServerContext> serverContexts = new ArrayList<ServerContext>(ServerContextManager.getInstance().getAllServerContexts());
-        final Hashtable contextTable = new Hashtable<String, ServerContext>(serverContexts.size());
+        final Hashtable<String, ServerContext> contextTable = new Hashtable<>(serverContexts.size());
         for (final ServerContext context : serverContexts) {
             final String repoName;
             final String accountUrl;

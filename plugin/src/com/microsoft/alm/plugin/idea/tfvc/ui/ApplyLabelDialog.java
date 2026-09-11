@@ -46,6 +46,7 @@ public class ApplyLabelDialog extends BaseDialogImpl {
         return form.getPreferredFocusedComponent();
     }
 
+    @SuppressWarnings("unchecked") // PROP_ITEMS is only ever populated with a List<ItemInfo>
     @Nullable
     protected JComponent createCenterPanel() {
         form = new ApplyLabelForm(this.getProject(), (List<ItemInfo>) getProperty(PROP_ITEMS));

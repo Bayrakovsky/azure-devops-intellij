@@ -150,6 +150,9 @@ public class CustomTreeTable<T> extends TreeTable {
         return new ListTreeTableModelOnColumns(root, columnsInfos.toArray(new ColumnInfo[columnsInfos.size()]));
     }
 
+    // Tree nodes always hold T user objects (they are created from ContentProvider<T> children below), so the
+    // getUserObject() -> T casts in this class are safe; the compiler just cannot prove it through Object.
+    @SuppressWarnings("unchecked")
     private static <T> void addChildren(final DefaultMutableTreeNode parentNode, final ContentProvider<T> contentProvider) {
         //noinspection unchecked
         final Collection<? extends T> children = contentProvider.getChildren((T) parentNode.getUserObject());
@@ -190,6 +193,7 @@ public class CustomTreeTable<T> extends TreeTable {
     }
 
 
+    @SuppressWarnings("unchecked") // getUserObject() -> T is safe here (see addChildren)
     public Collection<T> getSelectedItems() {
         final int[] selectedRows = getSelectedRows();
         final Collection<T> result = new ArrayList<T>(selectedRows.length);
@@ -237,6 +241,7 @@ public class CustomTreeTable<T> extends TreeTable {
 
     private class TreeColumnRenderer extends DefaultTreeCellRenderer {
 
+        @SuppressWarnings("unchecked") // getUserObject() -> T is safe here (see addChildren)
         public Component getTreeCellRendererComponent(final JTree tree,
                                                       final Object value,
                                                       final boolean sel,
@@ -260,6 +265,7 @@ public class CustomTreeTable<T> extends TreeTable {
 
     private class TableColumnRenderer extends DefaultTableCellRenderer {
 
+        @SuppressWarnings("unchecked") // getUserObject() -> T is safe here (see addChildren)
         public Component getTableCellRendererComponent(final JTable table,
                                                        final Object value,
                                                        final boolean isSelected,

@@ -105,6 +105,9 @@ public class CreatePullRequestForm implements BasicForm {
         this.targetBranchDropdown.addActionListener(listener);
     }
 
+    // targetBranchDropdown is a raw JComboBox generated from CreatePullRequestForm.form, so setModel/setRenderer
+    // on it are unavoidable unchecked calls; changing the field type would fight the GUI designer.
+    @SuppressWarnings("unchecked")
     public void setTargetBranchDropdownModel(ComboBoxModel model) {
         if (model != null) {
             this.targetBranchDropdown.setModel(model);
@@ -219,6 +222,7 @@ public class CreatePullRequestForm implements BasicForm {
         return changesBrowser;
     }
 
+    @SuppressWarnings("unchecked") // setRenderer on the raw GUI-designer JComboBox (see setTargetBranchDropdownModel)
     private void createUIComponents() {
         this.targetBranchDropdown = new JComboBox();
         this.targetBranchDropdown.setRenderer(new DefaultListCellRenderer() {

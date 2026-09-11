@@ -22,7 +22,8 @@ public class SyncResults {
      * Constructor for when all files are up-to-date
      */
     public SyncResults() {
-        this(false, Collections.EMPTY_LIST, Collections.EMPTY_LIST, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        this(false, Collections.<String>emptyList(), Collections.<String>emptyList(),
+                Collections.<String>emptyList(), Collections.<SyncException>emptyList());
     }
 
     public SyncResults(final boolean conflictsExist, final List<String> updatedFiles, final List<String> newFiles,

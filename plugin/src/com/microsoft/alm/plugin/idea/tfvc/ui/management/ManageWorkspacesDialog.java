@@ -65,6 +65,7 @@ public class ManageWorkspacesDialog extends BaseDialogImpl {
 
 
     @Nullable
+    @SuppressWarnings("unchecked") // PROP_CONTEXT_PROVIDER is only ever populated with a ContentProvider<Object>
     protected JComponent createCenterPanel() {
         if (manageWorkspacesForm == null) {
             manageWorkspacesForm = new ManageWorkspacesForm((ContentProvider<Object>) getProperty(PROP_CONTEXT_PROVIDER));

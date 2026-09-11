@@ -118,6 +118,9 @@ public abstract class TabControllerImpl<T extends TabModel> implements TabContro
         return tab.getPanel();
     }
 
+    // The 'tab' field is a raw Tab because TabControllerImpl's own bound is the raw TabModel; setViewModel
+    // therefore takes a raw argument and the call cannot be checked without re-parameterizing the whole hierarchy.
+    @SuppressWarnings("unchecked")
     @Override
     public void update(final Observable observable, final Object arg) {
         if (arg == null || TabModel.PROP_TAB_STATUS.equals(arg)) {

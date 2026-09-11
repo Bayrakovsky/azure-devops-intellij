@@ -161,6 +161,9 @@ public class MergeBranchForm {
     private final FocusListener mySourceFieldFocusListener;
     private final MergeBranchDialog.BranchListProvider branchListProvider;
 
+    // targetCombo/changesTypeCombo are raw JComboBoxes generated from MergeBranchForm.form, so setModel and the
+    // DefaultComboBoxModel calls on them are unavoidable unchecked calls; changing the field type fights the designer.
+    @SuppressWarnings("unchecked")
     public MergeBranchForm(final Project project,
                            final ServerContext serverContext,
                            String initialSourcePath,
@@ -354,6 +357,7 @@ public class MergeBranchForm {
         return true;
     }
 
+    @SuppressWarnings("unchecked") // addElement on the raw DefaultComboBoxModel of the GUI-designer targetCombo
     private void updateOnSourceChange() {
         try {
             //TODO we should provide progress and cancelability here

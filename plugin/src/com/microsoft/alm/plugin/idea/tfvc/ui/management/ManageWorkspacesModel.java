@@ -252,7 +252,7 @@ public class ManageWorkspacesModel extends AbstractModel {
     /**
      * The tree content provider that populates the tree's servers and workspaces
      */
-    protected class ServerWorkspaceContentProvider implements ContentProvider {
+    protected class ServerWorkspaceContentProvider implements ContentProvider<Object> {
         public Collection<?> getRoots() {
             // pass no context so that all servers saved in the cache are found
             final List<Server> servers = new ArrayList<Server>(CommandUtils.getAllWorkspaces(null));

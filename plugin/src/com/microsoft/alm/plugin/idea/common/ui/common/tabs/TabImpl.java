@@ -49,6 +49,8 @@ public class TabImpl<T extends FilteredModel> implements Tab<T> {
         return form.getAutoRefresh();
     }
 
+    // 'form' is a raw TabForm (see the constructor), so setModelForView is an unchecked call here.
+    @SuppressWarnings("unchecked")
     public void setViewModel(final T modelView) {
         form.setModelForView(modelView);
     }

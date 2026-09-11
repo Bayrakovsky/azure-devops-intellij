@@ -87,6 +87,9 @@ public class WorkspaceMappingsTableEditor extends ValidatingTableEditor<Workspac
         public String localPath;
     }
 
+    // createColumns() returns a raw ColumnInfo[]: a ColumnInfo<Row, ?>[] cannot be created directly
+    // (generic array creation), so the setModel call is an unavoidable unchecked invocation.
+    @SuppressWarnings("unchecked")
     public WorkspaceMappingsTableEditor(final Project project, final ServerContext serverContext,
                                         final String defaultLocalPath, final ValidationDispatcher validationDispatcher) {
         this.defaultLocalPath = defaultLocalPath;
@@ -106,6 +109,8 @@ public class WorkspaceMappingsTableEditor extends ValidatingTableEditor<Workspac
                 new LocalPathColumn(project)};
     }
 
+    // See the note on the constructor: setModel with a raw ColumnInfo[] is an unavoidable unchecked invocation.
+    @SuppressWarnings("unchecked")
     public void setMappings(final List<Workspace.Mapping> mappings) {
         if (mappings != null) {
             final List<Row> rows = new ArrayList<Row>(mappings.size());
@@ -223,16 +228,16 @@ public class WorkspaceMappingsTableEditor extends ValidatingTableEditor<Workspac
         @Override
         public TableCellEditor getEditor(final Row item) {
             return new AbstractTableCellEditor() {
-                private ComboBox myCombo;
+                private ComboBox<MappingType> myCombo;
 
                 public Object getCellEditorValue() {
                     return myCombo.getSelectedItem();
                 }
 
                 public Component getTableCellEditorComponent(final JTable table, final Object value, final boolean isSelected, final int row, final int column) {
-                    final ComboBoxModel model = new EnumComboBoxModel<MappingType>(MappingType.class);
+                    final ComboBoxModel<MappingType> model = new EnumComboBoxModel<>(MappingType.class);
                     model.setSelectedItem(value);
-                    myCombo = new ComboBox(model, getWidth(table));
+                    myCombo = new ComboBox<>(model, getWidth(table));
                     return myCombo;
                 }
             };

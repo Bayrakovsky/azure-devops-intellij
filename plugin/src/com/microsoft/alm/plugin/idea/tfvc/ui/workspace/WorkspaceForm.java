@@ -228,11 +228,17 @@ public class WorkspaceForm {
         return tableEditor.getFirstValidationError();
     }
 
+    // The 'location' combo is bound to WorkspaceForm.form and generated as a raw ComboBox by the GUI designer;
+    // it holds mixed item types (a Workspace.Location here, a loading String in setLoading), so the field stays
+    // raw and these addItem calls are unavoidable unchecked invocations.
+    @SuppressWarnings("unchecked")
     public void setLocation(final Workspace.Location locationOption) {
         this.location.removeAllItems(); // clear previous item since we only have one item in there with it disabled
         this.location.addItem(locationOption);
     }
 
+    // See setLocation: the raw GUI-designer combo makes location.addItem an unavoidable unchecked invocation.
+    @SuppressWarnings("unchecked")
     public void setLoading(final boolean loading) {
         if (loading) {
             // TODO Localize or come up with a nicer way to show loading (see JLayer in 1.7)

@@ -55,6 +55,7 @@ public class LockItemsDialog extends BaseDialogImpl {
         updateControls();
     }
 
+    @SuppressWarnings("unchecked") // PROP_ITEMS is only ever populated with a List<ExtendedItemInfo>
     @Nullable
     protected JComponent createCenterPanel() {
         form = new LockItemsForm((List<ExtendedItemInfo>) getProperty(PROP_ITEMS));

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 _Changes that will land in the next release will be listed here._
 
+## [2.0.8] — 2026-09-11
+
+Maintenance release, no user-facing changes: the plugin behaves exactly as in 2.0.7. This release
+restores the automated test safety net and clears the remaining compiler warnings.
+
+### Changed
+
+- Finished the PowerMock → Mockito 5 migration and restored the full legacy platform test suite
+  (960 tests, `./gradlew :plugin:test`), which is now wired into CI to run on every push/PR and before
+  each release alongside `:plugin:unitTest`. The `test` task loads Mockito's inline mock maker as a
+  `-javaagent` so mocking works on the JetBrains Runtime (Java 25).
+- Resolved every `[unchecked]` compiler warning across the plugin sources through generics
+  parameterization and scoped `@SuppressWarnings`, with no change in runtime behavior.
+
 ## [2.0.7] — 2026-08-11
 
 Maintenance release, no new features. Completes the bulk of the deprecated API cleanup started in
@@ -261,7 +275,8 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.7...HEAD
+[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.8...HEAD
+[2.0.8]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.8
 [2.0.7]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.7
 [2.0.6]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.6
 [2.0.5]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.5

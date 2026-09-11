@@ -46,6 +46,9 @@ public class CreateBranchForm implements BasicForm {
         return contentPanel;
     }
 
+    // remoteBranchComboBox is a raw JComboBox generated from CreateBranchForm.form, so setRenderer/setModel
+    // on it are unavoidable unchecked calls; changing the field type would fight the GUI designer.
+    @SuppressWarnings("unchecked")
     private void ensureInitialized() {
         if (!this.initialized) {
             // override the renderer so it doesn't show the object toString but instead shows the branch name
@@ -77,6 +80,7 @@ public class CreateBranchForm implements BasicForm {
         remoteBranchComboBox.addActionListener(listener);
     }
 
+    @SuppressWarnings("unchecked") // setModel on the raw GUI-designer JComboBox (see ensureInitialized)
     public void setRemoteBranchDropdownModel(final ComboBoxModel model) {
         if (model != null) {
             remoteBranchComboBox.setModel(model);
