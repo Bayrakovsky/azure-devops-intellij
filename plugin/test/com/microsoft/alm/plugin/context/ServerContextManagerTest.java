@@ -4,6 +4,7 @@
 package com.microsoft.alm.plugin.context;
 
 import com.microsoft.alm.core.webapi.CoreHttpClient;
+import com.microsoft.alm.core.webapi.model.TeamProject;
 import com.microsoft.alm.core.webapi.model.TeamProjectCollection;
 import com.microsoft.alm.core.webapi.model.TeamProjectCollectionReference;
 import com.microsoft.alm.core.webapi.model.TeamProjectReference;
@@ -27,14 +28,21 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Client;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -487,6 +495,86 @@ public class ServerContextManagerTest extends AbstractTest {
             Assert.assertNotEquals(authInfo, manager.get(serverURL2).getAuthenticationInfo());
             Assert.assertEquals(authInfo, manager.get(serverURL3).getAuthenticationInfo());
         }
+    }
+
+    @Test
+    public void getProjectFromServer_directLookup() {
+        final CoreHttpClient coreHttpClient = Mockito.mock(CoreHttpClient.class);
+        final TeamProject project = createProject("Proj001");
+        when(coreHttpClient.getProject("Proj001")).thenReturn(project);
+
+        final TeamProjectReference result = getProjectFromServer(coreHttpClient, "Proj001");
+
+        Assert.assertSame(project, result);
+        Mockito.verify(coreHttpClient, Mockito.never()).getProjects(any(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void getProjectFromServer_fallsBackToAllPagesOfProjectList() {
+        final CoreHttpClient coreHttpClient = Mockito.mock(CoreHttpClient.class);
+        when(coreHttpClient.getProject("Proj001")).thenThrow(new RuntimeException("not found"));
+        final List<TeamProjectReference> firstPage = new ArrayList<TeamProjectReference>();
+        for (int i = 0; i < 100; i++) {
+            firstPage.add(createProject("Other" + i));
+        }
+        final TeamProjectReference project = createProject("PROJ001");
+        when(coreHttpClient.getProjects(isNull(), eq(100), eq(0))).thenReturn(firstPage);
+        when(coreHttpClient.getProjects(isNull(), eq(100), eq(100))).thenReturn(Arrays.asList(createProject("Other100"), project));
+
+        final TeamProjectReference result = getProjectFromServer(coreHttpClient, "Proj001");
+
+        Assert.assertSame(project, result);
+    }
+
+    @Test
+    public void getProjectFromServer_notFound() {
+        final CoreHttpClient coreHttpClient = Mockito.mock(CoreHttpClient.class);
+        when(coreHttpClient.getProject("Proj001")).thenThrow(new RuntimeException("not found"));
+        when(coreHttpClient.getProjects(isNull(), eq(100), eq(0))).thenReturn(Collections.singletonList(createProject("Other")));
+
+        Assert.assertNull(getProjectFromServer(coreHttpClient, "Proj001"));
+        Mockito.verify(coreHttpClient, Mockito.times(1)).getProjects(any(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void getProjectFromServer_emptyName() {
+        final CoreHttpClient coreHttpClient = Mockito.mock(CoreHttpClient.class);
+
+        Assert.assertNull(getProjectFromServer(coreHttpClient, ""));
+        Mockito.verifyNoInteractions(coreHttpClient);
+    }
+
+    @Test
+    public void getProjectFromServer_rethrowsAuthorizationError() {
+        final CoreHttpClient coreHttpClient = Mockito.mock(CoreHttpClient.class);
+        final NotAuthorizedException error = new NotAuthorizedException("Unauthorized user");
+        when(coreHttpClient.getProject("Proj001")).thenThrow(error);
+
+        try {
+            getProjectFromServer(coreHttpClient, "Proj001");
+            Assert.fail("NotAuthorizedException expected");
+        } catch (NotAuthorizedException e) {
+            Assert.assertSame(error, e);
+        }
+        Mockito.verify(coreHttpClient, Mockito.never()).getProjects(any(), anyInt(), anyInt());
+    }
+
+    private static TeamProjectReference getProjectFromServer(final CoreHttpClient coreHttpClient, final String teamProjectName) {
+        final ServerContext context = Mockito.mock(ServerContext.class);
+        final ServerContextManager.Validator validator = new ServerContextManager.Validator(context) {
+            @Override
+            protected CoreHttpClient getCoreHttpClient(Client jaxrsClient, URI baseUrl) {
+                return coreHttpClient;
+            }
+        };
+        return validator.getProjectFromServer(context, URI.create("http://server:8080/tfs/collection"), teamProjectName);
+    }
+
+    private static TeamProject createProject(final String name) {
+        final TeamProject project = new TeamProject();
+        project.setId(UUID.randomUUID());
+        project.setName(name);
+        return project;
     }
 
     private class MyValidator extends ServerContextManager.Validator {

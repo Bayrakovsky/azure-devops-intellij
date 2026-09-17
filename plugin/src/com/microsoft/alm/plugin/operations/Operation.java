@@ -3,9 +3,11 @@
 
 package com.microsoft.alm.plugin.operations;
 
+import com.microsoft.alm.core.webapi.model.TeamProjectReference;
 import com.microsoft.alm.plugin.context.RepositoryContext;
 import com.microsoft.alm.plugin.context.ServerContext;
 import com.microsoft.alm.plugin.context.ServerContextManager;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ws.rs.NotAuthorizedException;
@@ -144,6 +146,22 @@ public abstract class Operation {
         for (final Listener listener : listeners) {
             listener.notifyLookupResults(results);
         }
+    }
+
+    /**
+     * Returns the id of the team project the server context points to. The server context may lack the team project
+     * when it could not be found on the server, so this fails with a readable message instead of an NPE.
+     */
+    protected static UUID getTeamProjectId(final ServerContext context, final RepositoryContext repositoryContext) {
+        final TeamProjectReference teamProject = context.getTeamProjectReference();
+        if (teamProject != null && teamProject.getId() != null) {
+            return teamProject.getId();
+        }
+
+        final String teamProjectName = repositoryContext.getTeamProjectName();
+        throw new IllegalStateException(StringUtils.isEmpty(teamProjectName)
+                ? String.format("Unable to determine the team project for %s", repositoryContext.getUrl())
+                : String.format("Team project '%s' was not found on %s", teamProjectName, repositoryContext.getUrl()));
     }
 
     /**

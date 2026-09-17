@@ -3,12 +3,15 @@
 
 package com.microsoft.alm.plugin.idea.tfvc.extensions;
 
+import com.microsoft.alm.plugin.external.commands.ToolEulaNotAcceptedException;
 import com.microsoft.alm.plugin.external.tools.TfTool;
 import com.microsoft.alm.plugin.idea.IdeaAbstractTest;
 import com.microsoft.alm.plugin.idea.tfvc.FileSystemTestUtil;
 import com.microsoft.alm.plugin.idea.tfvc.core.ClassicTfvcClient;
 import com.microsoft.alm.plugin.idea.tfvc.core.TFSVcs;
 import com.microsoft.alm.plugin.idea.tfvc.core.TfvcWorkspaceLocator;
+import com.microsoft.alm.plugin.idea.tfvc.ui.settings.EULADialog;
+import com.microsoft.alm.plugin.idea.tfvc.ui.settings.LicenseKind;
 import com.microsoft.tfs.model.connector.TfsDetailedWorkspaceInfo;
 import com.microsoft.tfs.model.connector.TfsLocalPath;
 import com.microsoft.tfs.model.connector.TfsServerPath;
@@ -24,9 +27,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.function.Supplier;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TfvcRootCheckerTests extends IdeaAbstractTest {
@@ -76,6 +81,14 @@ public class TfvcRootCheckerTests extends IdeaAbstractTest {
         return tfvcWorkspaceLocatorStatic;
     }
 
+    private static MockedStatic<TfvcWorkspaceLocator> mockPartialWorkspaceThrows(Path path, RuntimeException ex) {
+        var tfvcWorkspaceLocatorStatic = Mockito.mockStatic(TfvcWorkspaceLocator.class);
+        tfvcWorkspaceLocatorStatic.when(
+                () -> TfvcWorkspaceLocator.getPartialWorkspace(eq(null), eq(path), any(Boolean.class)))
+                .thenThrow(ex);
+        return tfvcWorkspaceLocatorStatic;
+    }
+
     private static TfsDetailedWorkspaceInfo createWorkspaceWithMapping(String localPath) {
         TfsWorkspaceMapping mapping = new TfsWorkspaceMapping(
                 new TfsLocalPath(localPath),
@@ -107,6 +120,42 @@ public class TfvcRootCheckerTests extends IdeaAbstractTest {
         try (var ignored1 = mockTfToolPath("tf.cmd");
              var ignored2 = mockPartialWorkspaceNotDetermined(path)) {
             Assert.assertFalse(checker.isRoot(path.toString()));
+        }
+    }
+
+    @Test
+    public void isRootTestWorkspaceLookupFails() throws Exception {
+        Path path = FileSystemTestUtil.createTempFileSystem("$tf/");
+        RuntimeException failure = new RuntimeException("TF205022: The following path contains more than the allowed 259 characters");
+        try (var ignored1 = mockTfToolPath("tf.cmd");
+             var tfvcWorkspaceLocatorStatic = mockPartialWorkspaceThrows(path, failure)) {
+            Assert.assertFalse(checker.isRoot(path.toString()));
+            Assert.assertFalse(checker.isRoot(path.toString()));
+
+            // The failure may be transient, so it must not be cached.
+            tfvcWorkspaceLocatorStatic.verify(
+                    () -> TfvcWorkspaceLocator.getPartialWorkspace(eq(null), eq(path), any(Boolean.class)),
+                    times(2));
+        }
+    }
+
+    @Test
+    public void isRootTestEulaNotAcceptedIsPassedToGuard() throws Exception {
+        Path path = FileSystemTestUtil.createTempFileSystem("$tf/");
+        var eulaNotAccepted = new ToolEulaNotAcceptedException(LicenseKind.TfsSdk, "EULA not accepted");
+        try (var ignored1 = mockTfToolPath("tf.cmd");
+             var ignored2 = mockPartialWorkspaceThrows(path, eulaNotAccepted);
+             var eulaDialogStatic = Mockito.mockStatic(EULADialog.class)) {
+            eulaDialogStatic.when(() -> EULADialog.executeWithGuard(any(), any())).thenAnswer(invocation -> {
+                Supplier<?> activity = invocation.getArgument(1);
+                Assert.assertSame(
+                        eulaNotAccepted,
+                        Assert.assertThrows(ToolEulaNotAcceptedException.class, activity::get));
+                return null;
+            });
+
+            Assert.assertFalse(checker.isRoot(path.toString()));
+            eulaDialogStatic.verify(() -> EULADialog.executeWithGuard(any(), any()));
         }
     }
 

@@ -4,7 +4,7 @@ Checklist before requesting review:
 - [ ] `./gradlew :plugin:unitTest` is green (add tests under plugin/test-unit for new testable logic)
 - [ ] New Java files start with the MIT license header (see CONTRIBUTING.md)
 - [ ] No tabs, no wildcard imports
-- [ ] CHANGELOG.md updated under [Unreleased] if the change is user-visible
+- [ ] If the change is user-visible: CHANGELOG.md updated in the upcoming version section (`## [X.Y.Z] — Unreleased`) and the matching <change-notes> entry in plugin/resources/META-INF/plugin.xml
 -->
 
 ## What changed

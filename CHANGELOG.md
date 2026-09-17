@@ -5,9 +5,34 @@ All notable changes to the Azure DevOps plugin fork are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.0.9] — Unreleased
 
-_Changes that will land in the next release will be listed here._
+Bug-fix release for TFVC: VCS root detection in projects with very deep directories, and the Work
+Items tab in collections with more than 100 team projects.
+
+### Fixed
+
+- Opening a project with very deep directories (for example a Chrome for Testing bundle under
+  `bin/Debug`) no longer floods the IDE with one "TF205022: The following path contains more than the
+  allowed 259 characters" error per directory. The TFS SDK rejects local paths longer than 259
+  characters on every OS, so such directories are now treated as not under TFVC. Any other failure of
+  the TFVC client during VCS root detection is logged as a warning instead of being reported as a
+  plugin error.
+- The Work Items tab of a TFVC project no longer fails with "Cannot invoke
+  TeamProjectReference.getId() … getTeamProjectReference() is null" when the collection has more than
+  100 team projects. The plugin looked up the team project only in the first page of the project list
+  the server returns by default, so a project beyond it was never found and both the work item list
+  and the query drop-down stayed empty. It now asks the server for the project by name and falls back
+  to going through every page of the list. The same missing project also broke "Compare with Latest
+  Repository Version" for such TFVC projects. If the project still cannot be found, the Work Items tab
+  reports which team project is missing instead of a NullPointerException.
+
+### Changed
+
+- The release workflow now checks the release notes before building: it fails if `CHANGELOG.md` has
+  no section for the tagged version or `plugin.xml` has no `<change-notes>` entry for it.
+  `CONTRIBUTING.md` describes the full release checklist (version in `gradle.properties`, CHANGELOG
+  section, Marketplace "What's New" entry, tag).
 
 ## [2.0.8] — 2026-09-11
 
@@ -275,7 +300,7 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[Unreleased]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.8...HEAD
+[2.0.9]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.8...HEAD
 [2.0.8]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.8
 [2.0.7]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.7
 [2.0.6]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.6

@@ -74,17 +74,26 @@ Before opening a PR, please check:
 - [ ] `./gradlew :plugin:buildPlugin` is green (this includes Checkstyle).
 - [ ] `./gradlew :plugin:unitTest` is green (add tests under `plugin/test-unit` for new testable logic).
 - [ ] New Java files carry the license header.
-- [ ] The change is described in `CHANGELOG.md` under `[Unreleased]` if user-visible.
+- [ ] If the change is user-visible, it is described in `CHANGELOG.md` in the section of the upcoming
+      version at the top (`## [X.Y.Z] — Unreleased`; add it if it does not exist yet) and in the
+      matching `<change-notes>` entry in `plugin/resources/META-INF/plugin.xml`.
 - [ ] For TFVC behavior changes: describe how you verified them against a real workspace
       (IDE + TEE CLC version).
 
 ## Release process (maintainer)
 
-1. Update `CHANGELOG.md`: move `[Unreleased]` content into a new version section.
-2. Push a tag `vX.Y.Z` — the [release workflow](.github/workflows/release.yml) builds the plugin
+1. Set `buildNumber` in `gradle.properties` to the new version (the default for local builds; the
+   release workflow overrides it from the tag).
+2. Update `CHANGELOG.md`: the upcoming version section (`## [X.Y.Z] — Unreleased`) holds all changes
+   of the release. Replace `Unreleased` with the release date (`## [X.Y.Z] — YYYY-MM-DD`) and point the
+   link reference at the bottom to the new tag.
+3. Add a `<li>X.Y.Z: …</li>` entry to `<change-notes>` in `plugin/resources/META-INF/plugin.xml`.
+   This is the "What's New" text shown on JetBrains Marketplace and in the IDE plugin manager, so
+   write it for users. The release workflow fails if the entry or the CHANGELOG section is missing.
+4. Push a tag `vX.Y.Z` — the [release workflow](.github/workflows/release.yml) builds the plugin
    with that version, runs the Plugin Verifier, and publishes a GitHub Release with the zip and
    SHA-256 checksums.
-3. The same workflow then signs the plugin and publishes it to
+5. The same workflow then signs the plugin and publishes it to
    [JetBrains Marketplace](https://plugins.jetbrains.com/) (`:plugin:publishPlugin`). This step
    requires the repository secrets `PUBLISH_TOKEN`, `CERTIFICATE_CHAIN`, `PRIVATE_KEY`, and
    `PRIVATE_KEY_PASSWORD`; if they are missing, it is skipped and only the GitHub Release is

@@ -97,7 +97,7 @@ public class WorkItemQueriesLookupOperation extends Operation {
         logger.info("WorkItemQueriesLookupOperation.doLookup()");
         try {
             final WorkItemTrackingHttpClient witHttpClient = context.getWitHttpClient();
-            final List<QueryHierarchyItem> rootDirectories = witHttpClient.getQueries(context.getTeamProjectReference().getId(), QueryExpand.WIQL, 1, false);
+            final List<QueryHierarchyItem> rootDirectories = witHttpClient.getQueries(getTeamProjectId(context, repositoryContext), QueryExpand.WIQL, 1, false);
 
             final List<QueryHierarchyItem> queries = new ArrayList<QueryHierarchyItem>();
             for (QueryHierarchyItem directory : rootDirectories) {

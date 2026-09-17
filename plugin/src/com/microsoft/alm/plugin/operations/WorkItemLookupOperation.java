@@ -126,7 +126,7 @@ public class WorkItemLookupOperation extends Operation {
         Wiql wiql = new Wiql();
         wiql.setQuery(witInputs.query);
         logger.debug("WorkItemLookupOperation.doLookup() wiql " + wiql.getQuery());
-        WorkItemQueryResult result = witHttpClient.queryByWiql(wiql, context.getTeamProjectReference().getId());
+        WorkItemQueryResult result = witHttpClient.queryByWiql(wiql, getTeamProjectId(context, repositoryContext));
 
         int count = 0;
         final List<WorkItemReference> itemRefs = result.getWorkItems();

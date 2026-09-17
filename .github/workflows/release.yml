@@ -35,6 +35,21 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
+      - name: Check release notes
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          missing=0
+          if ! grep -qF "<li>${VERSION}:" plugin/resources/META-INF/plugin.xml; then
+            echo "::error file=plugin/resources/META-INF/plugin.xml::No <change-notes> entry for ${VERSION}" >&2
+            missing=1
+          fi
+          if ! grep -qF "## [${VERSION}]" CHANGELOG.md; then
+            echo "::error file=CHANGELOG.md::No section for ${VERSION}" >&2
+            missing=1
+          fi
+          exit $missing
+
       - name: Build plugin
         run: ./gradlew :plugin:buildPlugin -PbuildNumber=${{ steps.version.outputs.version }}
 

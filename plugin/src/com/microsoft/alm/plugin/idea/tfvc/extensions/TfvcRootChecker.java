@@ -8,6 +8,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsKey;
 import com.intellij.openapi.vcs.VcsRootChecker;
+import com.microsoft.alm.plugin.external.commands.ToolEulaNotAcceptedException;
 import com.microsoft.alm.plugin.external.exceptions.ToolAuthenticationException;
 import com.microsoft.alm.plugin.external.tools.TfTool;
 import com.microsoft.alm.plugin.idea.tfvc.core.TFSVcs;
@@ -54,6 +55,10 @@ public class TfvcRootChecker extends VcsRootChecker {
                 || cachedStatus == TfvcRootCache.CachedStatus.IS_MAPPING_ROOT; // known as not a root otherwise
     }
 
+    /**
+     * Called by the platform for every directory it scans, so it must never throw: the platform reports each thrown
+     * exception as a plugin error. A TFVC client failure yields {@code false} and is only logged.
+     */
     @Override
     public boolean isRoot(@NotNull VirtualFile file) {
         return isRootPath(file.getPath());
@@ -83,6 +88,13 @@ public class TfvcRootChecker extends VcsRootChecker {
                 workspace = TfvcWorkspaceLocator.getPartialWorkspace(null, workspacePath, true);
             } catch (ToolAuthenticationException ex) {
                 ourLogger.warn(ex);
+            } catch (ToolEulaNotAcceptedException ex) {
+                throw ex; // handled by EULADialog.executeWithGuard
+            } catch (RuntimeException ex) {
+                // Not cached: the failure may be transient (e.g. the client isn't ready yet), so a real root must not
+                // stay hidden.
+                ourLogger.warn("Cannot determine TFVC workspace for path \"" + path + "\": " + ex.getMessage());
+                return false;
             }
 
             if (workspace == null) {

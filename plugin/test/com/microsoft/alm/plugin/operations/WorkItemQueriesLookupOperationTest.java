@@ -64,7 +64,9 @@ public class WorkItemQueriesLookupOperationTest extends AbstractTest {
 
         ServerContext authenticatedContext = Mockito.mock(ServerContext.class);
         when(authenticatedContext.getWitHttpClient()).thenReturn(witHttpClient);
-        when(authenticatedContext.getTeamProjectReference()).thenReturn(new TeamProjectReference());
+        TeamProjectReference teamProject = new TeamProjectReference();
+        teamProject.setId(UUID.randomUUID());
+        when(authenticatedContext.getTeamProjectReference()).thenReturn(teamProject);
 
         serverContextManager = Mockito.mock(ServerContextManager.class);
         when(serverContextManager.createContextFromGitRemoteUrl(anyString(), anyBoolean())).thenReturn(authenticatedContext);
@@ -175,6 +177,30 @@ public class WorkItemQueriesLookupOperationTest extends AbstractTest {
         Assert.assertTrue(data.startedCalled.get(1, TimeUnit.SECONDS));
         Assert.assertTrue(data.completedCalled.get(1, TimeUnit.SECONDS));
         Assert.assertEquals(NullPointerException.class, data.witResults.get(1, TimeUnit.SECONDS).getError().getClass());
+    }
+
+    @Test
+    public void testDoWork_teamProjectNotFound() throws InterruptedException, ExecutionException, TimeoutException {
+        TestData data = new TestData();
+        WorkItemTrackingHttpClient witHttpClient = Mockito.mock(WorkItemTrackingHttpClient.class);
+        ServerContext authenticatedContext = Mockito.mock(ServerContext.class);
+        when(authenticatedContext.getWitHttpClient()).thenReturn(witHttpClient);
+        when(authenticatedContext.getTeamProjectReference()).thenReturn(null);
+
+        serverContextManager = Mockito.mock(ServerContextManager.class);
+        when(serverContextManager.createContextFromTfvcServerUrl(any(), anyString(), anyBoolean())).thenReturn(authenticatedContext);
+        serverContextManagerStatic.when(ServerContextManager::getInstance).thenReturn(serverContextManager);
+
+        WorkItemQueriesLookupOperation operation = new WorkItemQueriesLookupOperation(RepositoryContext.createTfvcContext(
+                "/root/one", "workspace1", "Proj001", URI.create("http://server:8080/tfs/collection")));
+        data.setupListener(operation);
+        operation.doWork(new WorkItemQueriesLookupOperation.QueryInputs(WorkItemQueriesLookupOperation.QueryRootDirectories.MY_QUERIES));
+
+        Assert.assertTrue(data.completedCalled.get(1, TimeUnit.SECONDS));
+        Throwable error = data.witResults.get(1, TimeUnit.SECONDS).getError();
+        Assert.assertEquals(IllegalStateException.class, error.getClass());
+        Assert.assertEquals("Team project 'Proj001' was not found on http://server:8080/tfs/collection", error.getMessage());
+        Mockito.verifyNoInteractions(witHttpClient);
     }
 
     private class TestData {

@@ -6,6 +6,7 @@ package com.microsoft.alm.plugin.context;
 import com.microsoft.alm.common.utils.ArgumentHelper;
 import com.microsoft.alm.common.utils.UrlHelper;
 import com.microsoft.alm.core.webapi.CoreHttpClient;
+import com.microsoft.alm.core.webapi.model.TeamProject;
 import com.microsoft.alm.core.webapi.model.TeamProjectCollection;
 import com.microsoft.alm.core.webapi.model.TeamProjectCollectionReference;
 import com.microsoft.alm.core.webapi.model.TeamProjectReference;
@@ -687,6 +688,7 @@ public class ServerContextManager {
     protected static class Validator implements UrlHelper.ParseResultValidator {
         private final static String TFVC_BRANCHES_URL_PATH = "/_apis/tfvc/branches";
         private final static String REPO_INFO_URL_PATH = "/vsts/info";
+        private final static int PROJECTS_PAGE_SIZE = 100;
         private String serverUrl;
         private final ServerContext context;
         private GitRepository repository;
@@ -733,12 +735,43 @@ public class ServerContextManager {
         }
 
         protected TeamProjectReference getProjectFromServer(final ServerContext context, URI collectionURI, String teamProjectName) {
-            final CoreHttpClient client = new CoreHttpClient(context.getClient(), collectionURI);
-            for (TeamProjectReference ref : client.getProjects()) {
-                if (StringUtils.equalsIgnoreCase(ref.getName(), teamProjectName)) {
-                    return ref;
+            if (StringUtils.isEmpty(teamProjectName)) {
+                logger.warn("getProjectFromServer: no team project name given for collection {}", collectionURI);
+                return null;
+            }
+
+            final CoreHttpClient client = getCoreHttpClient(context.getClient(), collectionURI);
+
+            // The project endpoint accepts a name as well as an id and, unlike the project list, is not paged
+            try {
+                final TeamProject project = client.getProject(teamProjectName);
+                if (project != null) {
+                    return project;
+                }
+            } catch (Throwable t) {
+                if (AuthHelper.isNotAuthorizedError(t)) {
+                    throw t;
+                }
+                logger.warn("getProjectFromServer: direct lookup of team project '{}' failed, searching the project list", teamProjectName, t);
+            }
+
+            // The server returns only the first 100 projects unless asked for more, so walk through all the pages
+            for (int skip = 0; ; skip += PROJECTS_PAGE_SIZE) {
+                final List<TeamProjectReference> page = client.getProjects(null, PROJECTS_PAGE_SIZE, skip);
+                if (page == null) {
+                    break;
+                }
+                for (TeamProjectReference ref : page) {
+                    if (StringUtils.equalsIgnoreCase(ref.getName(), teamProjectName)) {
+                        return ref;
+                    }
+                }
+                if (page.size() < PROJECTS_PAGE_SIZE) {
+                    break;
                 }
             }
+
+            logger.warn("getProjectFromServer: team project '{}' was not found in collection {}", teamProjectName, collectionURI);
             return null;
         }
 

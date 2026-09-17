@@ -35,6 +35,7 @@ import java.util.concurrent.TimeoutException;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +69,7 @@ public class WorkItemLookupOperationTest extends AbstractTest {
 
         ServerContext authenticatedContext = Mockito.mock(ServerContext.class);
         when(authenticatedContext.getWitHttpClient()).thenReturn(witHttpClient);
-        when(authenticatedContext.getTeamProjectReference()).thenReturn(new TeamProjectReference());
+        when(authenticatedContext.getTeamProjectReference()).thenReturn(createTeamProject());
         lenient().when(authenticatedContext.getGitRepository()).thenReturn(new GitRepository());
 
         serverContextManager = Mockito.mock(ServerContextManager.class);
@@ -174,6 +175,46 @@ public class WorkItemLookupOperationTest extends AbstractTest {
     }
 
     @Test
+    public void testDoWork_teamProjectNotFound() throws InterruptedException, ExecutionException, TimeoutException {
+        WorkItemTrackingHttpClient witHttpClient = Mockito.mock(WorkItemTrackingHttpClient.class);
+        ServerContext authenticatedContext = Mockito.mock(ServerContext.class);
+        when(authenticatedContext.getWitHttpClient()).thenReturn(witHttpClient);
+        when(authenticatedContext.getTeamProjectReference()).thenReturn(null);
+
+        serverContextManager = Mockito.mock(ServerContextManager.class);
+        when(serverContextManager.createContextFromTfvcServerUrl(any(), anyString(), anyBoolean())).thenReturn(authenticatedContext);
+        serverContextManagerStatic.when(ServerContextManager::getInstance).thenReturn(serverContextManager);
+
+        WorkItemLookupOperation operation = new WorkItemLookupOperation(RepositoryContext.createTfvcContext(
+                "/root/one", "workspace1", "Proj001", URI.create("http://server:8080/tfs/collection")));
+        final SettableFuture<Boolean> completedCalled = SettableFuture.create();
+        final SettableFuture<WorkItemLookupOperation.WitResults> witResults = SettableFuture.create();
+        operation.addListener(new Operation.Listener() {
+            @Override
+            public void notifyLookupStarted() {
+            }
+
+            @Override
+            public void notifyLookupCompleted() {
+                completedCalled.set(true);
+            }
+
+            @Override
+            public void notifyLookupResults(Operation.Results results) {
+                if (results.hasError()) {
+                    witResults.set((WorkItemLookupOperation.WitResults) results);
+                }
+            }
+        });
+        operation.doWork(new WorkItemLookupOperation.WitInputs("query"));
+        assertTrue(completedCalled.get(1, TimeUnit.SECONDS));
+        Throwable error = witResults.get(1, TimeUnit.SECONDS).getError();
+        Assert.assertEquals(IllegalStateException.class, error.getClass());
+        Assert.assertEquals("Team project 'Proj001' was not found on http://server:8080/tfs/collection", error.getMessage());
+        Mockito.verifyNoInteractions(witHttpClient);
+    }
+
+    @Test
     public void testFieldList() {
         WorkItemLookupOperation.FieldList list = new WorkItemLookupOperation.FieldList();
         Assert.assertEquals("", list.toString());
@@ -197,4 +238,9 @@ public class WorkItemLookupOperationTest extends AbstractTest {
         Assert.assertEquals("1,2,3", list.toString());
     }
 
+    private static TeamProjectReference createTeamProject() {
+        TeamProjectReference teamProject = new TeamProjectReference();
+        teamProject.setId(UUID.randomUUID());
+        return teamProject;
+    }
 }

@@ -15,6 +15,7 @@ import com.microsoft.tfs.core.clients.versioncontrol.events.NewPendingChangeList
 import com.microsoft.tfs.core.clients.versioncontrol.events.NonFatalErrorListener
 import com.microsoft.tfs.core.clients.versioncontrol.events.PendingChangeEvent
 import com.microsoft.tfs.core.clients.versioncontrol.events.UndonePendingChangeListener
+import com.microsoft.tfs.core.clients.versioncontrol.exceptions.PathTooLongException
 import com.microsoft.tfs.core.clients.versioncontrol.exceptions.ServerPathFormatException
 import com.microsoft.tfs.core.clients.versioncontrol.path.LocalPath
 import com.microsoft.tfs.core.clients.versioncontrol.path.ServerPath
@@ -35,8 +36,16 @@ class TfsClient(lifetime: Lifetime, serverUri: URI, credentials: Credentials) {
         private val logger = Logging.getLogger<TfsClient>()
 
         private fun tryLoadWorkspaceInfo(path: TfsLocalPath): WorkspaceInfo? {
+            // The SDK rejects local paths longer than 259 characters on every OS, so such a path can never be mapped.
+            val canonicalPathString =
+                try {
+                    path.toCanonicalPathString()
+                } catch (e: PathTooLongException) {
+                    logger.info { "Path too long to be under a TFVC workspace: \"$path\"." }
+                    return null
+                }
+
             val workstation = Workstation.getCurrent(DefaultPersistenceStoreProvider.INSTANCE)
-            val canonicalPathString = path.toCanonicalPathString()
             if (!workstation.isMapped(canonicalPathString)) {
                 logger.info { "Path not mapped: \"$path\". Refreshing the cache." }
                 workstation.reloadCache()
