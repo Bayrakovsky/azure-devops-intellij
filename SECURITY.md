@@ -39,5 +39,5 @@ credentials/personal access tokens by the plugin, and this repository's GitHub A
 - The plugin stores credentials via the IDE's PasswordSafe / native keychain.
 - The plugin launches two local helper processes: the user-configured `tf` executable and the
   bundled backend JVM.
-- Release artifacts are plain zips published on GitHub Releases with SHA-256 checksums; the plugin
-  is not yet signed for JetBrains Marketplace.
+- Releases are published on GitHub Releases (the plugin zip plus SHA-256 checksums) and on JetBrains
+  Marketplace; the Marketplace build is signed by the release workflow.

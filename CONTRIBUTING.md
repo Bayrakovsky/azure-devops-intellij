@@ -41,7 +41,8 @@ modules over the JetBrains rd protocol).
 
 ## Code style
 
-Checkstyle runs as part of the build and **fails it on violations**:
+Checkstyle **fails on violations**. It is not part of `buildPlugin`; run it with
+`./gradlew :plugin:checkstyleMain` (CI does this on every push and pull request):
 
 - Every Java source file must start with the MIT license header:
   ```
@@ -55,24 +56,27 @@ Checkstyle runs as part of the build and **fails it on violations**:
 
 ## Tests
 
-Fast, IDE-independent unit tests live in the `plugin/test-unit` source set (plain JUnit 4) and run with:
+There are two test source sets. CI runs both on every push and pull request, and the release
+workflow runs them again before publishing:
 
 ```
-./gradlew :plugin:unitTest
+./gradlew :plugin:unitTest   # plugin/test-unit: fast, IDE-independent tests (plain JUnit 4)
+./gradlew :plugin:test       # plugin/test: platform tests (JUnit 4 + Mockito 5)
 ```
 
-Add tests here for new logic that can be exercised without the IntelliJ platform. This set is separate
-from the legacy `test` source set, which still uses PowerMock (incompatible with JDK 21) and is **not
-compiled or run** (neither locally nor in CI); migrating it to Mockito 5 + `mockito-inline` is a welcome
-contribution. Integration tests (`L2Tests`) additionally require a real Azure DevOps organization and
+Put tests for new logic that can be exercised without the IntelliJ platform into `plugin/test-unit`.
+Tests that need platform classes go into `plugin/test`; those that need the IDE application or the
+plugin's services extend `IdeaAbstractTest`, which boots a headless IntelliJ application.
+Integration tests (`L2Tests`) additionally require a real Azure DevOps organization and
 `MSVSTS_INTELLIJ_*` environment variables (see the upstream README history for the full list).
 
 ## Pull requests
 
 Before opening a PR, please check:
 
-- [ ] `./gradlew :plugin:buildPlugin` is green (this includes Checkstyle).
-- [ ] `./gradlew :plugin:unitTest` is green (add tests under `plugin/test-unit` for new testable logic).
+- [ ] `./gradlew :plugin:buildPlugin :plugin:checkstyleMain` is green (the same command CI runs).
+- [ ] `./gradlew :plugin:unitTest` and `./gradlew :plugin:test` are green (add tests for new
+      testable logic, see [Tests](#tests)).
 - [ ] New Java files carry the license header.
 - [ ] If the change is user-visible, it is described in `CHANGELOG.md` in the section of the upcoming
       version at the top (`## [X.Y.Z] — Unreleased`; add it if it does not exist yet) and in the

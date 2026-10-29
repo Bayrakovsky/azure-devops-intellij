@@ -5,7 +5,30 @@ All notable changes to the Azure DevOps plugin fork are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.0.9] — Unreleased
+## [2.0.10] — 2026-10-29
+
+Bug-fix release for TFVC: adding or deleting files in projects mapped to `<Project>` no longer
+reports a false IDE error.
+
+### Fixed
+
+- Adding or deleting files in a TFVC project whose VCS mapping is the project-default `<Project>`
+  entry (Settings → Version Control → Directory Mappings), for example saving or removing a run
+  configuration stored as a project file, no longer reports an IDE error
+  "Invalid empty file path: ''". The check for names TFVC cannot store (a `$` at the start of any
+  path component) read the empty directory of that mapping verbatim; it now uses the VCS roots the
+  IDE resolves for the mapping. As a side effect the check no longer looks at folders above the
+  project root for such projects.
+
+### Changed
+
+- Added tests for the TFVC invalid-path check (`TFVCUtilTest`).
+- `CONTRIBUTING.md` now matches the current setup: the platform test suite (`:plugin:test`) runs
+  locally and in CI, and Checkstyle runs as `:plugin:checkstyleMain` rather than as part of
+  `buildPlugin`. `SECURITY.md` no longer claims the plugin is unsigned: releases are signed and
+  published to JetBrains Marketplace by the release workflow.
+
+## [2.0.9] — 2026-09-17
 
 Bug-fix release for TFVC: VCS root detection in projects with very deep directories, and the Work
 Items tab in collections with more than 100 team projects.
@@ -300,7 +323,8 @@ with **TFVC in Rider** as the primary target.
 - **Deadlock when the TEE CLC EULA had not been accepted.** The EULA dialog was shown with
   `invokeAndWait` from a thread holding a read lock; it is now scheduled with `invokeLater`.
 
-[2.0.9]: https://github.com/Bayrakovsky/azure-devops-intellij/compare/v2.0.8...HEAD
+[2.0.10]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.10
+[2.0.9]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.9
 [2.0.8]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.8
 [2.0.7]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.7
 [2.0.6]: https://github.com/Bayrakovsky/azure-devops-intellij/releases/tag/v2.0.6

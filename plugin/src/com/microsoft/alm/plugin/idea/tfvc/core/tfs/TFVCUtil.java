@@ -43,10 +43,7 @@ public class TFVCUtil {
      * contexts.
      */
     public static Stream<FilePath> collectInvalidTFVCPaths(@NotNull TFSVcs vcs, @NotNull Stream<FilePath> paths) {
-        ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(vcs.getProject());
-        List<FilePath> mappings = vcsManager.getDirectoryMappings(vcs).stream()
-                .map(mapping -> new LocalFilePath(mapping.getDirectory(), true))
-                .collect(Collectors.toList());
+        List<FilePath> mappings = getVcsRootPaths(vcs);
         return paths.filter(path -> isInServiceDirectory(path)
             || mappings.stream().anyMatch(
                     mapping -> hasIllegalDollarInAnyComponent(mapping, path)));
@@ -62,10 +59,7 @@ public class TFVCUtil {
     public static boolean isInvalidTFVCPath(@NotNull TFSVcs vcs, @NotNull FilePath path) {
         if (isInServiceDirectory(path)) return true;
 
-        ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(vcs.getProject());
-
-        return vcsManager.getDirectoryMappings(vcs).stream()
-                .map(mapping -> new LocalFilePath(mapping.getDirectory(), true))
+        return getVcsRootPaths(vcs).stream()
                 .anyMatch(mapping -> hasIllegalDollarInAnyComponent(mapping, path));
     }
 
@@ -119,6 +113,17 @@ public class TFVCUtil {
         }
 
         return mappingPaths;
+    }
+
+    /**
+     * Returns the roots mapped to TFVC in the IDE. Unlike the raw directory mappings, the project-default
+     * ("&lt;Project&gt;") mapping, whose directory is an empty string, is resolved by the platform into the actual roots.
+     */
+    private static List<FilePath> getVcsRootPaths(@NotNull TFSVcs vcs) {
+        ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(vcs.getProject());
+        return vcsManager.getRootsUnderVcsWithoutFiltering(vcs).stream()
+                .map(root -> (FilePath) new LocalFilePath(root.getPath(), true))
+                .collect(Collectors.toList());
     }
 
     /**

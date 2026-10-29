@@ -58,6 +58,7 @@
     <change-notes><![CDATA[
       <br />
       <ul>
+        <li>2.0.10: Adding or deleting files in a TFVC project mapped to the project-default &lt;Project&gt; entry (Settings → Version Control → Directory Mappings), for example saving or removing a run configuration stored as a project file, no longer reports an IDE error "Invalid empty file path: ''". The check for names TFVC cannot store (a $ at the start of any path component) now uses the VCS roots the IDE resolves for that mapping instead of its empty directory, so it also no longer looks at folders above the project root.</li>
         <li>2.0.9:
           <ul>
             <li>Opening a project with very deep directories (for example a Chrome for Testing bundle under bin/Debug) no longer floods the IDE with one "TF205022: The following path contains more than the allowed 259 characters" error per directory. The TFS SDK rejects local paths longer than 259 characters on every OS, so such directories are now treated as not under TFVC. Any other TFVC client failure during VCS root detection is logged as a warning instead of being reported as a plugin error.</li>
